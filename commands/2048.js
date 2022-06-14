@@ -300,22 +300,17 @@ module.exports = class TwoK48 extends Game {
      * Get the id of each emoji.
      */
     async getIDs() {
-        let manager = Phoenix.bot.emojis;
+        let emojis = await this.channel.guild.emojis.fetch();
         for (let name of this.names) {
-            let emoji = manager.resolve(name);
-            if (emoji == null)
-                continue
+            let emoji = emojis.find(em => em.name === name)
+            if (emoji === undefined)
+            {
+                console.error('Emojis not found');
+                return;
+            }
             let fullId = '<:' + emoji.name + ':' + emoji.id + '>';
             this.ids.push(fullId);
         }
-        let emojis = await this.channel.guild.emojis.fetch();
-        emojis.forEach(emoji => {
-            if (this.names.includes(emoji.name))
-            {
-                let fullId = '<:' + emoji.name + ':' + emoji.id + '>';
-                this.ids.push(fullId);
-            }
-        })
         return true;
     }
 }
