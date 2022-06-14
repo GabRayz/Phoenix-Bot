@@ -299,16 +299,22 @@ module.exports = class TwoK48 extends Game {
     /**
      * Get the id of each emoji.
      */
-    getIDs() {
+    async getIDs() {
         let manager = Phoenix.bot.emojis;
-        this.names.forEach(name => {
-            let emoji = manager.find(emoji => emoji.name == name);
-            if (emoji == null) {
-                this.channel.send('Les emojis 2048 ne sont pas installés ! :c');
-                return false;
-            }
+        for (let name of this.names) {
+            let emoji = manager.resolve(name);
+            if (emoji == null)
+                continue
             let fullId = '<:' + emoji.name + ':' + emoji.id + '>';
             this.ids.push(fullId);
+        }
+        let emojis = await this.channel.guild.emojis.fetch();
+        emojis.forEach(emoji => {
+            if (this.names.includes(emoji.name))
+            {
+                let fullId = '<:' + emoji.name + ':' + emoji.id + '>';
+                this.ids.push(fullId);
+            }
         })
         return true;
     }

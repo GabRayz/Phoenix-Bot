@@ -1,6 +1,6 @@
 let Command = require('../src/Command');
 const fs = require('fs');
-let { RichEmbed } = require('discord.js');
+let { MessageEmbed } = require('discord.js');
 
 module.exports = class Config extends Command {
     constructor(author) {
@@ -113,7 +113,7 @@ module.exports = class Config extends Command {
 
     static display(message, Phoenix) {
         // Embed message to display the configuration file
-        let embed = new RichEmbed();
+        let embed = new MessageEmbed();
         embed.setTitle('Configuration')
             .setColor('ORANGE')
             .setThumbnail(Phoenix.bot.user.avatarURL)
@@ -125,14 +125,14 @@ module.exports = class Config extends Command {
             .addField('Adresse de téléchargement des vidéos - downloadAdress', Phoenix.config.downloadAdress)
             .addField('Port de téléchargement des vidéos - downloadPort', Phoenix.config.downloadPort)
 
-        message.channel.send(embed).catch(err => {
+        message.channel.send({embeds: [embed]}).catch(err => {
             if (err.message == 'Missing Permissions')
                 message.channel.send('Erreur, mes permissions sont insuffisantes :(');
             else
                 console.error(err);
         })
         // Display the permissions
-        let perms = new RichEmbed();
+        let perms = new MessageEmbed();
         perms.setTitle('Permissions')
             .setColor('ORANGE')
             .setThumbnail(Phoenix.bot.user.avatarURL);
@@ -165,7 +165,7 @@ module.exports = class Config extends Command {
                 console.error(err);
         })
 
-        let notice = new RichEmbed();
+        let notice = new MessageEmbed();
         let description = 'Modifier une configuration: ' + Phoenix.config.prefix + 'config {attribut} {valeur}\n';
             description += 'Modifier une permission: ' + Phoenix.config.prefix;
             description += 'config perm {nom de la commande} {roles|channels|members} {whitelist|blacklist} {add|remove} {nom du role|nom de la catégorie/nom du salon|tag du membre(exemple#0001)}';

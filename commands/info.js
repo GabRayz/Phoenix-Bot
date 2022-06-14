@@ -1,5 +1,5 @@
 let Command = require('../src/Command');
-const {RichEmbed} = require('discord.js');
+const {MessageEmbed} = require('discord.js');
 let Play = require('./play');
 
 module.exports = class Info extends Command {
@@ -21,22 +21,21 @@ module.exports = class Info extends Command {
             if (Play.videoInfos.player_response) {
                 Play.videoInfos.formats = null;
                 let infos = Play.videoInfos.player_response;
-                let embed = new RichEmbed();
+                let embed = new MessageEmbed();
                 embed.setTitle(infos.videoDetails.title)
                     .setDescription(infos.videoDetails.shortDescription.slice(0, 200))
                     .addField('Durée', this.timeFormat(infos.videoDetails.lengthSeconds))
                     .setAuthor(infos.videoDetails.author)
                     .setURL(Play.videoUrl)
-                    .set
-                await message.channel.send(embed);
+                await message.channel.send({embeds: [embed]});
             }
             message.channel.send(Play.videoUrl);
         }else {
-            let embed = new RichEmbed();
+            let embed = new MessageEmbed();
             embed.setDescription('Aucune musique n\'est jouée pour l\'instant')
                 .setColor('RED');
             
-            message.channel.send(embed).catch(err => {
+            message.channel.send({embeds: [embed]}).catch(err => {
                 if (err.message == 'Missing Permissions') {
                     message.channel.send('Aucune musique n\'est jouée pour l\'instant');
                 }else {

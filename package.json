@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/GabRayz/Phoenix-bot2#readme",
   "dependencies": {
-    "discord.js": "^11.6.4",
+    "discord.js": "13.8.0",
     "express": "^4.17.1",
     "ffmpeg": "0.0.4",
     "fluent-ffmpeg": "^2.1.2",
@@ -30,7 +30,6 @@
     "node.js": "0.0.0",
     "opusscript": "0.0.7",
     "parse-time": "^0.1.4",
-    "prism-media": "github:hydrabolt/prism-media",
     "qs": "^6.9.1",
     "querystring": "^0.2.0",
     "request": "^2.88.0",

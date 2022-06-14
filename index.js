@@ -6,9 +6,10 @@ var OAuth2 = google.auth.OAuth2;
 const request = require('request');
 require('./src/http');
 const fs = require('fs');
+const PhoenixGuild = require('./src/Guild.js');
 
 // Create bot client
-const bot = new Discord.Client();
+const bot = new Discord.Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] });
 
 /**
  * Phoenix is exported to share the Client object and the configuration
@@ -20,7 +21,7 @@ let Phoenix = {
      * If it is 0, then the bot is idle and can be updated without bothering users.
      */
     activities: 0,
-    botChannel: null
+    guilds: [],
 }
 
 // Import config
@@ -36,14 +37,14 @@ module.exports = Phoenix;
 // Import commands
 const Command = require('./commands/command');
 
-bot.on('ready', () => {
+bot.on('ready', async () => {
     console.log('Phoenix bot ready to operate');
-    bot.user.setActivity(Phoenix.config.activity).catch((e) => console.error(e))
+    bot.user.setActivity(Phoenix.config.activity)
     bot.user.setUsername(Phoenix.config.name)
 
     // Find the default guild and test Channel
-    Phoenix.guild = bot.guilds.find(guild => guild.id == Phoenix.config.defaultGuild);
-    Phoenix.botChannel = Phoenix.guild.channels.find(chan => chan.id == Phoenix.config.testChannel);
+    Phoenix.guild = await bot.guilds.fetch(Phoenix.config.defaultGuild);
+    bot.guilds.cache.forEach(guild => Phoenix.guilds.push(new PhoenixGuild(guild)));
 
     if (Phoenix.config.connectionAlert == 'true') {
         Phoenix.botChannel.send("Phoenix connecté");
@@ -82,17 +83,18 @@ function checkPrefix(message) {
     return message.match('^' + regex) != null;
 }
 
-function ReadCommand(message, command) {
-    if(Phoenix.config.everyoneBlackListed && GetGuildMember(message.author).roles.length == 0) {
+async function ReadCommand(message, command) {
+    let member = await GetGuildMember(message.author);
+    if(Phoenix.config.everyoneBlackListed && member.roles.length == 0) {
         return;
     }
 
     Object.keys(Command).forEach(element => {
         if (Command[element].match(command)) {
-            if (!searchPermissions(Command[element], message)) {
-                PermissionDenied(message);
-                return;
-            }
+            // if (!searchPermissions(Command[element], message)) {
+            //     PermissionDenied(message);
+            //     return;
+            // }
             if (!message.guild && (typeof Command[element].callableFromMP == 'undefined' || !Command[element].callableFromMP))
                 return
             Command[element].call(message, Phoenix);
@@ -113,8 +115,9 @@ function searchPermissions(command, message) {
     return checkPermissions(perm, message);
 }
 
-function checkPermissions(perm, message) {
-    let role = GetGuildMember(message.author).highestRole;
+async function checkPermissions(perm, message) {
+    let member = await GetGuildMember(message.author);
+    let role = member.highestRole;
     // check blacklists
     if(perm.roles.blacklist.length > 0 && perm.roles.blacklist.includes(role.name)) {
         return false;
@@ -147,7 +150,10 @@ function PermissionDenied(msg) {
 }
 
 function GetGuildMember(user) {
-    return Phoenix.guild.members.find(member => member.id == user.id);
+    return new Promise(async (resolve, reject) => {
+        let member = await Phoenix.guild.members.fetch(user.id);
+        resolve(member);
+    })
 }
 
 function checkIfUpdated()
@@ -157,14 +163,14 @@ function checkIfUpdated()
             fs.unlink('temoin', () => {
                 Command.Update.readVersion().then(version => {
                     if (Phoenix.config.updateAlert == "true") {
-                        let embed = new Discord.RichEmbed();
+                        let embed = new Discord.MessageEmbed();
                         embed.setTitle('Phoenix a été mis à jour.')
                         .setDescription('v' + version)
                         .setColor('ORANGE')
                         .setThumbnail(Phoenix.bot.user.avatarURL)
-                        .setFooter('Codé par GabRay');
+                        .setFooter({text: 'Codé par GabRay'});
                         
-                        Phoenix.botChannel.send(embed).catch(err => {
+                        Phoenix.botChannel.send({embeds: [embed]}).catch(err => {
                             if (err.message == 'Missing Permissions') {
                                 Phoenix.botChannel.send('Erreur, mes permissions sont insuffisantes :(');
                             }else if (err)

@@ -3,7 +3,7 @@ let fs = require('fs');
 let games = {
     TwoK48: require('./2048.js')
 }
-let {RichEmbed} = require('discord.js');
+let {MessageEmbed} = require('discord.js');
 
 module.exports = class Games extends Command {
     constructor(author) {
@@ -52,11 +52,11 @@ module.exports = class Games extends Command {
                 description += '#' + (i + 1) + ' ' + player.tag + ' : ' + player.score + '\n';
             }
         })
-        let embed = new RichEmbed();
+        let embed = new MessageEmbed();
         embed.setTitle('Scoreboard')
             .setDescription(description)
             .setColor('ORANGE');
-        channel.send(embed);
+        channel.send({embeds: [embed]});
     }
 
     static startGame(name, message) {

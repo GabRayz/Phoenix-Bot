@@ -1,7 +1,7 @@
 let Command = require('../src/Command');
 let commands = require('./command');
 let Play = require('./play');
-const {RichEmbed} = require('discord.js');
+const Discord = require('discord.js');
 
 module.exports = class Help extends Command {
     constructor(author) {
@@ -16,11 +16,11 @@ module.exports = class Help extends Command {
     static description = "Affiche la liste des commandes";
 
     static call(msg, Phoenix) {
-        let embed = new RichEmbed();
-        embed.setTitle("Listes des commandes: ")
+        let embed = new Discord.MessageEmbed();
+        embed = embed.setTitle("Listes des commandes: ")
             .setColor('ORANGE')
             .setThumbnail(Phoenix.bot.user.avatarURL)
-            .setFooter('Codé par GabRay', msg.author.avatarURL)
+            .setFooter({text: 'Codé par GabRay', iconURL: msg.author.avatarURL})
             .addField(Phoenix.config.prefix + 'help', 'Affiche la liste des commandes.')
             .addField(Phoenix.config.prefix + 'off', 'Redémarre le bot.')
             .addField(Phoenix.config.prefix + 'clear', 'Efface les messages de commande bot.')
@@ -39,8 +39,7 @@ module.exports = class Help extends Command {
             .addField(Phoenix.config.prefix + 'games', "Jouer à des jeux. (en développement)")
             .addField(Phoenix.config.prefix + 'radio', "Écouter France Info")
             .addField(Phoenix.config.prefix + 'timer {nombre} {s|m|h}', "Programmer un minuteur")
-            .addBlankField()
-        msg.channel.send(embed).catch(err => {
+        msg.channel.send({embeds : [embed]}).catch(err => {
             if (err.message == 'Missing Permissions') {
                 msg.channel.send('Erreur, mes permissions sont insuffisantes :(');
             }else
