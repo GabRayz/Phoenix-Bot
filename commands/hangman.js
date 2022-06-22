@@ -23,10 +23,10 @@ module.exports = class Hangman extends Command {
     static channel = null;
 
     static async call(message, Phoenix) {
-        if (message.args.length == 1 && message.args[0] == 'stop' && this.isPlaying) {
+        if (message.args.length === 1 && message.args[0] === 'stop' && this.isPlaying) {
             this.stop()
         }
-        else if (message.args.length == 1 && !this.isPlaying) {
+        else if (message.args.length === 1 && !this.isPlaying) {
             this.channel = message.channel;
             if (this.isWordValid(message.args[0].toUpperCase()))
                 this.start(message.args[0].toUpperCase());
@@ -50,8 +50,8 @@ module.exports = class Hangman extends Command {
     }
 
     static isWordValid(word) {
-        for (let i = 0; i < word.length; i++) {
-            if (!word[i] >= 'A' && word[i] <= 'Z')
+        for (const element of word) {
+            if (!element >= 'A' && element <= 'Z')
                 return false;
         }
         return true;
