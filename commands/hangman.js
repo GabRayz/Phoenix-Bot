@@ -1,5 +1,4 @@
 let Command = require('../src/Command');
-let Phoenix = require('../index');
 
 module.exports = class Hangman extends Command {
     constructor(author) {
@@ -16,20 +15,20 @@ module.exports = class Hangman extends Command {
 
     static isPlaying = false;
     static mainMsg;
-    static lifes = 5;
+    static lives = 5;
     static mystery = "";
     static found = [];
     static tested = [];
     static channel = null;
 
-    static async call(message, Phoenix) {
+    static async call(message, phoenix) {
         if (message.args.length === 1 && message.args[0] === 'stop' && this.isPlaying) {
             this.stop()
         }
         else if (message.args.length === 1 && !this.isPlaying) {
             this.channel = message.channel;
             if (this.isWordValid(message.args[0].toUpperCase()))
-                this.start(message.args[0].toUpperCase());
+                await this.start(message.args[0].toUpperCase());
             else
                 message.reply("Pas d'accent ni espace.");
         }
@@ -39,13 +38,10 @@ module.exports = class Hangman extends Command {
             if (word.length > 1)
                 message.reply("Tu ne peux deviner qu'une seule lettre à la fois")
             else {
-                let win = this.playGuess(word.toUpperCase()[0]);
-                this.draw();
-                if (win) {
-                    this.channel.send("Félicitations, tu as trouvé le mot mystère !")
-                    this.stop();
-                }
+                this.guess(word.toUpperCase()[0]);
             }
+        } else {
+            message.reply(`Usage: \`${phoenix.config.prefix}hangman <word>\``);
         }
     }
 
@@ -82,7 +78,7 @@ module.exports = class Hangman extends Command {
             else
                 foundMsg += '_ ';
         }
-        let msg = emojis[5 - this.lifes] + '\nMot mystère: `' + foundMsg + '`\nLettres testées: ' + this.arrayToString(this.tested);
+        let msg = emojis[5 - this.lives] + '\nMot mystère: `' + foundMsg + '`\nLettres testées: ' + this.arrayToString(this.tested);
         this.mainMsg.edit(msg);
     }
 
@@ -94,16 +90,33 @@ module.exports = class Hangman extends Command {
         return res;
     }
 
-    static playGuess(letter) {
+    static guess(letter) {
+        this.applyGuess(letter);
+        this.draw();
+        // Check win
+        if (this.found.every(val => val === true)) {
+            this.channel.send("Félicitations, tu as trouvé le mot mystère !")
+            this.stop();
+        } else if (this.lives === 0) {
+            this.channel.send("Oh non, tu es mort !")
+            this.stop();
+        }
+    }
+
+    static applyGuess(letter) {
+        let valid = false;
         for (let i = 0; i < this.mystery.length; i++) {
             if (this.found[i])
                 continue;
-            if (letter === this.mystery[i])
+            if (letter === this.mystery[i]) {
                 this.found[i] = true;
+                valid = true;
+            }
         }
-
-        // Check if finish
-        return this.found.every(val => val === true);
+        if (!valid) {
+            this.lives--;
+            this.tested.push(letter);
+        }
     }
 
     static win()
