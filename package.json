@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/GabRayz/Phoenix-bot2#readme",
   "dependencies": {
+    "@discordjs/voice": "^0.10.0",
     "discord.js": "13.8.0",
     "express": "^4.17.1",
     "ffmpeg": "0.0.4",

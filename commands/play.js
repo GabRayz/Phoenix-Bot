@@ -2,6 +2,7 @@ const request = require('request');
 const youtube = require('ytdl-core');
 const opus = require('opusscript');
 const YTplaylist = require('../src/ytplaylist');
+const { joinVoiceChannel, VoiceConnectionEvents, VoiceConnectionState, VoiceConnectionStatus} = require('@discordjs/voice');
 
 let Phoenix = require('../index');
 
@@ -9,6 +10,7 @@ let Command = require('../src/Command');
 
 module.exports = class Play extends Command {
     constructor(author) {
+        super();
         this.author = author;
     }
     static name = 'play';
@@ -75,7 +77,8 @@ module.exports = class Play extends Command {
         if(!this.isPlaying) {
             console.log("connecting to voice channel");
             this.textChannel = message.channel;
-            this.connectToVoiceChannel(message.member.voiceChannel).then(voiceConnection => {
+            this.connectToVoiceChannel(message.member.voice.channel).then(voiceConnection => {
+                console.log("Connected to voice channel", message.member.voice.channel.name);
                 this.voiceConnection = voiceConnection;
                 this.voiceChannel = message.member.voiceChannel;
                 this.nextSong();
@@ -324,14 +327,14 @@ module.exports = class Play extends Command {
                 console.log('User not connected to a voice channel');
                 reject();
             }
-            channel.join()
-            .then(connection => {
+            const connection = joinVoiceChannel({
+                channelId: channel.id,
+                guildId: channel.guild.id,
+                adapterCreator: channel.guild.voiceAdapterCreator,
+            });
+            connection.on(VoiceConnectionStatus.Ready, () => {
                 console.log('connected to voice channel');
                 resolve(connection);
-            })
-            .catch((error) => {
-                console.error(error);
-                reject();
             });
         })
     }
