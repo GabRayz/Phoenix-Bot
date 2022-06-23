@@ -3,9 +3,6 @@ const fs = require('fs');
 let { MessageEmbed } = require('discord.js');
 
 module.exports = class Config extends Command {
-    constructor(author) {
-        this.author = author;
-    }
     static name = 'config';
     static alias = [
         "config",
@@ -13,9 +10,9 @@ module.exports = class Config extends Command {
     static description = "Configure the bot";
 
     static async call(message, Phoenix) {
-        if (message.args.length == 0)
-            this.display(message, Phoenix);
-        else if (message.args.length == 2)
+        if (message.args.length === 0)
+            await this.display(message, Phoenix);
+        else if (message.args.length === 2)
         {
             if (this.changeConfig(message.args[0], message.args[1], Phoenix))
                 message.react('✅');
@@ -23,21 +20,21 @@ module.exports = class Config extends Command {
                 message.react('⚠️');
         }
         // Args: "permissions", command name, roles/channels/members, whitelist/blacklist, add/remove, value
-        else if (message.args.length == 6 && (message.args[0] == "permissions" || message.args[0] == "perm"))
+        else if (message.args.length === 6 && (message.args[0] === "permissions" || message.args[0] === "perm"))
         {
             // Check if the permission is correct
             if (this.checkIfCommandExists(message.args[1])) {
                 let scopes = ['roles', 'channels', 'members'];
                 if (scopes.includes(message.args[2])) {
-                    if (message.args[2] == "channels") {
+                    if (message.args[2] === "channels") {
                         message.args[5] = this.getChannelIfFromName(message.args[5], message.guild);
                         if (!message.args[5]) {
                             message.reply('Salon introuvable. Format: "catégorie/salon"')
                             return;
                         }
                     }
-                    if (message.args[3] == "whitelist" || message.args[3] == "blacklist") {
-                        if (message.args[4] == "add" || message.args[4] == "remove") {
+                    if (message.args[3] === "whitelist" || message.args[3] === "blacklist") {
+                        if (message.args[4] === "add" || message.args[4] === "remove") {
                             // Apply
                             this.changePerm(message.args[1], message.args[2], message.args[3], message.args[4], message.args[5], Phoenix)
                             message.react('✅');
@@ -56,9 +53,9 @@ module.exports = class Config extends Command {
     static getChannelIfFromName(name, guild) {
         // name: 'category/channel'
         let names = name.split('/');
-        let category = guild.channels.find(c => c.name.toUpperCase() == names[0].toUpperCase());
+        let category = guild.channels.find(c => c.name.toUpperCase() === names[0].toUpperCase());
         if (!category) return false;
-        let channel = guild.channels.find(c => c.name.toUpperCase() == names[1].toUpperCase() && c.parentID == category.id);
+        let channel = guild.channels.find(c => c.name.toUpperCase() === names[1].toUpperCase() && c.parentID === category.id);
         return channel ? channel.id : false;
     }
 
@@ -66,10 +63,10 @@ module.exports = class Config extends Command {
         if (typeof Phoenix.config.permissions[commandName] == 'undefined')
             this.createCommandPerm(commandName, Phoenix.config.permissions)
         let list = Phoenix.config.permissions[commandName][scope][type];
-        if (action == "add")
+        if (action === "add")
             list.push(value);
         else if (list.includes(value))
-            list.splice(list.findIndex(el => el == value), 1);
+            list.splice(list.findIndex(el => el === value), 1);
         
         this.save(Phoenix.config);
     }
@@ -92,10 +89,10 @@ module.exports = class Config extends Command {
     }
 
     static checkIfCommandExists(name) {
-        if (name == "default") return true;
+        if (name === "default") return true;
         let commands = {}
         commands = require('./command');
-        let com = Object.values(commands).find(c => c.name == name);
+        let com = Object.values(commands).find(c => c.name === name);
         return (typeof com != 'undefined');
     }
 
@@ -103,7 +100,7 @@ module.exports = class Config extends Command {
         if (typeof Phoenix.config[attribute] == 'undefined') return false
 
         Phoenix.config[attribute] = value;
-        if (attribute == "prefix") {
+        if (attribute === "prefix") {
             Phoenix.config.activity = value + 'help';
             Phoenix.bot.user.setActivity(Phoenix.config.activity).catch((e) => console.error(e))
         }
@@ -111,7 +108,7 @@ module.exports = class Config extends Command {
         return true
     }
 
-    static display(message, Phoenix) {
+    static async display(message, Phoenix) {
         // Embed message to display the configuration file
         let embed = new MessageEmbed();
         embed.setTitle('Configuration')
@@ -123,10 +120,10 @@ module.exports = class Config extends Command {
             .addField('Salon Bot (id) - testchannel', Phoenix.config.testChannel)
             .addField('Les membres sans rôles ne peuvent pas controler le bot - everyoneBlackListed', Phoenix.config.everyoneBlackListed)
             .addField('Adresse de téléchargement des vidéos - downloadAdress', Phoenix.config.downloadAdress)
-            .addField('Port de téléchargement des vidéos - downloadPort', Phoenix.config.downloadPort)
+            .addField('Port de téléchargement des vidéos - downloadPort', "" + Phoenix.config.downloadPort)
 
         message.channel.send({embeds: [embed]}).catch(err => {
-            if (err.message == 'Missing Permissions')
+            if (err.message === 'Missing Permissions')
                 message.channel.send('Erreur, mes permissions sont insuffisantes :(');
             else
                 console.error(err);
@@ -138,13 +135,13 @@ module.exports = class Config extends Command {
             .setThumbnail(Phoenix.bot.user.avatarURL);
         
         // For each command, add a field with the associated permissions
-        Object.keys(Phoenix.config.permissions).forEach(command => {
+        for (const command of Object.keys(Phoenix.config.permissions)) {
             let permissions = Phoenix.config.permissions[command];
             let str = '';
             if (permissions.channels.whitelist.length > 0)
-                str += 'channels - whitelist : ' + this.getChannelsNameFromId(permissions.channels.whitelist, message.guild) + '\n';
+                str += 'channels - whitelist : ' + await this.getChannelsNameFromId(permissions.channels.whitelist, message.guild) + '\n';
             if (permissions.channels.blacklist.length > 0)
-                str += 'channels - blaklist : ' + this.getChannelsNameFromId(permissions.channels.blacklist, message.guild) + '\n';
+                str += 'channels - blaklist : ' + await this.getChannelsNameFromId(permissions.channels.blacklist, message.guild) + '\n';
             if (permissions.roles.whitelist.length > 0)
                 str += 'roles - whitelist : ' + permissions.roles.whitelist + '\n';
             if (permissions.roles.blacklist.length > 0)
@@ -156,10 +153,10 @@ module.exports = class Config extends Command {
             
             if (str)
                 perms.addField(command, str);
-        })
+        }
         // Send
-        message.channel.send(perms).catch(err => {
-            if (err.message == 'Missing Permissions')
+        message.channel.send({embeds: [perms]}).catch(err => {
+            if (err.message === 'Missing Permissions')
                 message.channel.send('Erreur, mes permissions sont insuffisantes :(');
             else
                 console.error(err);
@@ -170,21 +167,21 @@ module.exports = class Config extends Command {
             description += 'Modifier une permission: ' + Phoenix.config.prefix;
             description += 'config perm {nom de la commande} {roles|channels|members} {whitelist|blacklist} {add|remove} {nom du role|nom de la catégorie/nom du salon|tag du membre(exemple#0001)}';
         notice.setDescription(description);
-        message.channel.send(notice).catch(err => {
-            if (err.message == 'Missing Permissions')
+        message.channel.send({embeds: [notice]}).catch(err => {
+            if (err.message === 'Missing Permissions')
                 message.channel.send('Erreur, mes permissions sont insuffisantes :(');
             else
                 console.error(err);
         })
     }
 
-    static getChannelsNameFromId(channelsId, guild) {
+    static async getChannelsNameFromId(channelsId, guild) {
         let res = [];
-        channelsId.forEach(id => {
-            let channel = guild.channels.find(c => c.id == id);
-            let category = guild.channels.find(c => c.id == channel.parentID);
+        for (const id of channelsId) {
+            let channel = await guild.channels.fetch(id);
+            let category = await guild.channels.fetch(channel.parentID);
             res.push(category.name + '/' + channel.name);
-        })
+        }
         return res;
     }
 
