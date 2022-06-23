@@ -11,7 +11,7 @@ module.exports = class Link extends Command {
     static textChannel;
     static socket;
 
-    static async call(message, Phoenix) {
+    static async call(message, phoenix) {
         if (message.args.length > 0 && message.args[0] == "unlink") {
             // Unlink
             if(this.socket && this.textChannel && this.textChannel.id == message.channel.id) {
@@ -25,13 +25,13 @@ module.exports = class Link extends Command {
             this.textChannel = message.channel;
         }else {
             this.textChannel = message.channel;
-            this.Phoenix = Phoenix;
-            let isThereAServer = await this.testConnection(Phoenix.config.host);
+            this.Phoenix = phoenix;
+            let isThereAServer = await this.testConnection(phoenix.config.host);
             console.log(isThereAServer);
             if (isThereAServer) {
                 this.connect();
             }else {
-                this.createServer(message.channel, Phoenix.config.host);
+                this.createServer(message.channel, phoenix.config.host);
             }
             this.Phoenix.bot.on('message', msg => {
                 // When a non-bot message is sent in the channel

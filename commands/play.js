@@ -9,10 +9,6 @@ let Phoenix = require('../index');
 let Command = require('../src/Command');
 
 module.exports = class Play extends Command {
-    constructor(author) {
-        super();
-        this.author = author;
-    }
     static name = 'play';
     static alias = [
             "play"
@@ -49,30 +45,30 @@ module.exports = class Play extends Command {
     /**
      * Entry point of the command. Adds to song to the queue and start playing.
      * @param {*} message 
-     * @param {*} Phoenix 
+     * @param {*} phoenix
      */
-    static call(message, Phoenix) {
+    static call(message, phoenix) {
         this.textChannel = message.channel;
-        this.Phoenix = Phoenix;
+        this.phoenix = phoenix;
 
         if(message.args.length > 0 && message.args[0].startsWith('http') && message.args[0].includes('playlist?list=')) {
             console.log('Importing playlist...');
             YTplaylist.Enqueue(message.args[0], function() {
-                Play.start(Phoenix, message);
+                Play.start(phoenix, message);
             });
         }else {
             this.addToQueue(message);
-            this.start(Phoenix, message);
+            this.start(phoenix, message);
         }
     }
 
     /**
      * Joins a voice channel and calls this.nextSong() to start playing.
-     * @param {*} Phoenix 
+     * @param {*} phoenix
      * @param {*} message 
      */
-    static async start(Phoenix, message) {
-        this.Phoenix = Phoenix;
+    static async start(phoenix, message) {
+        this.phoenix = phoenix;
         // Do nothing if the voice is already started
         if(!this.isPlaying) {
             console.log("connecting to voice channel");
@@ -142,7 +138,7 @@ module.exports = class Play extends Command {
             this.stream = stream;
 
             console.log('Playing stream');
-            await this.Phoenix.bot.user.setActivity("Loading...");
+            await this.phoenix.bot.user.setActivity("Loading...");
             this.voiceHandler = await this.voiceConnection.playStream(this.stream, {volume: this.volume});
             this.isPlaying = true;
 
@@ -159,13 +155,13 @@ module.exports = class Play extends Command {
         this.voiceHandler.on('start', () => {
             console.log('Playing...');
             if (typeof this.videoInfos != 'undefined')
-                this.Phoenix.bot.user.setActivity(this.videoInfos.videoDetails.title);
+                this.phoenix.bot.user.setActivity(this.videoInfos.videoDetails.title);
         })
     }
 
     static async voiceHandlerOnEnd() {
         this.voiceHandler.once('end', async (reason) => {
-            await this.Phoenix.bot.user.setActivity(this.Phoenix.config.activity);
+            await this.phoenix.bot.user.setActivity(this.phoenix.config.activity);
             this.voiceHandler.destroy();
             this.voiceHandler = null;
             // this.pushRelatedVideo();
@@ -196,7 +192,7 @@ module.exports = class Play extends Command {
             }else if (song.startsWith("http")) {
                 url = song;
             }else {
-                url = await this.getUrlFromName(song, this.Phoenix)
+                url = await this.getUrlFromName(song, this.phoenix)
                 if(!url) {
                     return reject('Aucune vidéo trouvée');
                 }
@@ -217,7 +213,7 @@ module.exports = class Play extends Command {
             if(!url.includes('watch?v=')) return false;
             let id = url.split('=')[1];
             try {
-                request('https://www.googleapis.com/youtube/v3/videos?part=snippet&id=' + id + '&maxResults=1&key=' + this.Phoenix.config.ytapikey, (err, res, body) => {
+                request('https://www.googleapis.com/youtube/v3/videos?part=snippet&id=' + id + '&maxResults=1&key=' + this.phoenix.config.ytapikey, (err, res, body) => {
                     if(err) {
                         console.error(err);
                         return resolve(err);
@@ -298,10 +294,10 @@ module.exports = class Play extends Command {
         return stream;
     }
 
-    static getUrlFromName(name, Phoenix) {
+    static getUrlFromName(name, phoenix) {
         console.log('Get url from name : ' + name);
         return new Promise(resolve => {
-            request('https://www.googleapis.com/youtube/v3/search?part=snippet&q=' + name + '&key=' + Phoenix.config.ytapikey, async (err, res, body) => {
+            request('https://www.googleapis.com/youtube/v3/search?part=snippet&q=' + name + '&key=' + phoenix.config.ytapikey, async (err, res, body) => {
                 try {
                     let videos = JSON.parse(body).items;
                     let video = videos.find(vid => vid.id.kind == "youtube#video");
@@ -343,7 +339,7 @@ module.exports = class Play extends Command {
         if(!this.isPlaying) return;
         console.log("Stopping music");
         this.isPlaying = false;
-        Phoenix.activities--;
+        this.phoenix.activities--;
         this.stream.end();
         this.voiceChannel.leave();
     }

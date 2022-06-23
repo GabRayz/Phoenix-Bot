@@ -5,9 +5,6 @@ let ffmpeg = require('fluent-ffmpeg');
 const { Client, MessageAttachment } = require('discord.js');
 
 module.exports = class Download extends Command {
-    constructor(author) {
-        this.author = author;
-    }
     static name = 'download';
     static alias = [
         "download",
@@ -16,7 +13,7 @@ module.exports = class Download extends Command {
     static description = "Télécharge une vidéo";
     // Usage: {prefix}download [{audio|video} [url]]
 
-    static async call(message, Phoenix) {
+    static async call(message, phoenix) {
         // Get the url from which to download
         console.log(message);
         let url = message.args.length == 2 ? message.args[1] : this.getCurrentVideo();
@@ -56,9 +53,9 @@ module.exports = class Download extends Command {
                 clearInterval(interval);
                 console.log('Download done !');
                 if (audioonly)
-                    message.channel.send('Le fichier est disponible : '+Phoenix.config.downloadAdress+':'+Phoenix.config.downloadPort+'/mp3');
+                    message.channel.send('Le fichier est disponible : '+phoenix.config.downloadAdress+':'+phoenix.config.downloadPort+'/mp3');
                 else
-                message.channel.send('Le fichier est disponible : '+Phoenix.config.downloadAdress+':'+Phoenix.config.downloadPort+'/mp4');
+                message.channel.send('Le fichier est disponible : '+phoenix.config.downloadAdress+':'+phoenix.config.downloadPort+'/mp4');
             })
             .save(path)
     };

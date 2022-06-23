@@ -1,4 +1,3 @@
-let Phoenix = require('../index');
 let Game = require('../src/Game');
 
 module.exports = class TwoK48 extends Game {
@@ -25,8 +24,8 @@ module.exports = class TwoK48 extends Game {
      */
     board = [];
 
-    constructor(message, gameId) {
-        super(message, gameId);
+    constructor(message, gameId, phoenix) {
+        super(message, gameId, phoenix);
         this.getIDs();
         this.isLoading = false;
 
@@ -39,7 +38,7 @@ module.exports = class TwoK48 extends Game {
      */
     async start() {
         this.isPlaying = true;
-        Phoenix.activities++;
+        this.phoenix.activities++;
         this.player = this.players[0];
         // Preparing the board message
         this.boardMsg = await this.channel.send('Chargement de la partie...');
@@ -53,12 +52,12 @@ module.exports = class TwoK48 extends Game {
 
         await this.draw();
 
-        Phoenix.bot.on('messageReactionAdd', (messageReaction, user) => {
+        this.phoenix.bot.on('messageReactionAdd', (messageReaction, user) => {
             // If the game is playing, let the player add reactions to move.
             if (user.tag == this.player.tag && !this.isLoading && this.isPlaying && messageReaction.message.id == this.boardMsg.id)
                 this.onPlay(this.emojiToMove(messageReaction.emoji.name));
         })
-        Phoenix.bot.on('messageReactionRemove', (messageReaction, user) => {
+        this.phoenix.bot.on('messageReactionRemove', (messageReaction, user) => {
             if (user.tag == this.player.tag && !this.isLoading && this.isPlaying && messageReaction.message.id == this.boardMsg.id)
                 this.onPlay(this.emojiToMove(messageReaction.emoji.name));
         })
@@ -292,7 +291,7 @@ module.exports = class TwoK48 extends Game {
         let msg = '**Fin de la partie !**\nRésultat: **' + points + '** points.'
         this.channel.send(msg);
         this.isPlaying = false;
-        Phoenix.activities--;
+        this.phoenix.activities--;
         this.emit('end', this.gameId);
     }
 

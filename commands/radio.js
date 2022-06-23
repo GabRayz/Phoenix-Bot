@@ -1,12 +1,9 @@
 let Command = require('../src/Command');
 const opus = require('opusscript');
 const exec = require('child_process').exec;
-let Phoenix = require('../index');
+let phoenix = require('../index');
 
 module.exports = class Radio extends Command {
-    constructor(author) {
-        this.author = author;
-    }
     static name = 'radio';
     static alias = [
         "radio",
@@ -16,7 +13,7 @@ module.exports = class Radio extends Command {
     static stream;
     static voiceChannel;
 
-    static async call(message, Phoenix) {
+    static async call(message, phoenix) {
         if (message.args.length == 0)
             this.start(message.member.voiceChannelID, message.guild);
         if (message.args.length == 1 && message.args[0] == 'stop')
@@ -36,7 +33,7 @@ module.exports = class Radio extends Command {
 
                 this.stream.on('error', e =>   {console.error(e)});
                 this.stream.on('start', () => {
-                    Phoenix.bot.user.setActivity('France Info');
+                    phoenix.bot.user.setActivity('France Info');
                     console.log('Listening to France Info!');
                 });
             }).catch(e => console.error);
@@ -46,7 +43,7 @@ module.exports = class Radio extends Command {
     }
 
     static stop() {
-        Phoenix.bot.user.setActivity(Phoenix.config.activity);
+        phoenix.bot.user.setActivity(phoenix.config.activity);
         this.stream.end();
         this.voiceChannel.leave();
     }

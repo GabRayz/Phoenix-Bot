@@ -1,9 +1,6 @@
 let Command = require('../src/Command');
 
 module.exports = class Clear extends Command {
-    constructor(author) {
-        this.author = author;
-    }
     static name = 'clear';
     static alias = [
         "clear",
@@ -11,8 +8,8 @@ module.exports = class Clear extends Command {
     ];
     static description = "Nettoie le chat des commandes bot";
 
-    static async call(message, Phoenix) {
-        let messages = message.channel.messages.filter(msg => msg.author.id == Phoenix.bot.user.id || msg.content.startsWith(Phoenix.config.prefix));
+    static async call(message, phoenix) {
+        let messages = message.channel.messages.filter(msg => msg.author.id === phoenix.bot.user.id || msg.content.startsWith(phoenix.config.prefix));
         for(let msg of messages) {
             await this.sleep(1000);
             msg[1].delete().catch(err => {

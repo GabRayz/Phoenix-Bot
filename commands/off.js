@@ -1,9 +1,6 @@
 let Command = require('../src/Command');
 
 module.exports = class Off extends Command {
-    constructor(author) {
-        this.author = author;
-    }
     static name = 'off';
     static alias = [
         "off",
@@ -13,8 +10,8 @@ module.exports = class Off extends Command {
     ];
     static description = "Redémarre le bot";
 
-    static async call(message, Phoenix) {
-        await Phoenix.bot.destroy();
+    static async call(message, phoenix) {
+        await phoenix.bot.destroy();
         console.log('Phoenix disconnected.')
         process.exit(0)
     }

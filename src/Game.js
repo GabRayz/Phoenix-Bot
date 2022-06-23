@@ -20,9 +20,11 @@ module.exports = class Game extends EventEmitter {
      * Wether the game has started.
      */
     isPlaying = false;
+    phoenix = null;
 
-    constructor(message, gameId) {
+    constructor(message, gameId, phoenix) {
         super();
+        this.phoenix = phoenix;
         this.gameId = gameId;
         this.channel = message.channel;
         this.players = [];
@@ -33,8 +35,3 @@ module.exports = class Game extends EventEmitter {
         this.isPlaying = false;
     }
 }
-
-// module.exports.Game = Game;
-// module.exports.events = {
-//     end: new events.EventEmitter()
-// }

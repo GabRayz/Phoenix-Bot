@@ -1,10 +1,6 @@
 let Command = require('../src/Command');
-let Phoenix = require('../index');
 
 module.exports = class Power4 extends Command {
-    constructor(author) {
-        this.author = author;
-    }
     static name = 'power4';
     static alias = [
         "puissance4",
@@ -21,8 +17,10 @@ module.exports = class Power4 extends Command {
     static isPlaying = false;
     static board = [];
     static boardMsg;
+    static phoenix;
 
-    static call(message, Phoenix) {
+    static call(message, phoenix) {
+        this.phoenix = phoenix;
         if (message.args.length == 0 || message.args[0] == 'start') {
             if (!this.isPlaying)
                 this.addPlayer(message);
@@ -64,7 +62,7 @@ module.exports = class Power4 extends Command {
     }
 
     static start() {
-        Phoenix.activities++;
+        this.phoenix.activities++;
         this.channel.send('La partie commence...').then(boardMsg => {
             this.boardMsg = boardMsg;
             this.isPlaying = true;
@@ -79,13 +77,12 @@ module.exports = class Power4 extends Command {
                 this.addReactions();
             })
 
-            let phoenix = require('../index');
-            phoenix.bot.on('messageReactionAdd', (messageReaction, user) => {
+            this.phoenix.bot.on('messageReactionAdd', (messageReaction, user) => {
                 if (this.isPlaying && messageReaction.message.id == this.boardMsg.id && user.tag == this.currentPlayerTag.tag) {
                     this.onPlay(this.emojiToInt(messageReaction.emoji.name));
                 }
             })
-            phoenix.bot.on('messageReactionRemove', (messageReaction, user) => {
+            this.phoenix.bot.on('messageReactionRemove', (messageReaction, user) => {
                 if (this.isPlaying && messageReaction.message.id == this.boardMsg.id && user.tag == this.currentPlayerTag.tag) {
                     this.onPlay(this.emojiToInt(messageReaction.emoji.name));
                 }
@@ -247,8 +244,8 @@ module.exports = class Power4 extends Command {
     }
 
     static stop() {
-        Phoenix.activities--;
-        Phoenix.botChannel.send('Partie terminée !', {code:true});
+        this.phoenix.activities--;
+        this.phoenix.botChannel.send('Partie terminée !', {code:true});
         this.isPlaying = false;
         this.board = [];
         this.j1 = null;
