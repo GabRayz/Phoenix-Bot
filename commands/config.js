@@ -9,12 +9,13 @@ module.exports = class Config extends Command {
     ];
     static description = "Configure the bot";
 
-    static async call(message, Phoenix) {
+    static async call(message, phoenix) {
+        let phoenixGuild = phoenix.guilds[message.guildId];
         if (message.args.length === 0)
-            await this.display(message, Phoenix);
+            await this.display(message, phoenix, phoenixGuild.config);
         else if (message.args.length === 2)
         {
-            if (this.changeConfig(message.args[0], message.args[1], Phoenix))
+            if (this.changeConfig(message.args[0], message.args[1], phoenix, phoenixGuild))
                 message.react('✅');
             else
                 message.react('⚠️');
@@ -36,7 +37,7 @@ module.exports = class Config extends Command {
                     if (message.args[3] === "whitelist" || message.args[3] === "blacklist") {
                         if (message.args[4] === "add" || message.args[4] === "remove") {
                             // Apply
-                            this.changePerm(message.args[1], message.args[2], message.args[3], message.args[4], message.args[5], Phoenix)
+                            this.changePerm(message.args[1], message.args[2], message.args[3], message.args[4], message.args[5], phoenixGuild)
                             message.react('✅');
                             return;
                         }else message.reply("Erreur sur le paramètre '" + message.args[4] + "'. Valeurs possibles: add,remove");
@@ -59,16 +60,16 @@ module.exports = class Config extends Command {
         return channel ? channel.id : false;
     }
 
-    static changePerm(commandName, scope, type, action, value, Phoenix) {
-        if (typeof Phoenix.config.permissions[commandName] == 'undefined')
-            this.createCommandPerm(commandName, Phoenix.config.permissions)
-        let list = Phoenix.config.permissions[commandName][scope][type];
+    static changePerm(commandName, scope, type, action, value, phoenixGuild) {
+        if (typeof phoenixGuild.config.permissions[commandName] == 'undefined')
+            this.createCommandPerm(commandName, phoenixGuild.config.permissions)
+        let list = phoenixGuild.config.permissions[commandName][scope][type];
         if (action === "add")
             list.push(value);
         else if (list.includes(value))
             list.splice(list.findIndex(el => el === value), 1);
-        
-        this.save(Phoenix.config);
+
+        phoenixGuild.saveConfig();
     }
 
     static createCommandPerm(commandName, perms) {
@@ -96,31 +97,31 @@ module.exports = class Config extends Command {
         return (typeof com != 'undefined');
     }
 
-    static changeConfig(attribute, value, Phoenix) {
-        if (typeof Phoenix.config[attribute] == 'undefined') return false
+    static changeConfig(attribute, value, phoenix, phoenixGuild) {
+        if (typeof phoenixGuild.config[attribute] == 'undefined') return false
 
-        Phoenix.config[attribute] = value;
+        phoenixGuild.config[attribute] = value;
         if (attribute === "prefix") {
-            Phoenix.config.activity = value + 'help';
-            Phoenix.bot.user.setActivity(Phoenix.config.activity).catch((e) => console.error(e))
+            phoenixGuild.config.activity = value + 'help';
+            phoenix.bot.user.setActivity(phoenixGuild.config.activity)
         }
-        this.save(Phoenix.config);
+        phoenixGuild.saveConfig();
         return true
     }
 
-    static async display(message, Phoenix) {
+    static async display(message, phoenix, config) {
         // Embed message to display the configuration file
         let embed = new MessageEmbed();
         embed.setTitle('Configuration')
             .setColor('ORANGE')
-            .setThumbnail(Phoenix.bot.user.avatarURL)
-            .addField('Préfix - prefix', Phoenix.config.prefix)
-            .addField('Notification de connexion - connectionAlert', Phoenix.config.connectionAlert)
-            .addField('Notification de mise à jour - updateAlert', Phoenix.config.updateAlert)
-            .addField('Salon Bot (id) - testchannel', Phoenix.config.testChannel)
-            .addField('Les membres sans rôles ne peuvent pas controler le bot - everyoneBlackListed', Phoenix.config.everyoneBlackListed)
-            .addField('Adresse de téléchargement des vidéos - downloadAdress', Phoenix.config.downloadAdress)
-            .addField('Port de téléchargement des vidéos - downloadPort', "" + Phoenix.config.downloadPort)
+            .setThumbnail(phoenix.bot.user.avatarURL)
+            .addField('Préfix - prefix', config.prefix)
+            .addField('Notification de connexion - connectionAlert', config.connectionAlert)
+            .addField('Notification de mise à jour - updateAlert', config.updateAlert)
+            .addField('Salon Bot (id) - testchannel', config.testChannel)
+            .addField('Les membres sans rôles ne peuvent pas controler le bot - everyoneBlackListed', config.everyoneBlackListed)
+            .addField('Adresse de téléchargement des vidéos - downloadAdress', config.downloadAdress)
+            .addField('Port de téléchargement des vidéos - downloadPort', "" + config.downloadPort)
 
         message.channel.send({embeds: [embed]}).catch(err => {
             if (err.message === 'Missing Permissions')
@@ -132,11 +133,11 @@ module.exports = class Config extends Command {
         let perms = new MessageEmbed();
         perms.setTitle('Permissions')
             .setColor('ORANGE')
-            .setThumbnail(Phoenix.bot.user.avatarURL);
+            .setThumbnail(phoenix.bot.user.avatarURL);
         
         // For each command, add a field with the associated permissions
-        for (const command of Object.keys(Phoenix.config.permissions)) {
-            let permissions = Phoenix.config.permissions[command];
+        for (const command of Object.keys(config.permissions)) {
+            let permissions = config.permissions[command];
             let str = '';
             if (permissions.channels.whitelist.length > 0)
                 str += 'channels - whitelist : ' + await this.getChannelsNameFromId(permissions.channels.whitelist, message.guild) + '\n';
@@ -163,8 +164,8 @@ module.exports = class Config extends Command {
         })
 
         let notice = new MessageEmbed();
-        let description = 'Modifier une configuration: ' + Phoenix.config.prefix + 'config {attribut} {valeur}\n';
-            description += 'Modifier une permission: ' + Phoenix.config.prefix;
+        let description = 'Modifier une configuration: ' + config.prefix + 'config {attribut} {valeur}\n';
+            description += 'Modifier une permission: ' + config.prefix;
             description += 'config perm {nom de la commande} {roles|channels|members} {whitelist|blacklist} {add|remove} {nom du role|nom de la catégorie/nom du salon|tag du membre(exemple#0001)}';
         notice.setDescription(description);
         message.channel.send({embeds: [notice]}).catch(err => {
@@ -217,12 +218,6 @@ module.exports = class Config extends Command {
                 })
                 resolve(config);
             })
-        })
-    }
-
-    static save(data) {
-        fs.writeFile('./config.json', JSON.stringify(data, null, 4), (err) => {
-            if (err) console.error('Error while saving the config: ', err);
         })
     }
 }
