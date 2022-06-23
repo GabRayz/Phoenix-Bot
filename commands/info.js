@@ -3,9 +3,6 @@ const {MessageEmbed} = require('discord.js');
 let Play = require('./play');
 
 module.exports = class Info extends Command {
-    constructor(author) {
-        this.author = author;
-    }
     static name = 'info';
     static alias = [
         "info",
@@ -16,7 +13,7 @@ module.exports = class Info extends Command {
     ];
     static description = "Donne des infos sur la musique en cours";
 
-    static async call(message, Phoenix) {
+    static async call(message, phoenix) {
         if (Play.videoInfos) {
             if (Play.videoInfos.player_response) {
                 Play.videoInfos.formats = null;

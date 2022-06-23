@@ -7,6 +7,7 @@ module.exports = class Phoenix {
     config = null;
     bot = null;
     guilds = {};
+    activities = 0;
 
     async loadConfig() {
         this.config = require('../config');

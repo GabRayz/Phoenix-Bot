@@ -4,9 +4,6 @@ const exec = require('child_process').exec;
 let Phoenix = require('../index');
 
 module.exports = class Update extends Command {
-    constructor(author) {
-        this.author = author;
-    }
     static name = 'update';
     static alias = [
         "update",
@@ -14,7 +11,7 @@ module.exports = class Update extends Command {
     ];
     static description = "Mettre à jour le bot";
 
-    static call(message, Phoenix) {
+    static call(message, phoenix) {
         this.checkForUpdate((res) => {
             if(!res) {
                 message.channel.send('Phoenix est déjà à jour.');

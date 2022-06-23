@@ -1,16 +1,13 @@
 let Command = require('../src/Command');
 
 module.exports = class Timer extends Command {
-    constructor(author) {
-        this.author = author;
-    }
     static name = 'timer';
     static alias = [
         "timer",
     ];
     static description = "Example for creating a command";
 
-    static async call(message, Phoenix) {
+    static async call(message, phoenix) {
         if (message.args.length == 2) {
             let nb = parseInt(message.args[0]);
             this.setTimer(this.getUnit(message.args[1]) * nb, message);

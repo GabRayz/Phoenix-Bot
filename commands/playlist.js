@@ -4,9 +4,6 @@ let Command = require('../src/Command');
 let Play = require('./play');
 
 module.exports = class Playlist extends Command {
-    constructor(author) {
-        this.author = author;
-    }
     static name = "playlist";
     static alias = [
         "playlist",
@@ -15,9 +12,9 @@ module.exports = class Playlist extends Command {
     static description = "Gérer les playlist. !playlist help";
     static path = '../../playlists/';
 
-    static call(msg, Phoenix) {
+    static call(msg, phoenix) {
         this.textChannel = msg.channel;
-        this.Phoenix = Phoenix;
+        this.phoenix = phoenix;
         switch(msg.args[0]) {
             case "create":
                 if (msg.args.length > 1) this.create(msg.args[1], msg.author);
@@ -62,7 +59,7 @@ module.exports = class Playlist extends Command {
         fs.writeFile('../playlists/' + name + '.json', content, (err) => {
             if (err === null) {
                 console.log('Playlist created');
-                this.textChannel.send('La playlist ' + name + ' a été créée. Ajoutez des musiques avec ' + this.Phoenix.config.prefix + 'playlist add [playlist] [url]');
+                this.textChannel.send('La playlist ' + name + ' a été créée. Ajoutez des musiques avec ' + this.phoenix.config.prefix + 'playlist add [playlist] [url]');
             }else {
                 console.log(err);
                 this.textChannel.send('Erreur lors de la création de la playlist');
@@ -103,7 +100,7 @@ module.exports = class Playlist extends Command {
                 playlist = require('../../playlists/' + playlistName + '.json');
             }catch (err) {
                 if(log)
-                    this.Phoenix.sendClean('Cette playlist n\'existe pas :/', this.textChannel, 20000)
+                    this.phoenix.sendClean('Cette playlist n\'existe pas :/', this.textChannel, 20000)
                 console.log("Cannot find playlist " + playlistName);
                 console.error(err);
                 resolve(false);
@@ -123,7 +120,7 @@ module.exports = class Playlist extends Command {
                     resolve(false);
                 }else {
                     if(log)
-                        this.Phoenix.sendClean("Musique ajoutée à la playlist", this.textChannel, 10000);
+                        this.phoenix.sendClean("Musique ajoutée à la playlist", this.textChannel, 10000);
                     console.log('Music added to playlist');
                     resolve(true);
                 }
@@ -137,14 +134,14 @@ module.exports = class Playlist extends Command {
             playlist = require('../../playlists/' + playlistName + '.json');
         }catch {
             console.error('Playlist not found: ' + playlistName);
-            this.Phoenix.sendClean("Je n'ai pas trouvé cette playlist.", this.textChannel, 15000);
+            this.phoenix.sendClean("Je n'ai pas trouvé cette playlist.", this.textChannel, 15000);
             return;
         }
         require('./play').currentPlaylist = playlist.items;
         require('./play').currentPlaylistName = playlistName;
         console.log('Playing playlist: ' + playlistName);
 
-        require('./play').start(this.Phoenix, msg);
+        require('./play').start(this.phoenix, msg);
     }
     static stop() {
         require('./play').currentPlaylist = [];
@@ -156,7 +153,7 @@ module.exports = class Playlist extends Command {
             playlist = require("../../playlists/" + playlistName + ".json")
         }catch(err) {
             console.error(err);
-            this.Phoenix.sendClean("Je n'ai pas trouvé cette playlist", this.textChannel, 5000);
+            this.phoenix.sendClean("Je n'ai pas trouvé cette playlist", this.textChannel, 5000);
             return;
         }
 
@@ -165,27 +162,27 @@ module.exports = class Playlist extends Command {
         fs.unlink("../playlists/" + playlistName + ".json", (err) => {
             if (err) {
                 console.error(err);
-                this.Phoenix.sendClean("Je n'ai pas trouvé cette playlist", this.textChannel, 5000);
+                this.phoenix.sendClean("Je n'ai pas trouvé cette playlist", this.textChannel, 5000);
             }else {
                 console.log('Deleted playlist: ' + playlistName);
-                this.Phoenix.sendClean("Playlist supprimée.", this.textChannel, 15000);
+                this.phoenix.sendClean("Playlist supprimée.", this.textChannel, 15000);
             }
         })
     }
     static showHelp() {
         let msg = "Gestion de playlist : " +
-            "\n" + this.Phoenix.config.prefix + "playlist list: Liste toutes les playlist" + 
-            "\n" + this.Phoenix.config.prefix + "playlist create {nom}: Créer une nouvelle playlist" + 
-            "\n" + this.Phoenix.config.prefix + "playlist add {playlist} {nom}: Ajouter une musique à une playlist" + 
-            "\n" + this.Phoenix.config.prefix + "playlist play {playlist}: Joue une playlist" + 
-            "\n" + this.Phoenix.config.prefix + "playlist delete {playlist}: Supprime une playlist" + 
-            "\n" + this.Phoenix.config.prefix + "playlist see {playlist}: Liste le contenu d'une playlist" + 
+            "\n" + this.phoenix.config.prefix + "playlist list: Liste toutes les playlist" +
+            "\n" + this.phoenix.config.prefix + "playlist create {nom}: Créer une nouvelle playlist" +
+            "\n" + this.phoenix.config.prefix + "playlist add {playlist} {nom}: Ajouter une musique à une playlist" +
+            "\n" + this.phoenix.config.prefix + "playlist play {playlist}: Joue une playlist" +
+            "\n" + this.phoenix.config.prefix + "playlist delete {playlist}: Supprime une playlist" +
+            "\n" + this.phoenix.config.prefix + "playlist see {playlist}: Liste le contenu d'une playlist" +
             "";
         this.textChannel.send(msg, {code: true});
     }
     static checkAuthors(playlist, user) {
         if(playlist.authors.includes(user.username)) return true;
-        this.Phoenix.sendClean("Tu n'es pas l'auteur de cette playlist", this.textChannel, 15000);
+        this.phoenix.sendClean("Tu n'es pas l'auteur de cette playlist", this.textChannel, 15000);
         return false;
     }
     static see(playlistName) {

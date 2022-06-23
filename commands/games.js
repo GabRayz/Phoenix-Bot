@@ -6,9 +6,6 @@ let games = {
 let {MessageEmbed} = require('discord.js');
 
 module.exports = class Games extends Command {
-    constructor(author) {
-        this.author = author;
-    }
     static name = 'games';
     static alias = [
         "games",
@@ -23,17 +20,17 @@ module.exports = class Games extends Command {
      */
     static currentGames = [];
 
-    static async call(message, Phoenix) {
+    static async call(message, phoenix) {
         await this.loadScoreboard();
         if (message.args.length == 0 && ['game', 'games'].includes(message.command))
             this.displayScoreBoard(message.channel);
         else if (message.args.length == 0)
-            this.startGame(message.command, message);
+            this.startGame(message.command, message, phoenix);
         else if (message.args.length == 1) {
-            this.startGame(message.args[0], message);
+            this.startGame(message.args[0], message, phoenix);
         }else if (message.args.length == 2) {
             if (message.args[1] == 'start')
-                this.startGame(message.args[0], message);
+                this.startGame(message.args[0], message, phoenix);
             else if (message.args[1] == 'stop')
                 this.stopGame(message.args[0], message.author.tag);
         }
@@ -59,11 +56,11 @@ module.exports = class Games extends Command {
         channel.send({embeds: [embed]});
     }
 
-    static startGame(name, message) {
+    static startGame(name, message, phoenix) {
         Object.keys(games).forEach(game => {
             if (games[game] && games[game].alias.includes(name)) {
                 // Instantiate a new game and add it to the current games
-                let newGame = new games[game](message, this.getRandomId());
+                let newGame = new games[game](message, this.getRandomId(), phoenix);
                 this.currentGames.push(newGame);
                 newGame.on('end', this.removeGame);
             }
