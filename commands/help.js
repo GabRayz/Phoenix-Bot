@@ -1,12 +1,7 @@
 let Command = require('../src/Command');
-let commands = require('./command');
-let Play = require('./play');
 const Discord = require('discord.js');
 
 module.exports = class Help extends Command {
-    constructor(author) {
-        this.author = author;
-    }
 
     static name = 'help';
     static alias = [
@@ -15,30 +10,31 @@ module.exports = class Help extends Command {
     ];
     static description = "Affiche la liste des commandes";
 
-    static call(msg, Phoenix) {
+    static call(msg, phoenix) {
+        let config = phoenix.guilds[msg.guildId].config;
         let embed = new Discord.MessageEmbed();
         embed = embed.setTitle("Listes des commandes: ")
             .setColor('ORANGE')
-            .setThumbnail(Phoenix.bot.user.avatarURL)
+            .setThumbnail(phoenix.bot.user.avatarURL)
             .setFooter({text: 'Codé par GabRay', iconURL: msg.author.avatarURL})
-            .addField(Phoenix.config.prefix + 'help', 'Affiche la liste des commandes.')
-            .addField(Phoenix.config.prefix + 'off', 'Redémarre le bot.')
-            .addField(Phoenix.config.prefix + 'clear', 'Efface les messages de commande bot.')
-            .addField(Phoenix.config.prefix + 'play [nom/url]', "Ajoute une musique à la file d'attente. Démarre la lecture si aucune musique n'est en cours.")
-            .addField(Phoenix.config.prefix + 'skip', "Passer à la prochaine musique de la fille d'attente.")
-            .addField(Phoenix.config.prefix + 'stop', "Arrete la musique.")
-            .addField(Phoenix.config.prefix + 'pause', "Met la musique en pause.")
-            .addField(Phoenix.config.prefix + 'resume', "Reprend la lecture de la musique.")
-            .addField(Phoenix.config.prefix + 'info', 'Informations sur la musique actuelle')
-            .addField(Phoenix.config.prefix + 'volume [0-200]', "Règler le volume.")
-            .addField(Phoenix.config.prefix + 'queue', "Affiche la liste d'attente.")
-            .addField(Phoenix.config.prefix + 'playlist', "Gérer les playlists. `"+Phoenix.config.prefix+"playlist help`.")
-            .addField(Phoenix.config.prefix + 'download [{audio|video} [url]]', "Télécharge la vidéo jouée, ou spécifiée en argument.")
-            .addField(Phoenix.config.prefix + 'config', "Configurer le bot.")
-            .addField(Phoenix.config.prefix + 'power4', "Jouer au puissance 4. `"+Phoenix.config.prefix+"power4 stop`")
-            .addField(Phoenix.config.prefix + 'games', "Jouer à des jeux. (en développement)")
-            .addField(Phoenix.config.prefix + 'radio', "Écouter France Info")
-            .addField(Phoenix.config.prefix + 'timer {nombre} {s|m|h}', "Programmer un minuteur")
+            .addField(config.prefix + 'help', 'Affiche la liste des commandes.')
+            .addField(config.prefix + 'off', 'Redémarre le bot.')
+            .addField(config.prefix + 'clear', 'Efface les messages de commande bot.')
+            .addField(config.prefix + 'play [nom/url]', "Ajoute une musique à la file d'attente. Démarre la lecture si aucune musique n'est en cours.")
+            .addField(config.prefix + 'skip', "Passer à la prochaine musique de la fille d'attente.")
+            .addField(config.prefix + 'stop', "Arrete la musique.")
+            .addField(config.prefix + 'pause', "Met la musique en pause.")
+            .addField(config.prefix + 'resume', "Reprend la lecture de la musique.")
+            .addField(config.prefix + 'info', 'Informations sur la musique actuelle')
+            .addField(config.prefix + 'volume [0-200]', "Règler le volume.")
+            .addField(config.prefix + 'queue', "Affiche la liste d'attente.")
+            .addField(config.prefix + 'playlist', "Gérer les playlists. `"+config.prefix+"playlist help`.")
+            .addField(config.prefix + 'download [{audio|video} [url]]', "Télécharge la vidéo jouée, ou spécifiée en argument.")
+            .addField(config.prefix + 'config', "Configurer le bot.")
+            .addField(config.prefix + 'power4', "Jouer au puissance 4. `"+config.prefix+"power4 stop`")
+            .addField(config.prefix + 'games', "Jouer à des jeux. (en développement)")
+            .addField(config.prefix + 'radio', "Écouter France Info")
+            .addField(config.prefix + 'timer {nombre} {s|m|h}', "Programmer un minuteur")
         msg.channel.send({embeds : [embed]}).catch(err => {
             if (err.message == 'Missing Permissions') {
                 msg.channel.send('Erreur, mes permissions sont insuffisantes :(');

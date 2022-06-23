@@ -1,107 +1,23 @@
 // Import packages
 const Discord = require('discord.js');
-const ytdl = require('ytdl-core');
-const {google} = require('googleapis');
-var OAuth2 = google.auth.OAuth2;
-const request = require('request');
 require('./src/http');
 const fs = require('fs');
-const PhoenixGuild = require('./src/Guild.js');
-
-// Create bot client
-const bot = new Discord.Client({intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES, Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Discord.Intents.FLAGS.GUILD_VOICE_STATES]});
-
-/**
- * Phoenix is exported to share the Client object and the configuration
- */
-let Phoenix = {
-    bot: bot,
-    /**
-     * The number of currently active commands, like playing a music or a game of connect four.
-     * If it is 0, then the bot is idle and can be updated without bothering users.
-     */
-    activities: 0,
-    guilds: [],
-}
-
-// Import config
-Phoenix.config = require('./commands/config').load().then(config => {
-    Phoenix.config = config;
-    // Log in
-    console.log('Connection...');
-    bot.login(config.login);
-})
-
-module.exports = Phoenix;
-
-// Import commands
-const Command = require('./commands/command');
-
-bot.on('ready', async () => {
-    console.log('Phoenix bot ready to operate');
-    bot.user.setActivity(Phoenix.config.activity)
-    bot.user.setUsername(Phoenix.config.name)
-
-    // Find the default guild and test Channel
-    Phoenix.guild = await bot.guilds.fetch(Phoenix.config.defaultGuild);
-    bot.guilds.cache.forEach(guild => Phoenix.guilds.push(new PhoenixGuild(guild)));
-
-    if (Phoenix.config.connectionAlert == 'true') {
-        Phoenix.botChannel.send("Phoenix connecté");
-    }
-
-    checkIfUpdated();
-});
-
-Phoenix.sendClean = function(msg, channel, time = 20000) {
-    channel.send(msg)
-    .then((message) => {
-        setTimeout(() => {
-            if(!message.deleted)
-                message.delete();
-        }, time);
-    })
-}
-
-bot.on('message', (msg) => {
-    if (checkPrefix(msg.content)) {
-        console.log(msg.author.username + ' : ' + msg.content);
-        let msgParts = msg.content.split(' ');
-        let command = msgParts[0].slice(Phoenix.config.prefix.length);
-        msg.args = msgParts.slice(1);
-        msg.command = command;
-        ReadCommand(msg, command);
-    }
-});
+const Phoenix = require('./src/Phoenix');
 
 RegExp.escape= function(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 };
 
-function checkPrefix(message) {
-    let regex = RegExp.escape(Phoenix.config.prefix);
-    return message.match('^' + regex) != null;
-}
+const phoenix = new Phoenix();
 
-async function ReadCommand(message, command) {
-    let member = await GetGuildMember(message.author);
-    if(Phoenix.config.everyoneBlackListed && member.roles.length == 0) {
-        return;
-    }
+phoenix.loadConfig().then(async () => {
+    await phoenix.login();
+});
 
-    Object.keys(Command).forEach(element => {
-        if (Command[element].match(command)) {
-            // if (!searchPermissions(Command[element], message)) {
-            //     PermissionDenied(message);
-            //     return;
-            // }
-            if (!message.guild && (typeof Command[element].callableFromMP == 'undefined' || !Command[element].callableFromMP))
-                return
-            Command[element].call(message, Phoenix);
-            return;
-        }
-    });
-}
+module.exports = phoenix;
+
+// Import commands
+const Command = require('./commands/command');
 
 function searchPermissions(command, message) {
     for (let name of Object.keys(Phoenix.config.permissions)) {
@@ -149,13 +65,6 @@ function PermissionDenied(msg) {
     // msg.react('');
 }
 
-function GetGuildMember(user) {
-    return new Promise(async (resolve, reject) => {
-        let member = await Phoenix.guild.members.fetch(user.id);
-        resolve(member);
-    })
-}
-
 function checkIfUpdated()
 {
     fs.access('temoin', fs.constants.F_OK, (err) => {
@@ -182,10 +91,10 @@ function checkIfUpdated()
         }
     })
 }
-
-Command.Update.autoUpdate(Phoenix);
-setInterval(() => {
-    if (Phoenix.activities == 0) {
-        Command.Update.autoUpdate(Phoenix);
-    }
-}, 30 * 1000)
+//
+// Command.Update.autoUpdate(Phoenix);
+// setInterval(() => {
+//     if (Phoenix.activities == 0) {
+//         Command.Update.autoUpdate(Phoenix);
+//     }
+// }, 30 * 1000)
