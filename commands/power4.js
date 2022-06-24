@@ -21,12 +21,12 @@ module.exports = class Power4 extends Command {
 
     static call(message, phoenix) {
         this.phoenix = phoenix;
-        if (message.args.length == 0 || message.args[0] == 'start') {
+        if (message.args.length === 0 || message.args[0] === 'start') {
             if (!this.isPlaying)
                 this.addPlayer(message);
             else
                 message.channel.send('Une partie est déjà en cours');
-        }else if (message.args.length > 0 && message.args[0] == 'stop') {
+        }else if (message.args.length > 0 && message.args[0] === 'stop') {
             if (this.isPlaying)
                 this.callDraw();
             else
@@ -44,7 +44,7 @@ module.exports = class Power4 extends Command {
             }
             console.log('Player 1 set to ', name);
             message.channel.send('Joueur 🔴: ' + name + ', en attente d\'un deuxième joueur.');
-        }else if(!this.j2 && this.j1.tag != message.author.tag) {
+        }else if(!this.j2 && this.j1.tag !== message.author.tag) {
             this.j2 = {
                 tag: message.author.tag,
                 nickname: name
@@ -74,34 +74,38 @@ module.exports = class Power4 extends Command {
             this.draw();
             this.channel.send('Chargement du tableau...').then(msg => {
                 this.currentPlayerMsg = msg;
-                this.addReactions();
+                this.addReactions().then(() => {
+                    this.callCurrentPlayer();
+                })
             })
 
             this.phoenix.bot.on('messageReactionAdd', (messageReaction, user) => {
-                if (this.isPlaying && messageReaction.message.id == this.boardMsg.id && user.tag == this.currentPlayerTag.tag) {
-                    this.onPlay(this.emojiToInt(messageReaction.emoji.name));
-                }
+                this.onReact(messageReaction, user);
             })
             this.phoenix.bot.on('messageReactionRemove', (messageReaction, user) => {
-                if (this.isPlaying && messageReaction.message.id == this.boardMsg.id && user.tag == this.currentPlayerTag.tag) {
-                    this.onPlay(this.emojiToInt(messageReaction.emoji.name));
-                }
+                this.onReact(messageReaction, user);
             })
         })
+    }
+
+    static onReact(messageReaction, user) {
+        if (this.isPlaying && messageReaction.message.id === this.boardMsg.id && user.tag === this.currentPlayerTag.tag) {
+            this.onPlay(this.emojiToInt(messageReaction.emoji.name));
+        }
     }
     
     static emojiToInt(emojiName) {
         let emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣'];
-        return emojis.findIndex(e => e == emojiName);
+        return emojis.findIndex(e => e === emojiName);
     }
 
     static onPlay(move) {
-        if (move == -1) return;
+        if (move === -1) return;
         if (this.isColumnFilled(move)) return;
         this.place(move, this.currentPlayer);
         this.draw();
         this.lookForWinner(winner => {
-            if (winner == 0) {
+            if (winner === 0) {
                 if (this.isBoardFull())
                     this.callDraw()
                 else
@@ -113,7 +117,7 @@ module.exports = class Power4 extends Command {
     }
 
     static switch() {
-        if (this.currentPlayer == 1) {
+        if (this.currentPlayer === 1) {
             this.currentPlayer = 2;
             this.currentPlayerTag = this.j2;
         }else {
@@ -124,7 +128,7 @@ module.exports = class Power4 extends Command {
     }
     
     static isColumnFilled(index) {
-        return this.board[index][5] != 0;
+        return this.board[index][5] !== 0;
     }
 
     static place(index, color) {
@@ -133,11 +137,11 @@ module.exports = class Power4 extends Command {
 
     static getLowestTile(index) {
         // The lowest empty tile is the first one that contains a 0.
-        return this.board[index].findIndex(e => e == 0);
+        return this.board[index].findIndex(e => e === 0);
     }
 
     static callCurrentPlayer() {
-        let color = this.currentPlayer == 1 ? '🔴' : '🔵';
+        let color = this.currentPlayer === 1 ? '🔴' : '🔵';
         this.currentPlayerMsg.edit('Au tour de ' + this.currentPlayerTag.nickname + ' ' + color);
     }
 
@@ -146,9 +150,9 @@ module.exports = class Power4 extends Command {
         for(let j = 5; j >= 0; j--) {
             msg += '|';
             for(let i = 0; i < 7; i++) {
-                if (this.board[i][j] == 0)
+                if (this.board[i][j] === 0)
                     msg += '      ';
-                else if (this.board[i][j] == 1)
+                else if (this.board[i][j] === 1)
                     msg += '🔴';
                 else
                     msg += '🔵';
@@ -156,7 +160,6 @@ module.exports = class Power4 extends Command {
             }
             msg += '\n';
         }
-        // msg += '—————————————';
         msg += '--1---2---3---4---5---6---7--'
         this.boardMsg.edit(msg).then(() => console.log('Board drawn')).catch(e => console.error(e));
     }
@@ -169,7 +172,6 @@ module.exports = class Power4 extends Command {
         await this.boardMsg.react('5️⃣');
         await this.boardMsg.react('6️⃣');
         await this.boardMsg.react('7️⃣');
-        this.callCurrentPlayer();
     }
 
     static lookForWinner(callback) {
@@ -193,8 +195,8 @@ module.exports = class Power4 extends Command {
         let scope = [];
         for (let i = 0; i < 4; i++)
             scope[i] = this.board[x + i][y];
-        if (scope.every(tile => tile == 1)) return 1;
-        if (scope.every(tile => tile == 2)) return 2;
+        if (scope.every(tile => tile === 1)) return 1;
+        if (scope.every(tile => tile === 2)) return 2;
         return 0;
     }
 
@@ -203,8 +205,8 @@ module.exports = class Power4 extends Command {
         let scope = [];
         for (let i = 0; i < 4; i++)
             scope[i] = this.board[x][y + i];
-        if (scope.every(tile => tile == 1)) return 1;
-        if (scope.every(tile => tile == 2)) return 2;
+        if (scope.every(tile => tile === 1)) return 1;
+        if (scope.every(tile => tile === 2)) return 2;
         return 0;
     }
 
@@ -213,8 +215,8 @@ module.exports = class Power4 extends Command {
         let scope = [];
         for (let i = 0; i < 4; i++)
             scope[i] = this.board[x + i][y + i];
-        if (scope.every(tile => tile == 1)) return 1;
-        if (scope.every(tile => tile == 2)) return 2;
+        if (scope.every(tile => tile === 1)) return 1;
+        if (scope.every(tile => tile === 2)) return 2;
         return 0;
     }
 
@@ -223,17 +225,17 @@ module.exports = class Power4 extends Command {
         let scope = [];
         for (let i = 0; i < 4; i++)
             scope[i] = this.board[x + i][y - i];
-        if (scope.every(tile => tile == 1)) return 1;
-        if (scope.every(tile => tile == 2)) return 2;
+        if (scope.every(tile => tile === 1)) return 1;
+        if (scope.every(tile => tile === 2)) return 2;
         return 0;
     }
 
     static isBoardFull() {
-        return this.board.every(line => line.every(tile => tile != 1));
+        return this.board.every(line => line.every(tile => tile !== 1));
     }
 
     static callTheWinner(winner) {
-        let color = winner == 1 ? '🔴' : '🔵';
+        let color = winner === 1 ? '🔴' : '🔵';
         this.currentPlayerMsg.edit(color + ' Victoire de ' + this.currentPlayerTag.nickname + ' ' + color);
         this.stop();
     }
