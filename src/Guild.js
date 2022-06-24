@@ -42,7 +42,22 @@ module.exports = class PhoenixGuild {
             "everyoneBlackListed": "true",
             "downloadPort": 8008,
             "downloadAdress": "http://localhost",
-            "permissions": {}
+            "permissions": {
+                "default": {
+                    "roles": {
+                        "whitelist": [],
+                        "blacklist": []
+                    },
+                    "channels": {
+                        "whitelist": [],
+                        "blacklist": []
+                    },
+                    "members": {
+                        "whitelist": [],
+                        "blacklist": []
+                    }
+                }
+            }
         }
     }
 }
