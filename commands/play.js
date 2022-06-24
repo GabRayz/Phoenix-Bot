@@ -30,16 +30,13 @@ module.exports = class Play extends Command {
      */
     static currentPlaylistName = "";
     static volume = 1;
-    /**
-     * Voice hanlder defined when the bot is speaking.
-     */
-    static voiceHandler = null;
 
     /**
      * Infos on the currently playing video.
      */
     static videoInfos = null;
     static videoUrl = null;
+    static audioPlayer = null;
 
     /**
      * Entry point of the command. Adds to song to the queue and start playing.
@@ -139,7 +136,8 @@ module.exports = class Play extends Command {
             console.log('Playing stream');
             await this.phoenix.bot.user.setActivity("Loading...");
             const connection = voice.getVoiceConnection(this.textChannel.guildId)
-            this.audioPlayer = voice.createAudioPlayer();
+            if (this.audioPlayer == null)
+                this.audioPlayer = voice.createAudioPlayer();
 
             const resource = voice.createAudioResource(stream)
             this.audioPlayer.play(resource);
@@ -168,8 +166,6 @@ module.exports = class Play extends Command {
     static voiceHandlerOnEnd() {
         this.audioPlayer.once('idle', async (reason) => {
             await this.phoenix.bot.user.setActivity(this.phoenix.config.activity);
-            this.voiceHandler.destroy();
-            this.voiceHandler = null;
             // this.pushRelatedVideo();
             this.videoInfos = null;
             this.videoUrl = null;
@@ -182,8 +178,8 @@ module.exports = class Play extends Command {
                 this.isPlaying = false;
                 Phoenix.activities--;
                 console.log("No more musics in queue, stop playing.");
-                this.voiceChannel.leave();
-                return;
+                this.audioPlayer = null;
+                voice.getVoiceConnection(this.textChannel.guildId).destroy();
             }
         })
     }
@@ -273,7 +269,7 @@ module.exports = class Play extends Command {
     static skip() {
         if(this.isPlaying) {
             console.log('Skip soung');
-            this.voiceHandler.end();
+            this.audioPlayer.stop();
         }
     }
 
