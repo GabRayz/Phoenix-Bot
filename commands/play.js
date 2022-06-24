@@ -1,8 +1,7 @@
 const request = require('request');
 const youtube = require('ytdl-core');
-const opus = require('opusscript');
 const YTplaylist = require('../src/ytplaylist');
-const { joinVoiceChannel, VoiceConnectionEvents, VoiceConnectionState, VoiceConnectionStatus} = require('@discordjs/voice');
+const voice = require('@discordjs/voice');
 
 let Phoenix = require('../index');
 
@@ -139,7 +138,14 @@ module.exports = class Play extends Command {
 
             console.log('Playing stream');
             await this.phoenix.bot.user.setActivity("Loading...");
-            this.voiceHandler = await this.voiceConnection.playStream(this.stream, {volume: this.volume});
+            const connection = voice.getVoiceConnection(this.textChannel.guildId)
+            this.audioPlayer = voice.createAudioPlayer();
+
+            const resource = voice.createAudioResource(stream)
+            this.audioPlayer.play(resource);
+
+            connection.subscribe(this.audioPlayer);
+
             this.isPlaying = true;
 
             this.voiceHandlerOnStart();
@@ -152,15 +158,15 @@ module.exports = class Play extends Command {
     }
 
     static voiceHandlerOnStart() {
-        this.voiceHandler.on('start', () => {
+        this.audioPlayer.on('playing', () => {
             console.log('Playing...');
             if (typeof this.videoInfos != 'undefined')
                 this.phoenix.bot.user.setActivity(this.videoInfos.videoDetails.title);
         })
     }
 
-    static async voiceHandlerOnEnd() {
-        this.voiceHandler.once('end', async (reason) => {
+    static voiceHandlerOnEnd() {
+        this.audioPlayer.once('idle', async (reason) => {
             await this.phoenix.bot.user.setActivity(this.phoenix.config.activity);
             this.voiceHandler.destroy();
             this.voiceHandler = null;
@@ -323,12 +329,12 @@ module.exports = class Play extends Command {
                 console.log('User not connected to a voice channel');
                 reject();
             }
-            const connection = joinVoiceChannel({
+            const connection = voice.joinVoiceChannel({
                 channelId: channel.id,
                 guildId: channel.guild.id,
                 adapterCreator: channel.guild.voiceAdapterCreator,
             });
-            connection.on(VoiceConnectionStatus.Ready, () => {
+            connection.on(voice.VoiceConnectionStatus.Ready, () => {
                 console.log('connected to voice channel');
                 resolve(connection);
             });
