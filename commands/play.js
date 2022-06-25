@@ -2,10 +2,12 @@ const youtube = require('ytdl-core');
 const YTplaylist = require('../src/ytplaylist');
 const voice = require('@discordjs/voice');
 const searchApi = require('youtube-search-api');
+const Discord = require('discord.js');
 
 let Phoenix = require('../index');
 
 let Command = require('../src/Command');
+const {MessageActionRow, MessageButton} = require("discord.js");
 
 module.exports = class Play extends Command {
     static name = 'play';
@@ -37,6 +39,7 @@ module.exports = class Play extends Command {
     static videoInfos = null;
     static videoUrl = null;
     static audioPlayer = null;
+    static statusMessage = null;
 
     /**
      * Entry point of the command. Adds to song to the queue and start playing.
@@ -147,6 +150,7 @@ module.exports = class Play extends Command {
 
             this.voiceHandlerOnStart();
             this.voiceHandlerOnEnd();
+            this.displayStatusMessage();
         }).catch(err => {
             console.error("Error while getting video infos: ", err);
             this.textChannel.send('Erreur: ' + err.message);
@@ -187,12 +191,12 @@ module.exports = class Play extends Command {
             if (typeof song == 'undefined') return reject(new TypeError('song is not undefined'));
             let url;
             // If the video has been queued from the `playlist play` command, the id may be specified in the queue.
-            if(typeof song.id !== 'undefined') {
+            if(typeof song.id !== 'undefined' && song.id != null) {
                 url = "https://youtube.com/watch?v=" + song.id;
-            }else if (song.startsWith("http")) {
+            }else if (song.name.startsWith("http")) {
                 url = song;
             }else {
-                url = await this.getUrlFromName(song)
+                url = await this.getUrlFromName(song.name)
                 if(url === null) {
                     return reject('Aucune vidéo trouvée');
                 }
@@ -274,6 +278,39 @@ module.exports = class Play extends Command {
         this.isPlaying = false;
         this.phoenix.activities--;
         this.stream.end();
+        this.statusMessage.delete();
         voice.getVoiceConnection(this.textChannel.guildId).destroy();
+    }
+
+    static async displayStatusMessage() {
+        const details = this.videoInfos.videoDetails;
+        let maxSizedThumbnail = details.thumbnails[0];
+        for (let thumbnail of details.thumbnails) {
+            if (thumbnail.width > maxSizedThumbnail.width)
+                maxSizedThumbnail = thumbnail;
+        }
+        const embed = new Discord.MessageEmbed();
+        embed.setImage(maxSizedThumbnail.url);
+        embed.setTitle(details.title);
+        embed.setDescription("Now playing...");
+        embed.setColor([155, 44, 149]);
+        const messageData = {
+            embeds: [embed],
+            components: [
+                new MessageActionRow({
+                    components: [
+                        new MessageButton({
+                            label: "Next",
+                            customId: "phoenixMusicNext",
+                            style: "SECONDARY"
+                        })
+                    ]
+                })
+            ]
+        };
+        if (this.statusMessage == null)
+            this.statusMessage = await this.textChannel.send(messageData);
+        else
+            this.statusMessage.edit(messageData);
     }
 }
