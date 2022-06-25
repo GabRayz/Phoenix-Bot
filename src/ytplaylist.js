@@ -3,6 +3,7 @@ let Playlist = require('../commands/playlist');
 const request = require('request');
 let Config = {}
 Config = require('../config.json')
+const searchApi = require('youtube-search-api');
 let key = Config.ytapikey;
 
 module.exports = class YTplaylist {
@@ -11,7 +12,7 @@ module.exports = class YTplaylist {
         let videos = await this.GetPlaylist(id);
         if(videos) {
             for (const video of videos) {
-                Command.Play.addToQueueString(video);
+                Command.Play.addToQueueObject(video);
             }
         }
         console.log('Playlist enqueued !');
@@ -42,27 +43,14 @@ module.exports = class YTplaylist {
         
     }
 
-    static GetPlaylist(id) {
-        return new Promise(async (resolve) => {
-            try {
-                console.log('Requesting playlist...');
-                let pageToken = " ";
-                let videos = [];
-                while(pageToken) {
-                    let res = await this.Get('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&pageToken=' + pageToken + '&playlistId=' + id + '&key=' + key);
-                    
-                    res.videos.forEach(vid => {
-                        videos.push(vid);
-                    });
-                    console.log('Merged pages');
-                    pageToken = res.nextPageToken;
-                }
-                resolve(this.getVideos(videos))
-            }catch(err) {
-                console.error(err);
-                return false;
-            }
-        })
+    static async GetPlaylist(id) {
+        const result = await searchApi.GetPlaylistData(id, 100);
+        return result.items.map(item => {
+            return {
+                name: item.title,
+                id: item.id
+            };
+        });
     }
 
     static Get(url) {
@@ -80,18 +68,5 @@ module.exports = class YTplaylist {
                 resolve({"videos": videos, "nextPageToken": nextPageToken});
             })
         })
-    }
-
-    static getVideos(items) {
-        let videos = []
-        items.forEach(item => {
-            let video = {
-                name: item.snippet.title,
-                id: item.snippet.resourceId.videoId
-            }
-            videos.push(video);
-        });
-        console.log('Videos ids extracted.');
-        return videos;
     }
 }
