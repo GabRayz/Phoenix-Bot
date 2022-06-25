@@ -6,7 +6,7 @@ const Discord = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
 
 let Command = require('../src/Command');
-const {MessageActionRow, MessageButton, MessageSelectMenu} = require("discord.js");
+const {MessageActionRow, MessageButton} = require("discord.js");
 
 module.exports = class Play extends Command {
     static name = 'play';
@@ -76,39 +76,29 @@ module.exports = class Play extends Command {
                 this.textChannel.send("Tu n'es pas connecté à un channel vocal ='(");
                 console.log('User not connected to a voice channel');
             });
-            this.phoenix.bot.on('interactionCreate', async interaction => {
-                if (interaction.isButton() && interaction.customId === 'phoenixMusicNext') {
-                    interaction.deferUpdate();
-                    await this.skip();
-                    await wait(500);
-                    interaction.editReply({});
-                }
-            });
-            this.phoenix.bot.on('interactionCreate', async interaction => {
-                if (interaction.isButton() && interaction.customId === 'phoenixMusicPause') {
-                    interaction.deferUpdate();
-                    this.audioPlayer.pause();
-                    await wait(500);
-                    interaction.editReply({});
-                }
-            });
-            this.phoenix.bot.on('interactionCreate', async interaction => {
-                if (interaction.isButton() && interaction.customId === 'phoenixMusicPlay') {
-                    interaction.deferUpdate();
-                    this.audioPlayer.unpause();
-                    await wait(500);
-                    interaction.editReply({});
-                }
-            });
-            this.phoenix.bot.on('interactionCreate', async interaction => {
-                if (interaction.isButton() && interaction.customId === 'phoenixMusicStop') {
-                    interaction.deferUpdate();
-                    this.stop();
-                    await wait(500);
-                    interaction.editReply({});
-                }
-            });
+            this.setupEventInteractions();
         }
+    }
+
+    static setupEventInteractions() {
+        this.phoenix.bot.on('interactionCreate', async interaction => {
+            if (interaction.isButton() && interaction.customId === 'phoenixMusicNext'
+                || interaction.customId === 'phoenixMusicPause'
+                || interaction.customId === 'phoenixMusicPlay'
+                || interaction.customId === 'phoenixMusicStop') {
+                interaction.deferUpdate();
+                if (interaction.customId === 'phoenixMusicNext')
+                    await this.skip();
+                else if (interaction.customId === 'phoenixMusicPause')
+                    this.audioPlayer.pause();
+                else if (interaction.customId === 'phoenixMusicPlay')
+                    this.audioPlayer.unpause();
+                else if (interaction.customId === 'phoenixMusicStop')
+                    this.stop();
+                await wait(500);
+                interaction.editReply({});
+            }
+        });
     }
 
     static addToQueue(message) {
@@ -180,10 +170,10 @@ module.exports = class Play extends Command {
             this.isPlaying = true;
 
             this.voiceHandlerOnStart();
-            this.audioPlayer.once('idle', async (reason) => {
+            this.audioPlayer.once('idle', async () => {
                 await this.voiceHandlerOnEnd();
             });
-            this.displayStatusMessage();
+            await this.displayStatusMessage();
         }).catch(err => {
             console.error("Error while getting video infos: ", err);
             this.textChannel.send('Erreur: ' + err.message);
