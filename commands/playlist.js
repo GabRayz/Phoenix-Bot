@@ -1,5 +1,4 @@
 const fs = require('fs');
-// const YTplaylist = require('../src/ytplaylist');
 let Command = require('../src/Command');
 let Play = require('./play');
 
@@ -12,68 +11,75 @@ module.exports = class Playlist extends Command {
     static description = "Gérer les playlist. !playlist help";
     static path = '../../playlists/';
 
+    constructor(phoenix, channel) {
+        super(phoenix, channel);
+    }
+
     static call(msg, phoenix) {
-        this.textChannel = msg.channel;
-        this.phoenix = phoenix;
+        const instance = new Playlist(phoenix, msg.channel);
         switch(msg.args[0]) {
             case "create":
-                if (msg.args.length > 1) this.create(msg.args[1], msg.author);
+                if (msg.args.length > 1)
+                    instance.create(msg.args[1], msg.author);
                 break;
             case "list":
-                this.list();
+                instance.list();
                 break;
             case "add":
                 if (msg.args.length > 2) {
                     if(msg.args[2].includes('playlist?list=')) {
                         require('../src/ytplaylist').ImportPlaylist(msg.args[2], msg.args[1], msg.author);
-                    }else if(msg.args[2].includes('spotify.com')) {
-                        Command.Spotify.read(msg.args[2], msg.args[1], msg.author);
                     }else {
-                        this.add(this.getSoungName(msg.args), msg.args[1], msg.author);
+                        instance.add(this.getSoungName(msg.args), msg.args[1], msg.author);
                     }
                 }
                 break;
             case "play":
-                if (msg.args.length > 1) this.play(msg.args[1], msg);
+                if (msg.args.length > 1)
+                    instance.play(msg.args[1], msg);
                 msg.react('✅');
                 break;
             case "stop":
-                this.stop();
+                instance.stop();
                 break;
             case "delete":
-                if (msg.args.length > 1) this.delete(msg.args[1], msg.author);
+                if (msg.args.length > 1)
+                    instance.delete(msg.args[1], msg.author);
                 break;
             case "help":
-                this.showHelp();
+                instance.showHelp();
                 break
             case "see":
-                if (msg.args.length > 1) this.see(msg.args[1]);
+                if (msg.args.length > 1)
+                    instance.see(msg.args[1]);
                 break;
             default:
                 return;
         }
     }
-    static create(name, user) {
+
+    create(name, user) {
         name = name.split('.')[0];
         let content = '{"authors": ["' + user.username + '"], "items": []}';
         fs.writeFile('../playlists/' + name + '.json', content, (err) => {
             if (err === null) {
                 console.log('Playlist created');
-                this.textChannel.send('La playlist ' + name + ' a été créée. Ajoutez des musiques avec ' + this.phoenix.config.prefix + 'playlist add [playlist] [url]');
+                this.channel.send('La playlist ' + name + ' a été créée. Ajoutez des musiques avec ' + this.phoenix.config.prefix + 'playlist add [playlist] [url]');
             }else {
                 console.log(err);
-                this.textChannel.send('Erreur lors de la création de la playlist');
+                this.channel.send('Erreur lors de la création de la playlist');
             }
         })
     }
-    static list() {
+
+    list() {
         fs.readdir('../playlists/', (err, files) => {
             if(err) {
                 console.error(err);
                 return;
             }
             let msg = "";
-            if (files.length == 0) {
+            if (files.length === 0) {
                 msg = "Il n'y a aucune playlist";
             }else {
                 msg = "Playlists: ";
@@ -81,9 +87,10 @@ module.exports = class Playlist extends Command {
                     msg += "\n - " + file.split('.')[0];
                 });
             }
-            this.textChannel.send(msg);
+            this.channel.send(msg);
         })
     }
+
     static getSoungName(args) {
         let res = "";
         for (let i = 2; i < args.length; i++) {
@@ -92,7 +99,8 @@ module.exports = class Playlist extends Command {
         }
         return res;
     }
-    static add(songName, playlistName, user, log = true, songId = "") {
+
+    add(songName, playlistName, user, log = true, songId = "") {
         return new Promise(resolve => {
             console.log("Adding " + songName + " to playlist " + playlistName);
             let playlist = {};
@@ -100,7 +108,7 @@ module.exports = class Playlist extends Command {
                 playlist = require('../../playlists/' + playlistName + '.json');
             }catch (err) {
                 if(log)
-                    this.phoenix.sendClean('Cette playlist n\'existe pas :/', this.textChannel, 20000)
+                    this.phoenix.sendClean('Cette playlist n\'existe pas :/', this.channel, 20000)
                 console.log("Cannot find playlist " + playlistName);
                 console.error(err);
                 resolve(false);
@@ -120,7 +128,7 @@ module.exports = class Playlist extends Command {
                     resolve(false);
                 }else {
                     if(log)
-                        this.phoenix.sendClean("Musique ajoutée à la playlist", this.textChannel, 10000);
+                        this.phoenix.sendClean("Musique ajoutée à la playlist", this.channel, 10000);
                     console.log('Music added to playlist');
                     resolve(true);
                 }
@@ -128,13 +136,14 @@ module.exports = class Playlist extends Command {
         })
         
     }
-    static play(playlistName, msg) {
+
+    play(playlistName, msg) {
         let playlist = [];
         try {
             playlist = require('../../playlists/' + playlistName + '.json');
         }catch {
             console.error('Playlist not found: ' + playlistName);
-            this.phoenix.sendClean("Je n'ai pas trouvé cette playlist.", this.textChannel, 15000);
+            this.phoenix.sendClean("Je n'ai pas trouvé cette playlist.", this.channel, 15000);
             return;
         }
         require('./play').currentPlaylist = playlist.items;
@@ -143,17 +152,19 @@ module.exports = class Playlist extends Command {
 
         require('./play').start(this.phoenix, msg);
     }
-    static stop() {
+
+    stop() {
         require('./play').currentPlaylist = [];
         require('./play').currentPlaylistName = "";
     }
-    static delete(playlistName, user) {
+
+    delete(playlistName, user) {
         let playlist = {};
         try {
             playlist = require("../../playlists/" + playlistName + ".json")
         }catch(err) {
             console.error(err);
-            this.phoenix.sendClean("Je n'ai pas trouvé cette playlist", this.textChannel, 5000);
+            this.phoenix.sendClean("Je n'ai pas trouvé cette playlist", this.channel, 5000);
             return;
         }
 
@@ -162,30 +173,34 @@ module.exports = class Playlist extends Command {
         fs.unlink("../playlists/" + playlistName + ".json", (err) => {
             if (err) {
                 console.error(err);
-                this.phoenix.sendClean("Je n'ai pas trouvé cette playlist", this.textChannel, 5000);
+                this.phoenix.sendClean("Je n'ai pas trouvé cette playlist", this.channel, 5000);
             }else {
                 console.log('Deleted playlist: ' + playlistName);
-                this.phoenix.sendClean("Playlist supprimée.", this.textChannel, 15000);
+                this.phoenix.sendClean("Playlist supprimée.", this.channel, 15000);
             }
         })
     }
-    static showHelp() {
+
+    showHelp() {
+        let prefix = this.phoenix.guilds[this.guild.id].config.prefix;
         let msg = "Gestion de playlist : " +
-            "\n" + this.phoenix.config.prefix + "playlist list: Liste toutes les playlist" +
-            "\n" + this.phoenix.config.prefix + "playlist create {nom}: Créer une nouvelle playlist" +
-            "\n" + this.phoenix.config.prefix + "playlist add {playlist} {nom}: Ajouter une musique à une playlist" +
-            "\n" + this.phoenix.config.prefix + "playlist play {playlist}: Joue une playlist" +
-            "\n" + this.phoenix.config.prefix + "playlist delete {playlist}: Supprime une playlist" +
-            "\n" + this.phoenix.config.prefix + "playlist see {playlist}: Liste le contenu d'une playlist" +
+            "\n" + prefix + "playlist list: Liste toutes les playlist" +
+            "\n" + prefix + "playlist create {nom}: Créer une nouvelle playlist" +
+            "\n" + prefix + "playlist add {playlist} {nom}: Ajouter une musique à une playlist" +
+            "\n" + prefix + "playlist play {playlist}: Joue une playlist" +
+            "\n" + prefix + "playlist delete {playlist}: Supprime une playlist" +
+            "\n" + prefix + "playlist see {playlist}: Liste le contenu d'une playlist" +
             "";
-        this.textChannel.send(msg, {code: true});
+        this.channel.send(msg, {code: true});
     }
-    static checkAuthors(playlist, user) {
+
+    checkAuthors(playlist, user) {
         if(playlist.authors.includes(user.username)) return true;
-        this.phoenix.sendClean("Tu n'es pas l'auteur de cette playlist", this.textChannel, 15000);
+        this.phoenix.sendClean("Tu n'es pas l'auteur de cette playlist", this.channel, 15000);
         return false;
     }
-    static see(playlistName) {
+
+    see(playlistName) {
         let playlist = {};
         try {
             playlist = require('../../playlists/' + playlistName + '.json');
@@ -206,6 +221,6 @@ module.exports = class Playlist extends Command {
             }
         });
         msgs.push(msg);
-        msgs.forEach(m => this.textChannel.send(m));
+        msgs.forEach(m => this.channel.send(m));
     }
 }
