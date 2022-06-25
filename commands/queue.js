@@ -9,9 +9,9 @@ module.exports = class Queue extends Command {
     static description = "Affiche la liste d'attente des musiques.";
 
     static call(msg, phoenix) {
-        let res = "Playlist en cours : " + (Play.currentPlaylistName == "" ? "Aucune": Play.currentPlaylistName);
+        let res = "Playlist en cours : " + (Play.currentPlaylistName === "" ? "Aucune": Play.currentPlaylistName);
         res += "\nFile d'attente : ";
-        Play.queue.forEach(song => res += song + ", ");
+        Play.queue.forEach(song => res += song.name + ", ");
         res += "\nÀ la fin de la file d'attente, des chansons de la playlist seront ajoutées";
         phoenix.sendClean(res, msg.channel, 20000);
     }
