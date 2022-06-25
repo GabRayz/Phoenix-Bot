@@ -6,16 +6,15 @@ Config = require('../config.json')
 let key = Config.ytapikey;
 
 module.exports = class YTplaylist {
-    static async Enqueue(url, callback) {
+    static async Enqueue(url) {
         let id = url.split('=')[1];
         let videos = await this.GetPlaylist(id);
         if(videos) {
-            videos.forEach(video => {
+            for (const video of videos) {
                 Command.Play.addToQueueString(video);
-            })
+            }
         }
         console.log('Playlist enqueued !');
-        callback();
     }
 
     static async ImportPlaylist(url, playlistName, user) {
@@ -31,8 +30,8 @@ module.exports = class YTplaylist {
 
     static async AddToPL(videos, playlistName, user) {
         return new Promise(async resolve => {
-            for(let i = 0; i < videos.length; i++) {
-                let video = videos[i];
+            for(const element of videos) {
+                let video = element;
                 let res = await Playlist.add(video.name, playlistName, user, false, video.id);
                 if(!res){
                     Playlist.textChannel.send("Oh, une erreur :/");
@@ -48,7 +47,6 @@ module.exports = class YTplaylist {
             try {
                 console.log('Requesting playlist...');
                 let pageToken = " ";
-                let morePages = true;
                 let videos = [];
                 while(pageToken) {
                     let res = await this.Get('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&pageToken=' + pageToken + '&playlistId=' + id + '&key=' + key);
@@ -77,7 +75,7 @@ module.exports = class YTplaylist {
                 }
                 body = JSON.parse(body);
                 
-                let videos = body.items.filter(vid => vid.snippet.title != "Private video");
+                let videos = body.items.filter(vid => vid.snippet.title !== "Private video");
                 let nextPageToken = (body.nextPageToken ? body.nextPageToken: false);
                 resolve({"videos": videos, "nextPageToken": nextPageToken});
             })

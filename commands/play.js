@@ -1,4 +1,3 @@
-const request = require('request');
 const youtube = require('ytdl-core');
 const YTplaylist = require('../src/ytplaylist');
 const voice = require('@discordjs/voice');
@@ -44,18 +43,16 @@ module.exports = class Play extends Command {
      * @param {*} message 
      * @param {*} phoenix
      */
-    static call(message, phoenix) {
+    static async call(message, phoenix) {
         this.textChannel = message.channel;
         this.phoenix = phoenix;
 
         if(message.args.length > 0 && message.args[0].startsWith('http') && message.args[0].includes('playlist?list=')) {
             console.log('Importing playlist...');
-            YTplaylist.Enqueue(message.args[0], function() {
-                Play.start(phoenix, message);
-            });
+            await YTplaylist.Enqueue(message.args[0]);
         }else {
             this.addToQueue(message);
-            this.start(phoenix, message);
+            await this.start(phoenix, message);
         }
     }
 
@@ -70,13 +67,13 @@ module.exports = class Play extends Command {
         if(!this.isPlaying) {
             console.log("connecting to voice channel");
             this.textChannel = message.channel;
-            this.connectToVoiceChannel(message.member.voice.channel).then(voiceConnection => {
+            this.connectToVoiceChannel(message.member.voice.channel).then(() => {
                 console.log("Connected to voice channel", message.member.voice.channel.name);
-                this.voiceConnection = voiceConnection;
                 this.voiceChannel = message.member.voiceChannel;
                 this.nextSong();
             }).catch(() => {
-                return;
+                this.textChannel.send("Tu n'es pas connecté à un channel vocal ='(");
+                console.log('User not connected to a voice channel');
             })
         }
     }
@@ -167,14 +164,13 @@ module.exports = class Play extends Command {
     static voiceHandlerOnEnd() {
         this.audioPlayer.once('idle', async (reason) => {
             await this.phoenix.bot.user.setActivity(this.phoenix.config.activity);
-            // this.pushRelatedVideo();
             this.videoInfos = null;
             this.videoUrl = null;
             console.log('End of soung: ' + reason);
             if(!this.isPlaying) return;
             
             if(this.queue.length > 0 || Play.currentPlaylist.length > 0) {
-                this.nextSong()
+                await this.nextSong()
             }else {
                 this.isPlaying = false;
                 Phoenix.activities--;
@@ -204,58 +200,6 @@ module.exports = class Play extends Command {
         })
     }
 
-    static pushRelatedVideo() {
-        if (this.queue.length == 0 && this.currentPlaylistName == "") {
-            let vid = this.videoInfos.related_videos[0];
-            this.queue.push('https://www.youtube.com/watch?v=' + vid.id);
-        }
-    }
-
-    static GetNameFromUrl(url) {
-        return new Promise(resolve => {
-            if(!url.includes('watch?v=')) return false;
-            let id = url.split('=')[1];
-            try {
-                request('https://www.googleapis.com/youtube/v3/videos?part=snippet&id=' + id + '&maxResults=1&key=' + this.phoenix.config.ytapikey, (err, res, body) => {
-                    if(err) {
-                        console.error(err);
-                        return resolve(err);
-                    }
-                    body = JSON.parse(body);
-                    let videoTitle = body.items[0].snippet.title;
-                    resolve(videoTitle);
-                })
-            }catch(err) {
-                console.error(err);
-                resolve(false);
-            }
-        })
-    }
-
-    static GetInfos(url) {
-        // let id;
-        // if (url.includes('watch?v=')) {
-        //     let param = url.split('watch?v=')[1];
-        //     // Exclude other parameters
-        //     id = param.split('&')[0]
-        // }
-        // else if (url.includes('youtu.be/')) {
-        //     id = url.split('youtu.be/')[1]
-        // }
-        // if (!id) {
-        //     console.error('GetInfos: Unknown url format');
-        //     return;
-        // }
-        youtube.getInfo(url, (err, infos) => {
-            if (err) {
-                console.error("Error while getting video infos: ", err);
-                return;
-            }
-            this.videoInfos = infos;
-            this.videoUrl = url;
-        })
-    }
-
     /**
      * Push a random song of the playlist to the queue
      */
@@ -275,7 +219,8 @@ module.exports = class Play extends Command {
     }
 
     static async getStream(url) {
-        if (typeof url == 'undefined') return reject(new TypeError('url is not defined'));
+        if (typeof url == 'undefined')
+            throw new TypeError('url is not defined');
         console.log('Get stream from url : ' + url);
         let infos = await youtube.getInfo(url);
         if (! infos) {
@@ -291,9 +236,7 @@ module.exports = class Play extends Command {
         stream.on('error', (err) => {
             console.error("Erreur lors de la lecture : ", err);
             this.textChannel.send("Erreur: " + err.message);
-            // this.voiceHandler.end();
         })
-        // console.log(stream);
         return stream;
     }
 
@@ -307,11 +250,9 @@ module.exports = class Play extends Command {
         return `https://www.youtube.com/watch?v=${result.items[0].id}`;
     }
 
-    static connectToVoiceChannel(channel) {
+    static async connectToVoiceChannel(channel) {
         return new Promise((resolve, reject) => {
             if(!channel) {
-                this.textChannel.send("Tu n'es pas connecté à un channel vocal ='(");
-                console.log('User not connected to a voice channel');
                 reject();
             }
             const connection = voice.joinVoiceChannel({
@@ -321,7 +262,7 @@ module.exports = class Play extends Command {
             });
             connection.on(voice.VoiceConnectionStatus.Ready, () => {
                 console.log('connected to voice channel');
-                resolve(connection);
+                resolve();
             });
         })
     }
