@@ -69,7 +69,6 @@ module.exports = class Play extends Command {
             this.textChannel = message.channel;
             this.connectToVoiceChannel(message.member.voice.channel).then(() => {
                 console.log("Connected to voice channel", message.member.voice.channel.name);
-                this.voiceChannel = message.member.voiceChannel;
                 this.nextSong();
             }).catch(() => {
                 this.textChannel.send("Tu n'es pas connecté à un channel vocal ='(");
@@ -275,6 +274,6 @@ module.exports = class Play extends Command {
         this.isPlaying = false;
         this.phoenix.activities--;
         this.stream.end();
-        this.voiceChannel.leave();
+        voice.getVoiceConnection(this.textChannel.guildId).destroy();
     }
 }
