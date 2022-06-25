@@ -19,8 +19,18 @@ class Command {
     /**
      * Execute the command
      */
-    call() {
+    static call() {
         throw new Error('Function not implemented');
+    }
+
+    phoenix = null;
+    guild = null;
+    channel = null;
+
+    constructor(phoenix, channel) {
+        this.guild = channel.guild;
+        this.phoenix = phoenix;
+        this.channel = channel;
     }
 }
 
