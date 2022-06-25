@@ -25,6 +25,7 @@ module.exports = class Phoenix {
             let guilds = await this.bot.guilds.fetch()
             for (const guild of guilds) {
                 this.guilds[guild[0]] = new PhoenixGuild(guild[0], this.bot);
+                this.guilds[guild[0]].importEmojis();
             }
 
             this.bot.on('message', (msg) => {
