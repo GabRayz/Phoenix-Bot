@@ -2,6 +2,7 @@ const request = require('request');
 const youtube = require('ytdl-core');
 const YTplaylist = require('../src/ytplaylist');
 const voice = require('@discordjs/voice');
+const searchApi = require('youtube-search-api');
 
 let Phoenix = require('../index');
 
@@ -194,8 +195,8 @@ module.exports = class Play extends Command {
             }else if (song.startsWith("http")) {
                 url = song;
             }else {
-                url = await this.getUrlFromName(song, this.phoenix)
-                if(!url) {
+                url = await this.getUrlFromName(song)
+                if(url === null) {
                     return reject('Aucune vidéo trouvée');
                 }
             }
@@ -296,26 +297,14 @@ module.exports = class Play extends Command {
         return stream;
     }
 
-    static getUrlFromName(name, phoenix) {
+    static async getUrlFromName(name) {
         console.log('Get url from name : ' + name);
-        return new Promise(resolve => {
-            request('https://www.googleapis.com/youtube/v3/search?part=snippet&q=' + name + '&key=' + phoenix.config.ytapikey, async (err, res, body) => {
-                try {
-                    let videos = JSON.parse(body).items;
-                    let video = videos.find(vid => vid.id.kind == "youtube#video");
-                    let id = video.id.videoId;
-                    if(!id) {
-                        this.textChannel.send("Je n'ai pas trouvé la vidéo :c");
-                        resolve(false);
-                    }
-                    resolve('https://www.youtube.com/watch?v=' + id);
-                }catch(err) {
-                    console.error(err);
-                    this.textChannel.send("Je n'ai pas trouvé la vidéo :c");
-                    resolve(false);
-                }
-            })
-        })
+        const result = await searchApi.GetListByKeyword(name, false, 1);
+        if (result.items.length === 0) {
+            this.textChannel.send("Je n'ai pas trouvé la vidéo :c");
+            return null;
+        }
+        return `https://www.youtube.com/watch?v=${result.items[0].id}`;
     }
 
     static connectToVoiceChannel(channel) {
