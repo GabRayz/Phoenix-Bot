@@ -52,8 +52,8 @@ module.exports = class Play extends Command {
             await YTplaylist.Enqueue(message.args[0]);
         }else {
             this.addToQueue(message);
-            await this.start(phoenix, message);
         }
+        await this.start(phoenix, message);
     }
 
     /**
@@ -84,13 +84,16 @@ module.exports = class Play extends Command {
             name += str + " ";
         });
         console.log("Queueing: " + name);
-        this.queue.push(name);
+        this.queue.push({
+            name: name,
+            id: null
+        });
         message.react('✅');
     }
 
-    static addToQueueString(name) {
-        console.log("Queueing: " + name);
-        this.queue.push(name);
+    static addToQueueObject(video) {
+        console.log("Queueing: " + video.name);
+        this.queue.push(video);
     }
 
     static sleep(ms) {
@@ -111,9 +114,8 @@ module.exports = class Play extends Command {
                 return;
             }
         }
-        console.log('Current queue: ', this.queue);
         let song = this.queue.shift();
-        console.log('Next song: ', song);
+        console.log('Next song: ', song.name);
 
         // Get video url
         let url = await this.getUrlFromQuery(song).catch(err => {
