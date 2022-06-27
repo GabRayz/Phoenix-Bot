@@ -1,12 +1,10 @@
-let Game = require('../src/Game');
+let Game = require("../src/Game");
 
 module.exports = class TwoK48 extends Game {
-    static name = '2048';
-    static alias = [
-        "2048",
-    ];
+    static name = "2048";
+    static alias = ["2048"];
     static description = "Jouons à 2048";
-    
+
     /**
      * The discord text message displaying the game board
      */
@@ -14,11 +12,23 @@ module.exports = class TwoK48 extends Game {
     /**
      * Names of the tiles emojis.
      */
-    names = ['2048_2', '2048_4', '2048_8', '2048_16', '2048_32', '2048_64', '2048_128', '2048_512', '2048_1024', '2048_2048', '2048_4096'];
+    names = [
+        "2048_2",
+        "2048_4",
+        "2048_8",
+        "2048_16",
+        "2048_32",
+        "2048_64",
+        "2048_128",
+        "2048_512",
+        "2048_1024",
+        "2048_2048",
+        "2048_4096",
+    ];
     /**
      * Id of each tile emoji.
      */
-    ids = []
+    ids = [];
     /**
      * The game board. Each cell contains the index of the tile in this.names, -1 if there is no tile in this cell.
      */
@@ -41,31 +51,44 @@ module.exports = class TwoK48 extends Game {
         this.phoenix.activities++;
         this.player = this.players[0];
         // Preparing the board message
-        this.boardMsg = await this.channel.send('Chargement de la partie...');
-        await this.boardMsg.react('⬅️');
-        await this.boardMsg.react('⬆️');
-        await this.boardMsg.react('⬇️');
-        await this.boardMsg.react('➡️');
+        this.boardMsg = await this.channel.send("Chargement de la partie...");
+        await this.boardMsg.react("⬅️");
+        await this.boardMsg.react("⬆️");
+        await this.boardMsg.react("⬇️");
+        await this.boardMsg.react("➡️");
         // Preparing the game board
         this.board = this.createEmptyBoard();
         this.placeFirstTiles();
 
         await this.draw();
 
-        this.phoenix.bot.on('messageReactionAdd', (messageReaction, user) => {
+        this.phoenix.bot.on("messageReactionAdd", (messageReaction, user) => {
             // If the game is playing, let the player add reactions to move.
-            if (user.tag == this.player.tag && !this.isLoading && this.isPlaying && messageReaction.message.id == this.boardMsg.id)
+            if (
+                user.tag == this.player.tag &&
+                !this.isLoading &&
+                this.isPlaying &&
+                messageReaction.message.id == this.boardMsg.id
+            )
                 this.onPlay(this.emojiToMove(messageReaction.emoji.name));
-        })
-        this.phoenix.bot.on('messageReactionRemove', (messageReaction, user) => {
-            if (user.tag == this.player.tag && !this.isLoading && this.isPlaying && messageReaction.message.id == this.boardMsg.id)
-                this.onPlay(this.emojiToMove(messageReaction.emoji.name));
-        })
+        });
+        this.phoenix.bot.on(
+            "messageReactionRemove",
+            (messageReaction, user) => {
+                if (
+                    user.tag == this.player.tag &&
+                    !this.isLoading &&
+                    this.isPlaying &&
+                    messageReaction.message.id == this.boardMsg.id
+                )
+                    this.onPlay(this.emojiToMove(messageReaction.emoji.name));
+            }
+        );
     }
 
     /**
      * Do a move.
-     * @param {*} move 
+     * @param {*} move
      */
     async onPlay(move) {
         if (move == null) return;
@@ -74,7 +97,7 @@ module.exports = class TwoK48 extends Game {
             await this.draw();
             this.placeRandom(move);
             await this.draw();
-            
+
             if (this.isGameOver()) {
                 this.stop();
             }
@@ -83,8 +106,8 @@ module.exports = class TwoK48 extends Game {
     }
 
     isGameOver() {
-        for(let i = 0; i < 4; i++) {
-            for(let j = 0; j < 4; j++) {
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
                 if (this.canMove(i, j, i - 1, j)) return false;
                 if (this.canMove(i, j, i + 1, j)) return false;
                 if (this.canMove(i, j, i, j - 1)) return false;
@@ -96,12 +119,15 @@ module.exports = class TwoK48 extends Game {
 
     canMove(x, y, newX, newY) {
         if (newX < 0 || newX > 3 || newY < 0 || newY > 3) return false;
-        return this.board[newX][newY] == -1 || this.board[newX][newY] == this.board[x][y];
+        return (
+            this.board[newX][newY] == -1 ||
+            this.board[newX][newY] == this.board[x][y]
+        );
     }
 
     /**
      * Place a nex random tile depending on the last move.
-     * @param {*} move 
+     * @param {*} move
      */
     placeRandom(move) {
         while (true) {
@@ -110,25 +136,22 @@ module.exports = class TwoK48 extends Game {
             if (move[0] != 0) {
                 y = rand;
                 x = move[0] == 1 ? 0 : 3;
-            }else {
+            } else {
                 x = rand;
                 y = move[1] == 1 ? 0 : 3;
             }
-            if (this.board[x][y] == -1)
-                return this.place(x, y, 0);
-            else if (this.board[x][y] == 0)
-                return this.board[x][y] ++;
+            if (this.board[x][y] == -1) return this.place(x, y, 0);
+            else if (this.board[x][y] == 0) return this.board[x][y]++;
         }
     }
 
     compareBoards(board1, board2) {
         for (let j = 0; j < 4; j++) {
             for (let i = 0; i < 4; i++) {
-                if (board1[i][j] != board2[i][j])
-                    return false;
+                if (board1[i][j] != board2[i][j]) return false;
             }
         }
-    
+
         return true;
     }
 
@@ -136,14 +159,14 @@ module.exports = class TwoK48 extends Game {
         // Create the next board
         let newBoard = this.createEmptyBoard();
         // Determine the direction of the loop to move the tiles
-        let y = (move[1] == 1) ? 3 : 0;
-        while (y != ((move[1] == 1) ? -1 : 4)) {
-            let x = (move[0] == 1) ? 3 : 0;
-            while (x != ((move[0] == 1) ? -1 : 4)) {
+        let y = move[1] == 1 ? 3 : 0;
+        while (y != (move[1] == 1 ? -1 : 4)) {
+            let x = move[0] == 1 ? 3 : 0;
+            while (x != (move[0] == 1 ? -1 : 4)) {
                 let tile = this.board[x][y];
                 if (tile == -1) {
                     // If the cell is empty, continue
-                    x += (move[0] == 1) ? -1 : 1;
+                    x += move[0] == 1 ? -1 : 1;
                     continue;
                 }
 
@@ -155,14 +178,14 @@ module.exports = class TwoK48 extends Game {
                 if (newBoard[nextX][nextY] == -1) {
                     // Move
                     newBoard[nextX][nextY] = tile;
-                }else {
+                } else {
                     // Add both tiles
-                    newBoard[nextX][nextY] ++;
+                    newBoard[nextX][nextY]++;
                 }
 
-                x += (move[0] == 1) ? -1 : 1;
+                x += move[0] == 1 ? -1 : 1;
             }
-            y += (move[1] == 1) ? -1 : 1;
+            y += move[1] == 1 ? -1 : 1;
         }
         // Compare the new situation with the previous one to see if there is a change.
         let hasChanged = !this.compareBoards(this.board, newBoard);
@@ -172,9 +195,9 @@ module.exports = class TwoK48 extends Game {
 
     /**
      * Get the next position of the tile
-     * @param {*} newBoard 
-     * @param {*} x 
-     * @param {*} y 
+     * @param {*} newBoard
+     * @param {*} x
+     * @param {*} y
      * @param {*} tile Id of the tile (index in this.names)
      * @param {*} move Move of the player
      */
@@ -182,11 +205,9 @@ module.exports = class TwoK48 extends Game {
         // Look each of the next cells in straight line
         while (x >= 0 && x < 4 && y >= 0 && y < 4) {
             // If there is an identic tile, returns its coordinates to merge them
-            if (newBoard[x][y] == tile)
-                return [x, y];
+            if (newBoard[x][y] == tile) return [x, y];
             // If there is an obstacle, returns the previous position
-            else if (newBoard[x][y] != -1)
-                return [x - move[0], y - move[1]];
+            else if (newBoard[x][y] != -1) return [x - move[0], y - move[1]];
             x += move[0];
             y += move[1];
         }
@@ -200,7 +221,7 @@ module.exports = class TwoK48 extends Game {
 
     /**
      * Converts a reaction emoji into a playable move.
-     * @param {*} emojiName 
+     * @param {*} emojiName
      */
     emojiToMove(emojiName) {
         let emojis = {
@@ -208,7 +229,7 @@ module.exports = class TwoK48 extends Game {
             "⬆️": [0, -1],
             "⬇️": [0, 1],
             "➡️": [1, 0],
-        }
+        };
         if (!Object.keys(emojis).includes(emojiName)) return null;
         return emojis[emojiName];
     }
@@ -233,15 +254,14 @@ module.exports = class TwoK48 extends Game {
         while (k < 3) {
             let x = this.random();
             let y = this.random();
-            if (this.place(x, y, 0))
-                k++;
+            if (this.place(x, y, 0)) k++;
         }
     }
 
     /**
      * Place a tile
-     * @param {*} x 
-     * @param {*} y 
+     * @param {*} x
+     * @param {*} y
      * @param {*} value index of the tile in this.names
      */
     place(x, y, value) {
@@ -256,31 +276,28 @@ module.exports = class TwoK48 extends Game {
      * Draw the board by editing this.boardMsg.
      */
     draw() {
-        return new Promise(resolve => {
-            let msg = '';
-            for(let j = 0; j < 4; j++) {
-                for(let i = 0; i < 4; i++) {
-                    if (this.board[i][j] == -1)
-                    msg += ':white_large_square:';
-                    else
-                    msg += this.ids[this.board[i][j]];
+        return new Promise((resolve) => {
+            let msg = "";
+            for (let j = 0; j < 4; j++) {
+                for (let i = 0; i < 4; i++) {
+                    if (this.board[i][j] == -1) msg += ":white_large_square:";
+                    else msg += this.ids[this.board[i][j]];
                 }
-                msg += '\n';
+                msg += "\n";
             }
             this.boardMsg.edit(msg).then(() => {
                 resolve();
-            })
-        })
+            });
+        });
     }
 
     countPoints() {
         let points = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
         let total = 0;
-        for(let j = 0; j < 4; j++) {
-            for(let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+            for (let i = 0; i < 4; i++) {
                 let tile = this.board[i][j];
-                if (tile != -1)
-                    total += points[tile];
+                if (tile != -1) total += points[tile];
             }
         }
         return total;
@@ -288,11 +305,12 @@ module.exports = class TwoK48 extends Game {
 
     stop() {
         let points = this.countPoints();
-        let msg = '**Fin de la partie !**\nRésultat: **' + points + '** points.'
+        let msg =
+            "**Fin de la partie !**\nRésultat: **" + points + "** points.";
         this.channel.send(msg);
         this.isPlaying = false;
         this.phoenix.activities--;
-        this.emit('end', this.gameId);
+        this.emit("end", this.gameId);
     }
 
     /**
@@ -301,15 +319,14 @@ module.exports = class TwoK48 extends Game {
     async getIDs() {
         let emojis = await this.channel.guild.emojis.fetch();
         for (let name of this.names) {
-            let emoji = emojis.find(em => em.name === name)
-            if (emoji === undefined)
-            {
-                console.error('Emojis not found');
+            let emoji = emojis.find((em) => em.name === name);
+            if (emoji === undefined) {
+                console.error("Emojis not found");
                 return;
             }
-            let fullId = '<:' + emoji.name + ':' + emoji.id + '>';
+            let fullId = "<:" + emoji.name + ":" + emoji.id + ">";
             this.ids.push(fullId);
         }
         return true;
     }
-}
+};

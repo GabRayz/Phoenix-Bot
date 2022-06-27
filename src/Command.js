@@ -20,7 +20,7 @@ class Command {
      * Execute the command
      */
     static call() {
-        throw new Error('Function not implemented');
+        throw new Error("Function not implemented");
     }
 
     phoenix = null;

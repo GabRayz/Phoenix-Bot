@@ -1,4 +1,4 @@
-const EventEmitter = require('events');
+const EventEmitter = require("events");
 
 module.exports = class Game extends EventEmitter {
     static name;
@@ -30,8 +30,11 @@ module.exports = class Game extends EventEmitter {
         this.players = [];
         this.players.push({
             tag: message.author.tag,
-            username: message.member.nickname == null ? message.author.username : message.member.nickname
-        })
+            username:
+                message.member.nickname == null
+                    ? message.author.username
+                    : message.member.nickname,
+        });
         this.isPlaying = false;
     }
-}
+};

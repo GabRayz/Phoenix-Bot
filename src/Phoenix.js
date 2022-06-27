@@ -1,35 +1,41 @@
-const Discord = require('discord.js');
+const Discord = require("discord.js");
 const PhoenixGuild = require("./Guild.js");
 const Commands = require("../commands/command");
 
 module.exports = class Phoenix {
-
     config = null;
     bot = null;
     guilds = {};
     activities = 0;
 
     async loadConfig() {
-        this.config = require('../config');
+        this.config = require("../config");
     }
 
     async login() {
-        this.bot = new Discord.Client({intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES, Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Discord.Intents.FLAGS.GUILD_VOICE_STATES]});
+        this.bot = new Discord.Client({
+            intents: [
+                Discord.Intents.FLAGS.GUILDS,
+                Discord.Intents.FLAGS.GUILD_MESSAGES,
+                Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+                Discord.Intents.FLAGS.GUILD_VOICE_STATES,
+            ],
+        });
 
-        this.bot.on('ready', async () => {
-            console.log('Phoenix bot ready to operate');
-            this.bot.user.setActivity(this.config.activity)
-            this.bot.user.setUsername(this.config.name)
+        this.bot.on("ready", async () => {
+            console.log("Phoenix bot ready to operate");
+            this.bot.user.setActivity(this.config.activity);
+            this.bot.user.setUsername(this.config.name);
 
             // Find the default guild and test Channel
-            let guilds = await this.bot.guilds.fetch()
+            let guilds = await this.bot.guilds.fetch();
             for (const guild of guilds) {
                 this.guilds[guild[0]] = new PhoenixGuild(guild[0], this);
                 this.guilds[guild[0]].importEmojis();
             }
 
-            this.bot.on('message', (msg) => {
-                this.onMessage(msg)
+            this.bot.on("message", (msg) => {
+                this.onMessage(msg);
             });
         });
 
@@ -39,8 +45,8 @@ module.exports = class Phoenix {
     onMessage(msg) {
         const phoenixGuild = this.guilds[msg.guildId];
         if (phoenixGuild.checkPrefix(msg.content)) {
-            console.log(msg.author.username + ' : ' + msg.content);
-            let msgParts = msg.content.split(' ');
+            console.log(msg.author.username + " : " + msg.content);
+            let msgParts = msg.content.split(" ");
             let command = msgParts[0].slice(phoenixGuild.config.prefix.length);
             msg.args = msgParts.slice(1);
             msg.command = command;
@@ -50,19 +56,32 @@ module.exports = class Phoenix {
 
     async readCommand(message, command, phoenixGuild) {
         let member = message.member;
-        if (phoenixGuild.config.everyoneBlackListed && member.roles.length === 0) {
+        if (
+            phoenixGuild.config.everyoneBlackListed &&
+            member.roles.length === 0
+        ) {
             return;
         }
 
-        Object.keys(Commands).forEach(element => {
+        Object.keys(Commands).forEach((element) => {
             if (Commands[element].match(command)) {
-                if (!this.searchPermissions(Commands[element], message, phoenixGuild)) {
-                    console.log('Permission denied');
+                if (
+                    !this.searchPermissions(
+                        Commands[element],
+                        message,
+                        phoenixGuild
+                    )
+                ) {
+                    console.log("Permission denied");
                     message.reply("Patouche");
                     return;
                 }
-                if (!message.guild && (typeof Commands[element].callableFromMP == 'undefined' || !Commands[element].callableFromMP))
-                    return
+                if (
+                    !message.guild &&
+                    (typeof Commands[element].callableFromMP == "undefined" ||
+                        !Commands[element].callableFromMP)
+                )
+                    return;
                 Commands[element].call(message, this);
             }
         });
@@ -75,17 +94,26 @@ module.exports = class Phoenix {
                 return this.checkPermissions(perm, message);
             }
         }
-        return this.checkPermissions(phoenixGuild.config.permissions.default, message);
+        return this.checkPermissions(
+            phoenixGuild.config.permissions.default,
+            message
+        );
     }
 
     checkPermissions(perm, message) {
         let member = message.member;
         let role = member.roles.highest;
         // check blacklists
-        if (perm.roles.blacklist.length > 0 && perm.roles.blacklist.includes(role.name)) {
+        if (
+            perm.roles.blacklist.length > 0 &&
+            perm.roles.blacklist.includes(role.name)
+        ) {
             return false;
         }
-        if (perm.channels.blacklist.length > 0 && perm.channels.blacklist.includes(message.channel.id)) {
+        if (
+            perm.channels.blacklist.length > 0 &&
+            perm.channels.blacklist.includes(message.channel.id)
+        ) {
             return false;
         }
         if (perm.members.blacklist.includes(message.author.tag)) {
@@ -93,22 +121,29 @@ module.exports = class Phoenix {
         }
 
         // check whitelists
-        if (perm.roles.whitelist.length > 0 && !perm.roles.whitelist.includes(role.name)) {
+        if (
+            perm.roles.whitelist.length > 0 &&
+            !perm.roles.whitelist.includes(role.name)
+        ) {
             return false;
         }
-        if (perm.channels.whitelist.length > 0 && !perm.channels.whitelist.includes(message.channel.id)) {
+        if (
+            perm.channels.whitelist.length > 0 &&
+            !perm.channels.whitelist.includes(message.channel.id)
+        ) {
             return false;
         }
-        return !(perm.members.whitelist.length > 0 && !perm.members.whitelist.includes(message.author.tag));
+        return !(
+            perm.members.whitelist.length > 0 &&
+            !perm.members.whitelist.includes(message.author.tag)
+        );
     }
 
     sendClean(msg, channel, time = 20000) {
-        channel.send(msg)
-            .then((message) => {
-                setTimeout(() => {
-                    if (!message.deleted)
-                        message.delete();
-                }, time);
-            })
+        channel.send(msg).then((message) => {
+            setTimeout(() => {
+                if (!message.deleted) message.delete();
+            }, time);
+        });
     }
-}
+};

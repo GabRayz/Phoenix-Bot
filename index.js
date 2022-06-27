@@ -1,9 +1,9 @@
 // Import packages
-require('./src/http');
-const Phoenix = require('./src/Phoenix');
+require("./src/http");
+const Phoenix = require("./src/Phoenix");
 
-RegExp.escape= function(s) {
-    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+RegExp.escape = function (s) {
+    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
 };
 
 const phoenix = new Phoenix();

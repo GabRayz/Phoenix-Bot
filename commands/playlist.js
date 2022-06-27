@@ -1,12 +1,9 @@
-let Command = require('../src/Command');
-const YoutubePlaylists = require('../src/YoutubePlaylists');
+let Command = require("../src/Command");
+const YoutubePlaylists = require("../src/YoutubePlaylists");
 
 module.exports = class Playlist extends Command {
     static name = "playlist";
-    static alias = [
-        "playlist",
-        "pl"
-    ]
+    static alias = ["playlist", "pl"];
     static description = "Gérer les playlist. !playlist help";
 
     constructor(phoenix, channel) {
@@ -16,12 +13,12 @@ module.exports = class Playlist extends Command {
     static call(msg, phoenix) {
         let phoenixGuild = phoenix.guilds[msg.guildId];
         const manager = phoenixGuild.playlistManager;
-        switch(msg.args[0]) {
+        switch (msg.args[0]) {
             case "create":
                 if (msg.args.length > 1) {
                     try {
                         manager.create(msg.args[1], msg.author);
-                        phoenixGuild.saveConfig().then(() => msg.react('✅'));
+                        phoenixGuild.saveConfig().then(() => msg.react("✅"));
                     } catch (e) {
                         msg.reply(e);
                     }
@@ -32,15 +29,24 @@ module.exports = class Playlist extends Command {
                 break;
             case "add":
                 if (msg.args.length > 2) {
-                    if(msg.args[2].includes('playlist?list=')) {
-                        this.importYoutubePlaylist(msg.args[2], msg.args[1], manager).then(() => {
-                            msg.react('✅');
-                            console.log('Playlist imported !');
-                        })
-                    }else {
+                    if (msg.args[2].includes("playlist?list=")) {
+                        this.importYoutubePlaylist(
+                            msg.args[2],
+                            msg.args[1],
+                            manager
+                        ).then(() => {
+                            msg.react("✅");
+                            console.log("Playlist imported !");
+                        });
+                    } else {
                         try {
-                            manager.add(this.getSongName(msg.args), msg.args[1]);
-                            phoenixGuild.saveConfig().then(() => msg.react('✅'));
+                            manager.add(
+                                this.getSongName(msg.args),
+                                msg.args[1]
+                            );
+                            phoenixGuild
+                                .saveConfig()
+                                .then(() => msg.react("✅"));
                         } catch (e) {
                             phoenix.sendClean(e, msg.channel);
                         }
@@ -51,12 +57,12 @@ module.exports = class Playlist extends Command {
                 if (msg.args.length > 1) {
                     try {
                         manager.play(msg.args[1], msg);
-                        msg.react('✅');
+                        msg.react("✅");
                     } catch (e) {
                         phoenix.sendClean(e, msg.channel);
                     }
                 }
-                msg.react('✅');
+                msg.react("✅");
                 break;
             case "stop":
                 manager.stop();
@@ -64,12 +70,12 @@ module.exports = class Playlist extends Command {
             case "delete":
                 if (msg.args.length > 1) {
                     manager.delete(msg.args[1]);
-                    phoenixGuild.saveConfig().then(() => msg.react('✅'));
+                    phoenixGuild.saveConfig().then(() => msg.react("✅"));
                 }
                 break;
             case "help":
                 Playlist.showHelp(msg.channel, phoenixGuild);
-                break
+                break;
             case "see":
                 if (msg.args.length > 1)
                     this.see(phoenixGuild, msg.args[1], msg.channel);
@@ -96,48 +102,59 @@ module.exports = class Playlist extends Command {
             msg = "Il n'y a aucune playlist";
         } else {
             msg = "Playlists: ";
-            msg += names.map(name => "\n - " + name).join();
+            msg += names.map((name) => "\n - " + name).join();
         }
         channel.send(msg);
     }
 
     static showHelp(channel, phoenixGuild) {
         let prefix = phoenixGuild.config.prefix;
-        let msg = "Gestion de playlist : " +
-            "\n" + prefix + "playlist list: Liste toutes les playlist" +
-            "\n" + prefix + "playlist create {nom}: Créer une nouvelle playlist" +
-            "\n" + prefix + "playlist add {playlist} {nom}: Ajouter une musique à une playlist" +
-            "\n" + prefix + "playlist play {playlist}: Joue une playlist" +
-            "\n" + prefix + "playlist delete {playlist}: Supprime une playlist" +
-            "\n" + prefix + "playlist see {playlist}: Liste le contenu d'une playlist" +
+        let msg =
+            "Gestion de playlist : " +
+            "\n" +
+            prefix +
+            "playlist list: Liste toutes les playlist" +
+            "\n" +
+            prefix +
+            "playlist create {nom}: Créer une nouvelle playlist" +
+            "\n" +
+            prefix +
+            "playlist add {playlist} {nom}: Ajouter une musique à une playlist" +
+            "\n" +
+            prefix +
+            "playlist play {playlist}: Joue une playlist" +
+            "\n" +
+            prefix +
+            "playlist delete {playlist}: Supprime une playlist" +
+            "\n" +
+            prefix +
+            "playlist see {playlist}: Liste le contenu d'une playlist" +
             "";
-        channel.send(msg, {code: true});
+        channel.send(msg, { code: true });
     }
 
     static see(phoenixGuild, playlistName, channel) {
         let playlist = phoenixGuild.playlistManager.playlists[playlistName];
         let msgs = [];
         let msg = playlistName + " : ";
-        playlist.items.forEach(song => {
-            if (song.name)
-                msg += song.name + ", ";
-            else
-                msg += song + ", ";
-            if(msg.length > 1700) {
+        playlist.items.forEach((song) => {
+            if (song.name) msg += song.name + ", ";
+            else msg += song + ", ";
+            if (msg.length > 1700) {
                 msgs.push(msg);
                 msg = "";
             }
         });
         msgs.push(msg);
-        msgs.forEach(m => channel.send(m));
+        msgs.forEach((m) => channel.send(m));
     }
 
     static async importYoutubePlaylist(url, playlistName, manager) {
-        console.log('Playlist name : ' + playlistName);
-        let id = url.split('=')[1];
+        console.log("Playlist name : " + playlistName);
+        let id = url.split("=")[1];
         let videos = await YoutubePlaylists.GetPlaylist(id);
-        for(const video of videos) {
+        for (const video of videos) {
             await manager.add(video.name, playlistName, video.id);
         }
     }
-}
+};
