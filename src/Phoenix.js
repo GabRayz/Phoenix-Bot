@@ -24,7 +24,7 @@ module.exports = class Phoenix {
             // Find the default guild and test Channel
             let guilds = await this.bot.guilds.fetch()
             for (const guild of guilds) {
-                this.guilds[guild[0]] = new PhoenixGuild(guild[0], this.bot);
+                this.guilds[guild[0]] = new PhoenixGuild(guild[0], this);
                 this.guilds[guild[0]].importEmojis();
             }
 

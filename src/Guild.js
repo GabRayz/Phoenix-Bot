@@ -1,3 +1,4 @@
+const Music = require("./Music");
 const fs = require("fs").promises;
 
 module.exports = class PhoenixGuild {
@@ -5,10 +6,13 @@ module.exports = class PhoenixGuild {
     bot = null;
     guildId = null;
     emojis = {};
+    phoenix = null;
+    music = null;
 
-    constructor(guild, bot) {
+    constructor(guild, phoenix) {
         this.guildId = guild;
-        this.bot = bot;
+        this.phoenix = phoenix;
+        this.music = new Music(this);
         try {
             this.config = require(`../config/${guild}.json`);
         } catch (e) {
@@ -17,7 +21,7 @@ module.exports = class PhoenixGuild {
     }
 
     async fetchGuild() {
-        return this.bot.guilds.resolve(this.guildId);
+        return this.phoenix.bot.guilds.resolve(this.guildId);
     }
 
     checkPrefix(messageContent) {
@@ -49,7 +53,7 @@ module.exports = class PhoenixGuild {
     }
 
     defaultConfig() {
-        this.bot.guilds.fetch(this.guildId).then(guild => {
+        this.phoenix.bot.guilds.fetch(this.guildId).then(guild => {
             this.config.guildName = guild.name;
         })
         return {
