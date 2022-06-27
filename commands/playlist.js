@@ -1,4 +1,5 @@
 let Command = require('../src/Command');
+const YoutubePlaylists = require('../src/YoutubePlaylists');
 
 module.exports = class Playlist extends Command {
     static name = "playlist";
@@ -32,7 +33,10 @@ module.exports = class Playlist extends Command {
             case "add":
                 if (msg.args.length > 2) {
                     if(msg.args[2].includes('playlist?list=')) {
-                        manager.importPlaylist(msg.args[2], msg.args[1], msg.author);
+                        this.importYoutubePlaylist(msg.args[2], msg.args[1], manager).then(() => {
+                            msg.react('✅');
+                            console.log('Playlist imported !');
+                        })
                     }else {
                         try {
                             manager.add(this.getSongName(msg.args), msg.args[1]);
@@ -68,7 +72,7 @@ module.exports = class Playlist extends Command {
                 break
             case "see":
                 if (msg.args.length > 1)
-                    manager.see(phoenixGuild, msg.args[1], msg.channel);
+                    this.see(phoenixGuild, msg.args[1], msg.channel);
                 break;
             default:
                 return;
@@ -111,7 +115,7 @@ module.exports = class Playlist extends Command {
     }
 
     static see(phoenixGuild, playlistName, channel) {
-        let playlist = phoenixGuild.playlists[playlistName];
+        let playlist = phoenixGuild.playlistManager.playlists[playlistName];
         let msgs = [];
         let msg = playlistName + " : ";
         playlist.items.forEach(song => {
@@ -126,5 +130,14 @@ module.exports = class Playlist extends Command {
         });
         msgs.push(msg);
         msgs.forEach(m => channel.send(m));
+    }
+
+    static async importYoutubePlaylist(url, playlistName, manager) {
+        console.log('Playlist name : ' + playlistName);
+        let id = url.split('=')[1];
+        let videos = await YoutubePlaylists.GetPlaylist(id);
+        for(const video of videos) {
+            await manager.add(video.name, playlistName, video.id);
+        }
     }
 }
