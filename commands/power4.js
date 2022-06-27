@@ -247,12 +247,11 @@ module.exports = class Power4 extends Command {
 
     static stop() {
         this.phoenix.activities--;
-        this.phoenix.boardMsg.send('Partie terminée !', {code:true});
+        this.boardMsg.send('Partie terminée !', {code:true});
         this.isPlaying = false;
         this.board = [];
         this.j1 = null;
         this.j2 = null;
-        this.channel = null;
         this.boardMsg = null;
     }
 }
