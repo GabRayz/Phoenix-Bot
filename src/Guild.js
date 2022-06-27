@@ -1,5 +1,6 @@
 const Music = require("./Music");
 const fs = require("fs").promises;
+const GuildPlaylistManager = require('./GuildPlaylistManager');
 
 module.exports = class PhoenixGuild {
     config = null;
@@ -8,6 +9,7 @@ module.exports = class PhoenixGuild {
     emojis = {};
     phoenix = null;
     music = null;
+    playlistManager = null;
 
     constructor(guild, phoenix) {
         this.guildId = guild;
@@ -18,6 +20,7 @@ module.exports = class PhoenixGuild {
         } catch (e) {
             this.config = this.defaultConfig();
         }
+        this.playlistManager = new GuildPlaylistManager(this, this.config.playlists)
     }
 
     async fetchGuild() {
@@ -29,10 +32,9 @@ module.exports = class PhoenixGuild {
         return messageContent.match('^' + regex) != null;
     }
 
-    saveConfig() {
-        fs.writeFile(`./config/${this.guildId}.json`, JSON.stringify(this.config, null, 4), (err) => {
-            if (err) console.error('Error while saving the config: ', err);
-        })
+    async saveConfig() {
+        this.config.playlists = this.playlistManager.playlists;
+        return await fs.writeFile(`./config/${this.guildId}.json`, JSON.stringify(this.config, null, 4));
     }
 
     async importEmojis() {
@@ -79,7 +81,8 @@ module.exports = class PhoenixGuild {
                         "blacklist": []
                     }
                 }
-            }
+            },
+            "playlists": {}
         }
     }
 }
