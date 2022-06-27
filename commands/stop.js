@@ -1,5 +1,4 @@
 let Command = require('../src/Command');
-let Play = require('./play');
 
 module.exports = class Stop extends Command {
     static name = "stop";
@@ -9,7 +8,8 @@ module.exports = class Stop extends Command {
     ];
     static description = "Arrete la musique et deconnecte le bot du salon vocal.";
 
-    static call() {
-        Play.stop();
+    static call(message, phoenix) {
+        const music = phoenix.guilds[message.guildId].music;
+        music.stop();
     }
 }

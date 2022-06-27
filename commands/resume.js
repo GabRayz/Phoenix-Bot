@@ -1,5 +1,4 @@
 let Command = require('../src/Command');
-let Play = require('./play');
 
 module.exports = class Resume extends Command {
     static name = "resume";
@@ -8,9 +7,8 @@ module.exports = class Resume extends Command {
     ]
     static description = "Reprend la musique";
 
-    static call() {
-        if(Play.voiceHandler && Play.voiceHandler.paused) {
-            Play.voiceHandler.resume();
-        }
+    static call(message, phoenix) {
+        const music = phoenix.guilds[message.guildId].music;
+        music.resume();
     }
 }

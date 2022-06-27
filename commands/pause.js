@@ -1,5 +1,4 @@
 let Command = require('../src/Command');
-let Play = require('./play');
 
 module.exports = class Pause extends Command {
     static name = 'pause';
@@ -9,8 +8,7 @@ module.exports = class Pause extends Command {
     static description = "Met la musique en pause";
 
     static call(message, phoenix) {
-        if(Play.voiceHandler && !Play.voiceHandler.paused) {
-            Play.voiceHandler.pause();
-        }
+        const music = phoenix.guilds[message.guildId].music;
+        music.pause();
     }
 }

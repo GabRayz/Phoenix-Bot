@@ -1,6 +1,5 @@
 let Command = require('../src/Command');
 const {MessageEmbed} = require('discord.js');
-let Play = require('./play');
 
 module.exports = class Info extends Command {
     static name = 'info';
@@ -14,20 +13,21 @@ module.exports = class Info extends Command {
     static description = "Donne des infos sur la musique en cours";
 
     static async call(message, phoenix) {
-        if (Play.videoInfos) {
-            if (Play.videoInfos.player_response) {
-                Play.videoInfos.formats = null;
-                let infos = Play.videoInfos.player_response;
+        const music = phoenix.guilds[message.guildId].music;
+        if (music.videoInfos) {
+            if (music.videoInfos.player_response) {
+                music.videoInfos.formats = null;
+                let infos = music.videoInfos.player_response;
                 let embed = new MessageEmbed();
                 embed.setTitle(infos.videoDetails.title)
                     .setDescription(infos.videoDetails.shortDescription.slice(0, 200))
                     .addField('Durée', this.timeFormat(infos.videoDetails.lengthSeconds))
                     .setAuthor(infos.videoDetails.author)
-                    .setURL(Play.videoUrl)
+                    .setURL(music.videoUrl)
                 await message.channel.send({embeds: [embed]});
             }
-            message.channel.send(Play.videoUrl);
-        }else {
+            message.channel.send(music.videoUrl);
+        }else {
             let embed = new MessageEmbed();
             embed.setDescription('Aucune musique n\'est jouée pour l\'instant')
                 .setColor('RED');
