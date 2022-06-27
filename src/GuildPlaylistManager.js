@@ -11,11 +11,11 @@ module.exports = class GuildPlaylistManager {
     }
 
     create(name) {
-        name = name.split('.')[0];
+        name = name.split(".")[0];
         if (this.playlists[name] !== undefined)
-            throw new Error("This playlist name is already in use")
-        this.playlists[name] = {items: []};
-        console.log('Playlist created');
+            throw new Error("This playlist name is already in use");
+        this.playlists[name] = { items: [] };
+        console.log("Playlist created");
     }
 
     list() {
@@ -29,8 +29,8 @@ module.exports = class GuildPlaylistManager {
 
         let music = {
             name: songName,
-            id: songId
-        }
+            id: songId,
+        };
         this.playlists[playlistName].items.push(music);
     }
 
@@ -41,7 +41,7 @@ module.exports = class GuildPlaylistManager {
         const music = this.phoenixGuild.music;
         music.currentPlaylist = this.playlists[playlistName].items;
         music.currentPlaylistName = playlistName;
-        console.log('Playing playlist: ' + playlistName);
+        console.log("Playing playlist: " + playlistName);
 
         music.start(msg);
     }
@@ -55,4 +55,4 @@ module.exports = class GuildPlaylistManager {
     delete(playlistName) {
         this.playlists[playlistName] = undefined;
     }
-}
+};

@@ -1,9 +1,9 @@
-const {setTimeout: wait} = require("node:timers/promises");
+const { setTimeout: wait } = require("node:timers/promises");
 const voice = require("@discordjs/voice");
 const youtube = require("ytdl-core");
 const searchApi = require("youtube-search-api");
 const Discord = require("discord.js");
-const {MessageActionRow, MessageButton} = require("discord.js");
+const { MessageActionRow, MessageButton } = require("discord.js");
 module.exports = class Music {
     /**
      * List of songs to be played, represented by a name or a url
@@ -33,7 +33,6 @@ module.exports = class Music {
 
     phoenixGuild = null;
 
-
     constructor(phoenixGuild) {
         this.phoenixGuild = phoenixGuild;
     }
@@ -44,62 +43,73 @@ module.exports = class Music {
      */
     async start(message) {
         // Do nothing if the voice is already started
-        if(!this.isPlaying) {
+        if (!this.isPlaying) {
             console.log("connecting to voice channel");
             this.textChannel = message.channel;
-            this.connectToVoiceChannel(message.member.voice.channel).then(() => {
-                console.log("Connected to voice channel", message.member.voice.channel.name);
-                this.nextSong();
-            }).catch(() => {
-                this.textChannel.send("Tu n'es pas connecté à un channel vocal ='(");
-                console.log('User not connected to a voice channel');
-            });
+            this.connectToVoiceChannel(message.member.voice.channel)
+                .then(() => {
+                    console.log(
+                        "Connected to voice channel",
+                        message.member.voice.channel.name
+                    );
+                    this.nextSong();
+                })
+                .catch(() => {
+                    this.textChannel.send(
+                        "Tu n'es pas connecté à un channel vocal ='("
+                    );
+                    console.log("User not connected to a voice channel");
+                });
             this.setupEventInteractions();
         }
     }
 
     setupEventInteractions() {
-        this.phoenixGuild.phoenix.bot.on('interactionCreate', async interaction => {
-            if (interaction.isButton() && interaction.customId === 'phoenixMusicNext'
-                || interaction.customId === 'phoenixMusicPause'
-                || interaction.customId === 'phoenixMusicPlay'
-                || interaction.customId === 'phoenixMusicStop') {
-                interaction.deferUpdate();
-                if (interaction.customId === 'phoenixMusicNext')
-                    await this.skip();
-                else if (interaction.customId === 'phoenixMusicPause')
-                    this.pause();
-                else if (interaction.customId === 'phoenixMusicPlay')
-                    this.resume();
-                else if (interaction.customId === 'phoenixMusicStop')
-                    this.stop();
-                await wait(500);
-                interaction.editReply({});
+        this.phoenixGuild.phoenix.bot.on(
+            "interactionCreate",
+            async (interaction) => {
+                if (
+                    (interaction.isButton() &&
+                        interaction.customId === "phoenixMusicNext") ||
+                    interaction.customId === "phoenixMusicPause" ||
+                    interaction.customId === "phoenixMusicPlay" ||
+                    interaction.customId === "phoenixMusicStop"
+                ) {
+                    interaction.deferUpdate();
+                    if (interaction.customId === "phoenixMusicNext")
+                        await this.skip();
+                    else if (interaction.customId === "phoenixMusicPause")
+                        this.pause();
+                    else if (interaction.customId === "phoenixMusicPlay")
+                        this.resume();
+                    else if (interaction.customId === "phoenixMusicStop")
+                        this.stop();
+                    await wait(500);
+                    interaction.editReply({});
+                }
             }
-        });
+        );
     }
 
     pause() {
-        if (this.audioPlayer != null)
-            this.audioPlayer.pause();
+        if (this.audioPlayer != null) this.audioPlayer.pause();
     }
 
     resume() {
-        if (this.audioPlayer != null)
-            this.audioPlayer.unpause();
+        if (this.audioPlayer != null) this.audioPlayer.unpause();
     }
 
     addToQueue(message) {
         let name = "";
-        message.args.forEach(str => {
+        message.args.forEach((str) => {
             name += str + " ";
         });
         console.log("Queueing: " + name);
         this.queue.push({
             name: name,
-            id: null
+            id: null,
         });
-        message.react('✅');
+        message.react("✅");
     }
 
     addToQueueObject(video) {
@@ -108,84 +118,92 @@ module.exports = class Music {
     }
 
     sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
     async nextSong() {
         await this.sleep(200);
         // If it this the first song to be played, add an activity to Phoenix
-        if (!this.isPlaying)
-            this.phoenixGuild.phoenix.activities++;
+        if (!this.isPlaying) this.phoenixGuild.phoenix.activities++;
 
-        console.log('Choosing next song...');
-        if(this.queue.length === 0) {
-            if(this.currentPlaylist.length > 0) {
+        console.log("Choosing next song...");
+        if (this.queue.length === 0) {
+            if (this.currentPlaylist.length > 0) {
                 this.checkPlaylist();
-            }else {
+            } else {
                 return;
             }
         }
         let song = this.queue.shift();
-        console.log('Next song: ', song.name);
+        console.log("Next song: ", song.name);
 
         // Get video url
-        let url = await this.getUrlFromQuery(song).catch(err => {
-            if (err instanceof TypeError)
-            {
+        let url = await this.getUrlFromQuery(song).catch((err) => {
+            if (err instanceof TypeError) {
                 console.error(err);
-                this.textChannel.send('Une erreur est survenue.', {code: true});
-            }
-            else
-                this.textChannel.send(err);
-        })
+                this.textChannel.send("Une erreur est survenue.", {
+                    code: true,
+                });
+            } else this.textChannel.send(err);
+        });
         if (!url) return;
 
         // Get the stream
-        this.getStream(url).then(async stream => {
-            this.stream = stream;
+        this.getStream(url)
+            .then(async (stream) => {
+                this.stream = stream;
 
-            console.log('Playing stream');
-            await this.phoenixGuild.phoenix.bot.user.setActivity("Loading...");
-            const connection = voice.getVoiceConnection(this.textChannel.guildId)
-            if (this.audioPlayer == null)
-                this.audioPlayer = voice.createAudioPlayer();
+                console.log("Playing stream");
+                await this.phoenixGuild.phoenix.bot.user.setActivity(
+                    "Loading..."
+                );
+                const connection = voice.getVoiceConnection(
+                    this.textChannel.guildId
+                );
+                if (this.audioPlayer == null)
+                    this.audioPlayer = voice.createAudioPlayer();
 
-            const resource = voice.createAudioResource(stream)
-            this.audioPlayer.play(resource);
+                const resource = voice.createAudioResource(stream);
+                this.audioPlayer.play(resource);
 
-            connection.subscribe(this.audioPlayer);
+                connection.subscribe(this.audioPlayer);
 
-            this.isPlaying = true;
+                this.isPlaying = true;
 
-            this.voiceHandlerOnStart();
-            this.audioPlayer.once('idle', async () => {
-                await this.voiceHandlerOnEnd();
+                this.voiceHandlerOnStart();
+                this.audioPlayer.once("idle", async () => {
+                    await this.voiceHandlerOnEnd();
+                });
+                await this.displayStatusMessage();
+            })
+            .catch((err) => {
+                console.error("Error while getting video infos: ", err);
+                this.textChannel.send("Erreur: " + err.message);
+                return this.nextSong();
             });
-            await this.displayStatusMessage();
-        }).catch(err => {
-            console.error("Error while getting video infos: ", err);
-            this.textChannel.send('Erreur: ' + err.message);
-            return this.nextSong();
-        })
     }
 
     voiceHandlerOnStart() {
-        this.audioPlayer.on('playing', () => {
-            console.log('Playing...');
-            if (typeof this.videoInfos != 'undefined')
-                this.phoenixGuild.phoenix.bot.user.setActivity(this.videoInfos.videoDetails.title);
-        })
+        this.audioPlayer.on("playing", () => {
+            console.log("Playing...");
+            if (typeof this.videoInfos != "undefined")
+                this.phoenixGuild.phoenix.bot.user.setActivity(
+                    this.videoInfos.videoDetails.title
+                );
+        });
     }
 
     async voiceHandlerOnEnd() {
-        await this.phoenixGuild.phoenix.bot.user.setActivity(this.phoenixGuild.phoenix.config.activity);
+        await this.phoenixGuild.phoenix.bot.user.setActivity(
+            this.phoenixGuild.phoenix.config.activity
+        );
         this.videoInfos = null;
         this.videoUrl = null;
-        if(!this.isPlaying) return;
+        if (!this.isPlaying) return;
 
-        if(this.queue.length > 0 || this.currentPlaylist.length > 0) {
-            await this.nextSong()
-        }else {
+        if (this.queue.length > 0 || this.currentPlaylist.length > 0) {
+            await this.nextSong();
+        } else {
             console.log("No more musics in queue, stop playing.");
             this.stop();
         }
@@ -193,21 +211,26 @@ module.exports = class Music {
 
     getUrlFromQuery(song) {
         return new Promise(async (resolve, reject) => {
-            if (typeof song == 'undefined') return reject(new TypeError('song is not undefined'));
+            if (typeof song == "undefined")
+                return reject(new TypeError("song is not undefined"));
             let url;
             // If the video has been queued from the `playlist play` command, the id may be specified in the queue.
-            if(typeof song.id !== 'undefined' && song.id != null && song.id !== '') {
+            if (
+                typeof song.id !== "undefined" &&
+                song.id != null &&
+                song.id !== ""
+            ) {
                 url = "https://youtube.com/watch?v=" + song.id;
-            }else if (song.name.startsWith("http")) {
+            } else if (song.name.startsWith("http")) {
                 url = song.name;
-            }else {
-                url = await this.getUrlFromName(song.name)
-                if(url === null) {
-                    return reject('Aucune vidéo trouvée');
+            } else {
+                url = await this.getUrlFromName(song.name);
+                if (url === null) {
+                    return reject("Aucune vidéo trouvée");
                 }
             }
-            return resolve(url)
-        })
+            return resolve(url);
+        });
     }
 
     /**
@@ -215,49 +238,49 @@ module.exports = class Music {
      */
     checkPlaylist() {
         if (this.currentPlaylist.length > 0) {
-            console.log('Playing random song in playlist');
+            console.log("Playing random song in playlist");
             let rand = Math.floor(Math.random() * this.currentPlaylist.length);
             this.queue.push(this.currentPlaylist[rand]);
         }
     }
 
     async skip() {
-        if(this.isPlaying) {
-            console.log('Skip soung');
+        if (this.isPlaying) {
+            console.log("Skip soung");
             await this.voiceHandlerOnEnd();
         }
     }
 
     async getStream(url) {
-        if (typeof url == 'undefined')
-            throw new TypeError('url is not defined');
-        console.log('Get stream from url : ' + url);
-        let infos
+        if (typeof url == "undefined")
+            throw new TypeError("url is not defined");
+        console.log("Get stream from url : " + url);
+        let infos;
         try {
             infos = await youtube.getInfo(url);
         } catch (e) {
             console.error(e);
             this.stop();
         }
-        if (! infos) {
+        if (!infos) {
             return null;
         }
         this.videoInfos = infos;
         this.videoUrl = url;
         let stream = youtube(url, {
             filter: "audioonly",
-            highWaterMark: 1<<25
+            highWaterMark: 1 << 25,
         });
 
-        stream.on('error', (err) => {
+        stream.on("error", (err) => {
             console.error("Erreur lors de la lecture : ", err);
             this.textChannel.send("Erreur: " + err.message);
-        })
+        });
         return stream;
     }
 
     async getUrlFromName(name) {
-        console.log('Get url from name : ' + name);
+        console.log("Get url from name : " + name);
         const result = await searchApi.GetListByKeyword(name, false, 1);
         if (result.items.length === 0) {
             this.textChannel.send("Je n'ai pas trouvé la vidéo :c");
@@ -268,7 +291,7 @@ module.exports = class Music {
 
     async connectToVoiceChannel(channel) {
         return new Promise((resolve, reject) => {
-            if(!channel) {
+            if (!channel) {
                 reject();
             }
             const connection = voice.joinVoiceChannel({
@@ -277,14 +300,14 @@ module.exports = class Music {
                 adapterCreator: channel.guild.voiceAdapterCreator,
             });
             connection.on(voice.VoiceConnectionStatus.Ready, () => {
-                console.log('connected to voice channel');
+                console.log("connected to voice channel");
                 resolve();
             });
-        })
+        });
     }
 
     stop() {
-        if(!this.isPlaying) return;
+        if (!this.isPlaying) return;
         this.audioPlayer = null;
         console.log("Stopping music");
         this.isPlaying = false;
@@ -314,32 +337,31 @@ module.exports = class Music {
                 new MessageActionRow({
                     components: [
                         new MessageButton({
-                            emoji: this.phoenixGuild.emojis['pause'],
+                            emoji: this.phoenixGuild.emojis["pause"],
                             customId: "phoenixMusicPause",
-                            style: "SECONDARY"
+                            style: "SECONDARY",
                         }),
                         new MessageButton({
-                            emoji: this.phoenixGuild.emojis['play'],
+                            emoji: this.phoenixGuild.emojis["play"],
                             customId: "phoenixMusicPlay",
-                            style: "SECONDARY"
+                            style: "SECONDARY",
                         }),
                         new MessageButton({
-                            emoji: this.phoenixGuild.emojis['next'],
+                            emoji: this.phoenixGuild.emojis["next"],
                             customId: "phoenixMusicNext",
-                            style: "SECONDARY"
+                            style: "SECONDARY",
                         }),
                         new MessageButton({
-                            emoji: this.phoenixGuild.emojis['stop'],
+                            emoji: this.phoenixGuild.emojis["stop"],
                             customId: "phoenixMusicStop",
-                            style: "SECONDARY"
-                        })
-                    ]
-                })
-            ]
+                            style: "SECONDARY",
+                        }),
+                    ],
+                }),
+            ],
         };
         if (this.statusMessage == null)
             this.statusMessage = await this.textChannel.send(messageData);
-        else
-            this.statusMessage.edit(messageData);
+        else this.statusMessage.edit(messageData);
     }
-}
+};

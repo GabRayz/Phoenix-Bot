@@ -1,10 +1,8 @@
-let Command = require('../src/Command');
+let Command = require("../src/Command");
 
 module.exports = class Timer extends Command {
-    static name = 'timer';
-    static alias = [
-        "timer",
-    ];
+    static name = "timer";
+    static alias = ["timer"];
     static description = "Example for creating a command";
 
     static async call(message, phoenix) {
@@ -17,25 +15,25 @@ module.exports = class Timer extends Command {
     static setTimer(duration, message) {
         if (!duration > 0) return;
         console.log("Timer set :", duration);
-        message.react('🕐');
+        message.react("🕐");
         setTimeout(() => {
-            message.reply('Driiiiing !');
+            message.reply("Driiiiing !");
         }, duration);
     }
 
     static getUnit(unit) {
         switch (unit) {
-            case 's':
+            case "s":
                 return 1000;
                 break;
-            case 'm':
+            case "m":
                 return 1000 * 60;
                 break;
-            case 'h':
+            case "h":
                 return 1000 * 60 * 60;
                 break;
             default:
                 return 1000;
         }
     }
-}
+};

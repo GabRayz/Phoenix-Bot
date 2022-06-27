@@ -1,6 +1,6 @@
 const Music = require("./Music");
 const fs = require("fs").promises;
-const GuildPlaylistManager = require('./GuildPlaylistManager');
+const GuildPlaylistManager = require("./GuildPlaylistManager");
 
 module.exports = class PhoenixGuild {
     config = null;
@@ -20,7 +20,10 @@ module.exports = class PhoenixGuild {
         } catch (e) {
             this.config = this.defaultConfig();
         }
-        this.playlistManager = new GuildPlaylistManager(this, this.config.playlists)
+        this.playlistManager = new GuildPlaylistManager(
+            this,
+            this.config.playlists
+        );
     }
 
     async fetchGuild() {
@@ -29,60 +32,69 @@ module.exports = class PhoenixGuild {
 
     checkPrefix(messageContent) {
         let regex = RegExp.escape(this.config.prefix);
-        return messageContent.match('^' + regex) != null;
+        return messageContent.match("^" + regex) != null;
     }
 
     async saveConfig() {
         this.config.playlists = this.playlistManager.playlists;
-        return await fs.writeFile(`./config/${this.guildId}.json`, JSON.stringify(this.config, null, 4));
+        return await fs.writeFile(
+            `./config/${this.guildId}.json`,
+            JSON.stringify(this.config, null, 4)
+        );
     }
 
     async importEmojis() {
         const guild = await this.fetchGuild();
-        const guildEmojis = await guild.emojis.fetch()
-        const files = await fs.readdir('src/emojis/');
+        const guildEmojis = await guild.emojis.fetch();
+        const files = await fs.readdir("src/emojis/");
         for (let file of files) {
-            if (!file.endsWith('.png'))
-                continue;
-            const emojiName = file.split('.')[0];
-            let guildEmoji = guildEmojis.find(emoji => emoji.name === emojiName);
+            if (!file.endsWith(".png")) continue;
+            const emojiName = file.split(".")[0];
+            let guildEmoji = guildEmojis.find(
+                (emoji) => emoji.name === emojiName
+            );
             if (guildEmoji === undefined) {
-                guildEmoji = await guild.emojis.create(`./src/emojis/${file}`, emojiName);
-                console.log(`Created emoji ${emojiName} on guild ${guild.name}`);
+                guildEmoji = await guild.emojis.create(
+                    `./src/emojis/${file}`,
+                    emojiName
+                );
+                console.log(
+                    `Created emoji ${emojiName} on guild ${guild.name}`
+                );
             }
             this.emojis[guildEmoji.name] = guildEmoji.id;
         }
     }
 
     defaultConfig() {
-        this.phoenix.bot.guilds.fetch(this.guildId).then(guild => {
+        this.phoenix.bot.guilds.fetch(this.guildId).then((guild) => {
             this.config.guildName = guild.name;
-        })
+        });
         return {
-            "prefix": "$",
-            "connectionAlert": "false",
-            "updateAlert": "false",
-            "testChannel": null,
-            "everyoneBlackListed": "true",
-            "downloadPort": 8008,
-            "downloadAdress": "http://localhost",
-            "permissions": {
-                "default": {
-                    "roles": {
-                        "whitelist": [],
-                        "blacklist": []
+            prefix: "$",
+            connectionAlert: "false",
+            updateAlert: "false",
+            testChannel: null,
+            everyoneBlackListed: "true",
+            downloadPort: 8008,
+            downloadAdress: "http://localhost",
+            permissions: {
+                default: {
+                    roles: {
+                        whitelist: [],
+                        blacklist: [],
                     },
-                    "channels": {
-                        "whitelist": [],
-                        "blacklist": []
+                    channels: {
+                        whitelist: [],
+                        blacklist: [],
                     },
-                    "members": {
-                        "whitelist": [],
-                        "blacklist": []
-                    }
-                }
+                    members: {
+                        whitelist: [],
+                        blacklist: [],
+                    },
+                },
             },
-            "playlists": {}
-        }
+            playlists: {},
+        };
     }
-}
+};

@@ -1,34 +1,34 @@
 {
-	"login" : "BotLogin",
-	"name" : "botName",
-	"activity": "activity",
-	"prefix" : "!",
-	"connectionAlert" : "false",
-	"updateAlert": "true",
-	"defaultGuild" : "Name of the guild",
-	"testChannel" : "Default channel id",
-	"everyoneBlackListed" : "true",
-	"ytapikey" : "google api key",
-	"host": {
-		"ip": "ip of the socket server",
-		"port": 8888
-	},
-	"downloadPort": 8001,
-	"downloadAdress": "http://localhost",
-	"permissions": {
-		"default": {
-			"roles": {
-				"whitelist": [],
-				"blacklist": []
-			},
-			"channels": {
-				"whitelist": [],
-				"blacklist": []
-			},
-			"members": {
-				"whitelist": [],
-				"blacklist": []
-			}
-		}
-	}
+    "login": "BotLogin",
+    "name": "botName",
+    "activity": "activity",
+    "prefix": "!",
+    "connectionAlert": "false",
+    "updateAlert": "true",
+    "defaultGuild": "Name of the guild",
+    "testChannel": "Default channel id",
+    "everyoneBlackListed": "true",
+    "ytapikey": "google api key",
+    "host": {
+        "ip": "ip of the socket server",
+        "port": 8888
+    },
+    "downloadPort": 8001,
+    "downloadAdress": "http://localhost",
+    "permissions": {
+        "default": {
+            "roles": {
+                "whitelist": [],
+                "blacklist": []
+            },
+            "channels": {
+                "whitelist": [],
+                "blacklist": []
+            },
+            "members": {
+                "whitelist": [],
+                "blacklist": []
+            }
+        }
+    }
 }
