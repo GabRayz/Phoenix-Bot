@@ -40,7 +40,6 @@ module.exports = class Music {
 
     /**
      * Joins a voice channel and calls this.nextSong() to start playing.
-     * @param {*} phoenix
      * @param {*} message
      */
     async start(message) {
@@ -200,7 +199,7 @@ module.exports = class Music {
             if(typeof song.id !== 'undefined' && song.id != null && song.id !== '') {
                 url = "https://youtube.com/watch?v=" + song.id;
             }else if (song.name.startsWith("http")) {
-                url = song;
+                url = song.name;
             }else {
                 url = await this.getUrlFromName(song.name)
                 if(url === null) {
