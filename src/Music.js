@@ -290,7 +290,9 @@ module.exports = class Music {
         this.isPlaying = false;
         this.phoenixGuild.phoenix.activities--;
         this.stream.end();
-        wait(10000).then(() => this.statusMessage.delete());
+        const oldStatusMessage = this.statusMessage;
+        this.statusMessage = null;
+        wait(10000).then(() => oldStatusMessage.delete());
         voice.getVoiceConnection(this.textChannel.guildId).destroy();
     }
 
