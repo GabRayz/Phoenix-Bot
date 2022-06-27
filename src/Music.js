@@ -43,8 +43,7 @@ module.exports = class Music {
      * @param {*} phoenix
      * @param {*} message
      */
-    async start(phoenix, message) {
-        this.phoenix = phoenix;
+    async start(message) {
         // Do nothing if the voice is already started
         if(!this.isPlaying) {
             console.log("connecting to voice channel");
@@ -61,7 +60,7 @@ module.exports = class Music {
     }
 
     setupEventInteractions() {
-        this.phoenix.bot.on('interactionCreate', async interaction => {
+        this.phoenixGuild.phoenix.bot.on('interactionCreate', async interaction => {
             if (interaction.isButton() && interaction.customId === 'phoenixMusicNext'
                 || interaction.customId === 'phoenixMusicPause'
                 || interaction.customId === 'phoenixMusicPlay'
@@ -117,7 +116,7 @@ module.exports = class Music {
         await this.sleep(200);
         // If it this the first song to be played, add an activity to Phoenix
         if (!this.isPlaying)
-            this.phoenix.activities++;
+            this.phoenixGuild.phoenix.activities++;
 
         console.log('Choosing next song...');
         if(this.queue.length === 0) {
@@ -147,7 +146,7 @@ module.exports = class Music {
             this.stream = stream;
 
             console.log('Playing stream');
-            await this.phoenix.bot.user.setActivity("Loading...");
+            await this.phoenixGuild.phoenix.bot.user.setActivity("Loading...");
             const connection = voice.getVoiceConnection(this.textChannel.guildId)
             if (this.audioPlayer == null)
                 this.audioPlayer = voice.createAudioPlayer();
@@ -175,12 +174,12 @@ module.exports = class Music {
         this.audioPlayer.on('playing', () => {
             console.log('Playing...');
             if (typeof this.videoInfos != 'undefined')
-                this.phoenix.bot.user.setActivity(this.videoInfos.videoDetails.title);
+                this.phoenixGuild.phoenix.bot.user.setActivity(this.videoInfos.videoDetails.title);
         })
     }
 
     async voiceHandlerOnEnd() {
-        await this.phoenix.bot.user.setActivity(this.phoenix.config.activity);
+        await this.phoenixGuild.phoenix.bot.user.setActivity(this.phoenixGuild.phoenix.config.activity);
         this.videoInfos = null;
         this.videoUrl = null;
         if(!this.isPlaying) return;
@@ -290,7 +289,7 @@ module.exports = class Music {
         this.audioPlayer = null;
         console.log("Stopping music");
         this.isPlaying = false;
-        this.phoenix.activities--;
+        this.phoenixGuild.phoenix.activities--;
         this.stream.end();
         wait(10000).then(() => this.statusMessage.delete());
         voice.getVoiceConnection(this.textChannel.guildId).destroy();
@@ -314,22 +313,22 @@ module.exports = class Music {
                 new MessageActionRow({
                     components: [
                         new MessageButton({
-                            emoji: this.phoenix.guilds[this.textChannel.guildId].emojis['pause'],
+                            emoji: this.phoenixGuild.emojis['pause'],
                             customId: "phoenixMusicPause",
                             style: "SECONDARY"
                         }),
                         new MessageButton({
-                            emoji: this.phoenix.guilds[this.textChannel.guildId].emojis['play'],
+                            emoji: this.phoenixGuild.emojis['play'],
                             customId: "phoenixMusicPlay",
                             style: "SECONDARY"
                         }),
                         new MessageButton({
-                            emoji: this.phoenix.guilds[this.textChannel.guildId].emojis['next'],
+                            emoji: this.phoenixGuild.emojis['next'],
                             customId: "phoenixMusicNext",
                             style: "SECONDARY"
                         }),
                         new MessageButton({
-                            emoji: this.phoenix.guilds[this.textChannel.guildId].emojis['stop'],
+                            emoji: this.phoenixGuild.emojis['stop'],
                             customId: "phoenixMusicStop",
                             style: "SECONDARY"
                         })

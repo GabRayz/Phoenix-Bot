@@ -21,6 +21,6 @@ module.exports = class Play extends Command {
         }else {
             music.addToQueue(message);
         }
-        await music.start(phoenix, message);
+        await music.start(message);
     }
 }
