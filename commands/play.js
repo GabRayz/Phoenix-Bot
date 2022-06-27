@@ -1,5 +1,4 @@
 const youtube = require('ytdl-core');
-const YTplaylist = require('../src/ytplaylist');
 const voice = require('@discordjs/voice');
 const searchApi = require('youtube-search-api');
 const Discord = require('discord.js');
@@ -7,6 +6,7 @@ const wait = require('node:timers/promises').setTimeout;
 
 let Command = require('../src/Command');
 const {MessageActionRow, MessageButton} = require("discord.js");
+const {Playlist} = require("./command");
 
 module.exports = class Play extends Command {
     static name = 'play';
@@ -51,7 +51,7 @@ module.exports = class Play extends Command {
 
         if(message.args.length > 0 && message.args[0].startsWith('http') && message.args[0].includes('playlist?list=')) {
             console.log('Importing playlist...');
-            await YTplaylist.Enqueue(message.args[0]);
+            await Playlist.Enqueue(message.args[0]);
         }else {
             this.addToQueue(message);
         }
@@ -208,7 +208,7 @@ module.exports = class Play extends Command {
             if (typeof song == 'undefined') return reject(new TypeError('song is not undefined'));
             let url;
             // If the video has been queued from the `playlist play` command, the id may be specified in the queue.
-            if(typeof song.id !== 'undefined' && song.id != null) {
+            if(typeof song.id !== 'undefined' && song.id != null && song.id !== '') {
                 url = "https://youtube.com/watch?v=" + song.id;
             }else if (song.name.startsWith("http")) {
                 url = song;
@@ -228,7 +228,7 @@ module.exports = class Play extends Command {
     static checkPlaylist() {
         if (this.currentPlaylist.length > 0) {
             console.log('Playing random song in playlist');
-            let rand = Math.floor(Math.random() * Math.floor(this.currentPlaylist.length));
+            let rand = Math.floor(Math.random() * this.currentPlaylist.length);
             this.queue.push(this.currentPlaylist[rand]);
         }
     }
@@ -244,7 +244,13 @@ module.exports = class Play extends Command {
         if (typeof url == 'undefined')
             throw new TypeError('url is not defined');
         console.log('Get stream from url : ' + url);
-        let infos = await youtube.getInfo(url);
+        let infos
+        try {
+            infos = await youtube.getInfo(url);
+        } catch (e) {
+            console.error(e);
+            this.stop();
+        }
         if (! infos) {
             return null;
         }
