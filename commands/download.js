@@ -1,6 +1,7 @@
 let Command = require("../src/Command");
 let ytdl = require("ytdl-core");
 let ffmpeg = require("fluent-ffmpeg");
+const fs = require('fs').promises;
 
 module.exports = class Download extends Command {
     static name = "download";
@@ -51,12 +52,13 @@ module.exports = class Download extends Command {
                 clearInterval(interval);
                 console.log("Download done !");
                 msg.channel.send(
-                    "Le fichier est disponible : " +
+                    "Le fichier est disponible, et expirera dans 5 minutes : " +
                     phoenix.config.downloadAdress +
                     ":" +
                     phoenix.config.downloadPort +
                     "/" + (audioOnly ? "mp3" : "mp4") + "/" + rand
                 );
+                setTimeout(() => fs.unlink(path), 1000 * 60 * 5);
             })
             .save(path);
     }
