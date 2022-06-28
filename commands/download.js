@@ -6,6 +6,7 @@ module.exports = class Download extends Command {
     static name = "download";
     static alias = ["download", "dl"];
     static description = "Télécharge une vidéo";
+
     // Usage: {prefix}download [{audio|video} [url]]
 
     static async call(message, phoenix) {
@@ -17,14 +18,16 @@ module.exports = class Download extends Command {
         console.log(url);
         let audioonly = message.args.length >= 1 && message.args[0] === "audio";
 
-        let stream;
-        if (audioonly) stream = ytdl(url, { filter: "audio" });
-        else stream = ytdl(url, { filter: "audioandvideo" });
+        let stream = ytdl(url, {filter: (audioonly ? "audio" : "audioandvideo")});
 
         let msg = await message.channel.send("Le téléchargement va commencer.");
         console.log("Initiating video download...");
-        let path = audioonly ? "public/download.mp3" : "public/download.mp4";
+        this.download(msg, stream, audioonly, phoenix);
+    }
 
+    static download(msg, stream, audioOnly, phoenix) {
+        let rand = Math.round(Math.random() * (1000000 + 100000) - 100000);
+        let path = `public/${rand}.${audioOnly ? "mp3" : "mp4"}`;
         let kb = 0;
         let interval = setInterval(() => {
             msg.edit(kb / 1000 + " Mb downloaded");
@@ -34,35 +37,26 @@ module.exports = class Download extends Command {
             .audioBitrate(123)
             .on("start", () => {
                 console.log("Video download has started.");
-                message.channel.send("Téléchargement en cours...");
+                msg.channel.send("Téléchargement en cours...");
             })
             .on("progress", (p) => {
                 kb = p.targetSize;
             })
             .on("error", (err) => {
                 console.error(err);
-                message.channel.send("Erreur :/");
+                msg.channel.send("Erreur :/");
             })
             .on("end", () => {
                 cmd.kill();
                 clearInterval(interval);
                 console.log("Download done !");
-                if (audioonly)
-                    message.channel.send(
-                        "Le fichier est disponible : " +
-                            phoenix.config.downloadAdress +
-                            ":" +
-                            phoenix.config.downloadPort +
-                            "/mp3"
-                    );
-                else
-                    message.channel.send(
-                        "Le fichier est disponible : " +
-                            phoenix.config.downloadAdress +
-                            ":" +
-                            phoenix.config.downloadPort +
-                            "/mp4"
-                    );
+                msg.channel.send(
+                    "Le fichier est disponible : " +
+                    phoenix.config.downloadAdress +
+                    ":" +
+                    phoenix.config.downloadPort +
+                    "/" + (audioOnly ? "mp3" : "mp4") + "/" + rand
+                );
             })
             .save(path);
     }
