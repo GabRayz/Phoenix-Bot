@@ -1,8 +1,6 @@
 let Command = require("../src/Command");
-let Play = require("./play");
 let ytdl = require("ytdl-core");
 let ffmpeg = require("fluent-ffmpeg");
-const { Client, MessageAttachment } = require("discord.js");
 
 module.exports = class Download extends Command {
     static name = "download";
@@ -13,10 +11,11 @@ module.exports = class Download extends Command {
     static async call(message, phoenix) {
         // Get the url from which to download
         console.log(message);
+        let phoenixGuild = phoenix.guilds[message.guildId];
         let url =
-            message.args.length == 2 ? message.args[1] : this.getCurrentVideo();
+            message.args.length === 2 ? message.args[1] : this.getCurrentVideo(phoenixGuild);
         console.log(url);
-        let audioonly = message.args.length >= 1 && message.args[0] == "audio";
+        let audioonly = message.args.length >= 1 && message.args[0] === "audio";
 
         let stream;
         if (audioonly) stream = ytdl(url, { filter: "audio" });
@@ -68,7 +67,7 @@ module.exports = class Download extends Command {
             .save(path);
     }
 
-    static getCurrentVideo() {
-        return Play.videoUrl;
+    static getCurrentVideo(phoenixGuild) {
+        return phoenixGuild.music.videoUrl;
     }
 };
