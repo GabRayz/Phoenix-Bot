@@ -76,8 +76,6 @@ module.exports = class PhoenixGuild {
             updateAlert: "false",
             testChannel: null,
             everyoneBlackListed: "true",
-            downloadPort: 8008,
-            downloadAdress: "http://localhost",
             permissions: {
                 default: {
                     roles: {
