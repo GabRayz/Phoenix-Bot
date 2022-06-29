@@ -34,7 +34,7 @@ module.exports = class Phoenix {
                 this.guilds[guild[0]].importEmojis();
             }
 
-            this.bot.on("message", (msg) => {
+            this.bot.on("messageCreate", (msg) => {
                 this.onMessage(msg);
             });
         });
