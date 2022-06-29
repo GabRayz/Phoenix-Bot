@@ -5,13 +5,14 @@ const voice = require("@discordjs/voice");
 let phoenix = require("../index");
 
 const path = require("path");
+const {getVoiceConnection} = require("@discordjs/voice");
 
 module.exports = class Radio extends Command {
     static name = "radio";
     static alias = ["radio"];
     static description = "Écouter France Info";
 
-    proc = null;
+    static proc = null;
 
     static stream;
     static voiceChannel;
@@ -47,18 +48,18 @@ module.exports = class Radio extends Command {
         this.voiceChannel = voiceChannel;
 
         let curl =
-            "curl 'https://icecast.radiofrance.fr/franceinfo-midfi.mp3' \
-        -XGET \
-        -H 'Accept: */*' \
-        -H 'Connection: Keep-Alive' \
-        -H 'Icy-Metadata: 1' \
-        -H 'Accept-Language: fr-fr' \
-        -H 'User-Agent: AppleCoreMedia/1.0.0.19E266 (Macintosh; U; Intel Mac OS X 10_15_4; fr_fr)' \
-        -H 'Referer: https://embed.radiofrance.fr/franceinfo/player/direct' \
-        -H 'Accept-Encoding: identity' \
-        --output ./audio/franceinfo.mp3";
+            "curl 'https://icecast.radiofrance.fr/franceinfo-midfi.mp3'"
+            + "-XGET"
+            + "-H 'Accept: */*'"
+            + "-H 'Connection: Keep-Alive'"
+            + "-H 'Icy-Metadata: 1'"
+            + "-H 'Accept-Language: fr-fr'"
+            + "-H 'User-Agent: AppleCoreMedia/1.0.0.19E266 (Macintosh; U; Intel Mac OS X 10_15_4; fr_fr)'"
+            + "-H 'Referer: https://embed.radiofrance.fr/franceinfo/player/direct'"
+            + "-H 'Accept-Encoding: identity'"
+            + "--output ./audio/franceinfo.mp3";
 
-        // this.proc = exec(curl);
+        this.proc = exec(curl);
 
         setTimeout(() => {
             this.connectToVoiceChannel(voiceChannel)
@@ -73,18 +74,6 @@ module.exports = class Radio extends Command {
                     this.stream.play(resource);
                     connection.subscribe(this.stream);
                     this.isPlaying = true;
-                    // this.stream = await voiceConnection.playFile(
-                    //     path.resolve(__dirname, "../audio/franceinfo.mp3")
-                    // );
-                    // this.stream.on("end", (e) => {
-                    //     console.log("Fin de France Info");
-                    // });
-                    // this.stream.on("error", (e) => {
-                    //     console.error(e);
-                    // });
-                    // this.stream.on("start", () => {
-                    //     console.log("Listening to France Info!");
-                    // });
                 })
                 .catch((e) => console.error);
         }, 2000);
@@ -94,7 +83,6 @@ module.exports = class Radio extends Command {
     static stop() {
         // this.stream.end();
         this.proc?.kill();
-        voice.getVoiceConnection(this.voiceChannel.guild.id).destroy();
-        this.voiceChannel.leave();
+        getVoiceConnection(this.voiceChannel.guildId).destroy();
     }
 };
