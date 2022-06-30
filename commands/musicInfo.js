@@ -1,9 +1,9 @@
 let Command = require("../src/Command");
 const { MessageEmbed } = require("discord.js");
 
-module.exports = class Info extends Command {
-    static name = "info";
-    static alias = ["info", "infos", "playingnow", "i", "pn"];
+module.exports = class MusicInfo extends Command {
+    static name = "musicInfo";
+    static alias = ["musicinfo", "infos", "playingnow", "i", "pn"];
     static description = "Donne des infos sur la musique en cours";
 
     static async call(message, phoenix) {
