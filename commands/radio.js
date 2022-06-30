@@ -4,6 +4,7 @@ const voice = require("@discordjs/voice");
 
 const path = require("path");
 const {getVoiceConnection} = require("@discordjs/voice");
+const fs = require('fs').promises;
 
 module.exports = class Radio extends Command {
     static name = "radio";
@@ -18,7 +19,8 @@ module.exports = class Radio extends Command {
     static async call(message, _phoenix) {
         if (message.args.length === 0)
             this.start(message.member.voice.channel, message.channel);
-        if (message.args.length === 1 && message.args[0] === "stop") this.stop();
+        if (message.args.length === 1 && message.args[0] === "stop")
+            await this.stop();
     }
 
     static async connectToVoiceChannel(channel) {
@@ -77,8 +79,9 @@ module.exports = class Radio extends Command {
         }, 2000);
     }
 
-    static stop() {
+    static async stop() {
         this.proc?.kill();
         getVoiceConnection(this.voiceChannel.guildId).destroy();
+        return fs.unlink(path.resolve(__dirname, "../audio/franceinfo.mp3"))
     }
 };
