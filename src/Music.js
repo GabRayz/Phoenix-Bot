@@ -76,6 +76,7 @@ module.exports = class Music {
                     interaction.customId === "phoenixMusicStop"
                 ) {
                     interaction.deferUpdate();
+                    console.log(`Interaction ${interaction.customId} from user ${interaction.user.tag}`);
                     if (interaction.customId === "phoenixMusicNext")
                         await this.skip();
                     else if (interaction.customId === "phoenixMusicPause")
@@ -147,6 +148,8 @@ module.exports = class Music {
             } else this.textChannel.send(err);
         });
         if (!url) return;
+
+        this.videoInfos = await this.getVideoInfo(url);
 
         // Get the stream
         this.getStream(url)
@@ -251,26 +254,25 @@ module.exports = class Music {
         }
     }
 
-    async getStream(url) {
+    async getVideoInfo(url) {
         if (typeof url == "undefined")
             throw new TypeError("url is not defined");
-        console.log("Get stream from url : " + url);
-        let infos;
         try {
-            infos = await youtube.getInfo(url);
+            return await youtube.getInfo(url);
         } catch (e) {
             console.error(e);
             this.stop();
-        }
-        if (!infos) {
             return null;
         }
-        this.videoInfos = infos;
+    }
+
+    async getStream(url) {
         this.videoUrl = url;
-        let stream = youtube(url, {
-            filter: "audioonly",
-            highWaterMark: 1 << 25,
-        });
+        // 'audioonly' filter breaks with live videos
+        const options = this.videoInfos.videoDetails.isLive
+            ? {highWaterMark: 1 << 15}
+            : {highWaterMark: 1 << 25, filter: "audioonly"};
+        let stream = youtube(url, options);
 
         stream.on("error", (err) => {
             console.error("Erreur lors de la lecture : ", err);
