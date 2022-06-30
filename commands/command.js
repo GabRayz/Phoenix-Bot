@@ -24,6 +24,7 @@ module.exports.Radio = require("./radio");
 module.exports.Timer = require("./timer");
 
 module.exports.ServerInfo = require("./info/serverInfo");
+module.exports.BotInfo = require("./info/botInfo");
 
 module.exports.Cat = require("./api/cat");
 module.exports.Dog = require("./api/dog");
