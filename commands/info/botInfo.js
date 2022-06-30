@@ -25,7 +25,7 @@ module.exports = class BotInfo extends Command {
             .setThumbnail(application.iconURL())
             .addField(
                 "Creator",
-                `${application.owner.username}#${application.owner.discriminator}}`,
+                `${application.owner.username}#${application.owner.discriminator}`,
                 true
             )
             .addField("Servers", `${client.guilds.cache.size}`, true)
