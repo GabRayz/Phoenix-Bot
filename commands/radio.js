@@ -1,8 +1,6 @@
 let Command = require("../src/Command");
-const opus = require("opusscript");
 const { exec } = require("node:child_process");
 const voice = require("@discordjs/voice");
-let phoenix = require("../index");
 
 const path = require("path");
 const {getVoiceConnection} = require("@discordjs/voice");
@@ -17,10 +15,10 @@ module.exports = class Radio extends Command {
     static stream;
     static voiceChannel;
 
-    static async call(message, phoenix) {
-        if (message.args.length == 0)
+    static async call(message, _phoenix) {
+        if (message.args.length === 0)
             this.start(message.member.voice.channel, message.channel);
-        if (message.args.length == 1 && message.args[0] == "stop") this.stop();
+        if (message.args.length === 1 && message.args[0] === "stop") this.stop();
     }
 
     static async connectToVoiceChannel(channel) {
@@ -75,13 +73,11 @@ module.exports = class Radio extends Command {
                     connection.subscribe(this.stream);
                     this.isPlaying = true;
                 })
-                .catch((e) => console.error);
+                .catch(() => console.error);
         }, 2000);
-        return;
     }
 
     static stop() {
-        // this.stream.end();
         this.proc?.kill();
         getVoiceConnection(this.voiceChannel.guildId).destroy();
     }
