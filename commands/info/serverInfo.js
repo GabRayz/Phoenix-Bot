@@ -4,13 +4,12 @@ const { MessageEmbed, Guild } = require("discord.js");
 module.exports = class ServerInfo extends Command {
     static name = "serverInfo";
     static alias = ["server", "serverinfo"];
-    static description = "Affiche les informations d'un utilisateur";
+    static description = "Affiche les informations d'un serveur";
 
     static async call(message, phoenix) {
         const server = message.guild;
 
         const owner = await server.fetchOwner();
-        console.log();
 
         const embed = new MessageEmbed()
             .setTimestamp()
