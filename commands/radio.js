@@ -1,55 +1,87 @@
 let Command = require("../src/Command");
-const opus = require("opusscript");
-const exec = require("child_process").exec;
-let phoenix = require("../index");
+const { exec } = require("node:child_process");
+const voice = require("@discordjs/voice");
+
+const path = require("path");
+const {getVoiceConnection} = require("@discordjs/voice");
+const fs = require('fs').promises;
 
 module.exports = class Radio extends Command {
     static name = "radio";
     static alias = ["radio"];
     static description = "Écouter France Info";
 
+    static proc = null;
+
     static stream;
     static voiceChannel;
 
-    static async call(message, phoenix) {
-        if (message.args.length == 0)
-            this.start(message.member.voiceChannelID, message.guild);
-        if (message.args.length == 1 && message.args[0] == "stop") this.stop();
+    static async call(message, _phoenix) {
+        if (message.args.length === 0)
+            this.start(message.member.voice.channel, message.channel);
+        if (message.args.length === 1 && message.args[0] === "stop")
+            await this.stop();
     }
 
-    static start(channelID, guild) {
-        let channel = guild.channels.find((c) => c.id == channelID);
-        if (!channel) return;
-        this.voiceChannel = channel;
-        exec("./exec/curl");
+    static async connectToVoiceChannel(channel) {
+        return new Promise((resolve, reject) => {
+            if (!channel) {
+                reject();
+            }
+            const connection = voice.joinVoiceChannel({
+                channelId: channel.id,
+                guildId: channel.guild.id,
+                adapterCreator: channel.guild.voiceAdapterCreator,
+            });
+            connection.on(voice.VoiceConnectionStatus.Ready, () => {
+                console.log("connected to voice channel");
+                resolve();
+            });
+        });
+    }
+
+    static start(voiceChannel, textChannel) {
+        if (!voiceChannel) {
+            textChannel.send("Tu n'es pas connecté à un channel vocal ='(");
+            return;
+        }
+        this.voiceChannel = voiceChannel;
+
+        let curl =
+            "curl 'https://icecast.radiofrance.fr/franceinfo-midfi.mp3'"
+            + "-XGET"
+            + "-H 'Accept: */*'"
+            + "-H 'Connection: Keep-Alive'"
+            + "-H 'Icy-Metadata: 1'"
+            + "-H 'Accept-Language: fr-fr'"
+            + "-H 'User-Agent: AppleCoreMedia/1.0.0.19E266 (Macintosh; U; Intel Mac OS X 10_15_4; fr_fr)'"
+            + "-H 'Referer: https://embed.radiofrance.fr/franceinfo/player/direct'"
+            + "-H 'Accept-Encoding: identity'"
+            + "--output ./audio/franceinfo.mp3";
+
+        this.proc = exec(curl);
 
         setTimeout(() => {
-            channel
-                .join()
-                .then(async (voiceConnection) => {
-                    this.stream = await voiceConnection.playFile(
-                        __dirname + "/../audio/franceinfo.mp3"
+            this.connectToVoiceChannel(voiceChannel)
+                .then(async () => {
+                    const connection = voice.getVoiceConnection(
+                        voiceChannel.guild.id
                     );
-                    this.stream.on("end", (e) => {
-                        console.log("Fin de France Info");
-                    });
-
-                    this.stream.on("error", (e) => {
-                        console.error(e);
-                    });
-                    this.stream.on("start", () => {
-                        phoenix.bot.user.setActivity("France Info");
-                        console.log("Listening to France Info!");
-                    });
+                    this.stream = voice.createAudioPlayer();
+                    const resource = voice.createAudioResource(
+                        path.resolve(__dirname, "../audio/franceinfo.mp3")
+                    );
+                    this.stream.play(resource);
+                    connection.subscribe(this.stream);
+                    this.isPlaying = true;
                 })
-                .catch((e) => console.error);
+                .catch(() => console.error);
         }, 2000);
-        return;
     }
 
-    static stop() {
-        phoenix.bot.user.setActivity(phoenix.config.activity);
-        this.stream.end();
-        this.voiceChannel.leave();
+    static async stop() {
+        this.proc?.kill();
+        getVoiceConnection(this.voiceChannel.guildId).destroy();
+        return fs.unlink(path.resolve(__dirname, "../audio/franceinfo.mp3"))
     }
 };
