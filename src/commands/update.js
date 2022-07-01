@@ -1,7 +1,7 @@
 import Command from "../Command.js";
 import fs from "fs";
 import { exec } from "child_process";
-import Phoenix from "../../index.js";
+import Phoenix from "../index.js";
 
 export default class Update extends Command {
     static name = "update";
