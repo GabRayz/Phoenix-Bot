@@ -7,7 +7,7 @@ module.exports = class Cat extends Command {
     static alias = ["cat", "kitty"];
     static description = "Affiche un chat aléatoirement";
 
-    static async call(message, phoenix) {
+    static async call(message, _phoenix) {
         const { file } = await fetch("https://aws.random.cat/meow")
             .then((response) => response.json())
             .catch((err) => console.error(err));

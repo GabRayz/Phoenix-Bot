@@ -1,12 +1,12 @@
 const Command = require("../../src/Command");
-const { MessageEmbed, Guild } = require("discord.js");
+const { MessageEmbed } = require("discord.js");
 
 module.exports = class BotInfo extends Command {
     static name = "botInfo";
     static alias = ["bot", "botinfo"];
     static description = "Affiche les informations du bot";
 
-    static async call(message, phoenix) {
+    static async call(message, _phoenix) {
         const client = message.client;
         const time = (client.uptime / 1000).toFixed(0);
         const seconds = (time % 60).toFixed(0);
