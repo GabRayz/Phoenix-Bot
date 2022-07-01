@@ -1,15 +1,16 @@
-const Discord = require("discord.js");
-const PhoenixGuild = require("./Guild.js");
-const Commands = require("../commands/command");
+import Discord from "discord.js";
+import PhoenixGuild from "./Guild.js";
+import Commands from "./commands/command.js";
+import config from "../config.json" assert { type: "json" };
 
-module.exports = class Phoenix {
+export default class Phoenix {
     config = null;
     bot = null;
     guilds = {};
     activities = 0;
 
     async loadConfig() {
-        this.config = require("../config");
+        this.config = config;
     }
 
     async login() {
@@ -147,4 +148,4 @@ module.exports = class Phoenix {
             }, time);
         });
     }
-};
+}

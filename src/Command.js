@@ -1,4 +1,4 @@
-class Command {
+export default class Command {
     /**
      * Name of the command. No real purpose
      */
@@ -33,5 +33,3 @@ class Command {
         this.channel = channel;
     }
 }
-
-module.exports = Command;

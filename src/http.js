@@ -1,9 +1,10 @@
-const express = require("express");
-let router = express.Router();
-let app = express();
-var path = require("path");
-let config = {};
-config = require("../config.json");
+import express from "express";
+import path from "path";
+
+const router = express.Router();
+const app = express();
+
+import config from "../config.json" assert { type: "json" };
 
 router.get("/mp3/:file", (req, res) => {
     res.sendFile(path.join(__dirname, `../public/${req.params.file}.mp3`));

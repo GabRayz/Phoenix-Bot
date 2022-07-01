@@ -1,8 +1,7 @@
-const Music = require("./Music");
-const fs = require("fs").promises;
-const GuildPlaylistManager = require("./GuildPlaylistManager");
-
-module.exports = class PhoenixGuild {
+import Music from "./Music.js";
+import GuildPlaylistManager from "./GuildPlaylistManager.js";
+import { promises } from "fs";
+export default class PhoenixGuild {
     config = null;
     bot = null;
     guildId = null;
@@ -37,7 +36,7 @@ module.exports = class PhoenixGuild {
 
     async saveConfig() {
         this.config.playlists = this.playlistManager.playlists;
-        return await fs.writeFile(
+        return await promises.writeFile(
             `./config/${this.guildId}.json`,
             JSON.stringify(this.config, null, 4)
         );
@@ -46,7 +45,7 @@ module.exports = class PhoenixGuild {
     async importEmojis() {
         const guild = await this.fetchGuild();
         const guildEmojis = await guild.emojis.fetch();
-        const files = await fs.readdir("src/emojis/");
+        const files = await promises.readdir("src/emojis/");
         for (let file of files) {
             if (!file.endsWith(".png")) continue;
             const emojiName = file.split(".")[0];
@@ -95,4 +94,4 @@ module.exports = class PhoenixGuild {
             playlists: {},
         };
     }
-};
+}

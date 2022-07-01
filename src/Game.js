@@ -1,6 +1,6 @@
-const EventEmitter = require("events");
+import EventEmitter from "events";
 
-module.exports = class Game extends EventEmitter {
+export default class Game extends EventEmitter {
     static name;
     static alias = [];
 
@@ -37,4 +37,4 @@ module.exports = class Game extends EventEmitter {
         });
         this.isPlaying = false;
     }
-};
+}
