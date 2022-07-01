@@ -1,4 +1,10 @@
 export default class Message {
+    message: any;
+    command: any;
+    args: any;
+    author: any;
+    channel: any;
+
     constructor(message) {
         this.message = message.content;
         let msgParts = message.content.split(" ");

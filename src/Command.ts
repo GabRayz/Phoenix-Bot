@@ -2,11 +2,11 @@ export default class Command {
     /**
      * Name of the command. No real purpose
      */
-    static name;
+    static commandName: string;
     /**
      * List of strings to match to call the command.
      */
-    static alias = [];
+    static alias: any[] = [];
     static description = "Nettoie le chat des commandes bot";
 
     /**
@@ -19,13 +19,13 @@ export default class Command {
     /**
      * Execute the command
      */
-    static call() {
+    static call(_message, _phoenix) {
         throw new Error("Function not implemented");
     }
 
-    phoenix = null;
-    guild = null;
-    channel = null;
+    phoenix: any = null;
+    guild: any = null;
+    channel: any = null;
 
     constructor(phoenix, channel) {
         this.guild = channel.guild;

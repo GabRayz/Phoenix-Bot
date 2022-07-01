@@ -2,7 +2,7 @@ import fs from "fs";
 import searchApi from "youtube-search-api";
 
 export default class GuildPlaylistManager {
-    phoenixGuild = null;
+    phoenixGuild: any = null;
     playlists = {};
 
     constructor(phoenixGuild, playlists) {
@@ -38,7 +38,7 @@ export default class GuildPlaylistManager {
         if (this.playlists[playlistName] === undefined)
             throw new Error("This playlist does not exist");
 
-        const music = this.phoenixGuild.music;
+        const music = this.phoenixGuild?.music;
         music.currentPlaylist = this.playlists[playlistName].items;
         music.currentPlaylistName = playlistName;
         console.log("Playing playlist: " + playlistName);
@@ -47,7 +47,7 @@ export default class GuildPlaylistManager {
     }
 
     stop() {
-        const music = this.phoenixGuild.music;
+        const music = this.phoenixGuild?.music;
         music.currentPlaylist = [];
         music.currentPlaylistName = "";
     }
