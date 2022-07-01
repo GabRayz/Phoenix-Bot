@@ -3,13 +3,13 @@ import { MessageEmbed } from "discord.js";
 import Command from "../../Command.js";
 
 export default class Cat extends Command {
-    static name = "cat";
+    static commandName = "cat";
     static alias = ["cat", "kitty"];
     static description = "Affiche un chat aléatoirement";
 
     static async call(message, _phoenix) {
         const { file } = await fetch("https://aws.random.cat/meow")
-            .then((response) => response.json())
+            .then((response) => response.json() as any)
             .catch((err) => console.error(err));
 
         const embed = new MessageEmbed()

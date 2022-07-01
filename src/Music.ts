@@ -14,7 +14,7 @@ export default class Music {
     /**
      * List of songs to be played, represented by a name or a url
      */
-    queue = [];
+    queue: any[] = [];
     /**
      * Defines if the bot is currently playing music.
      */
@@ -32,12 +32,15 @@ export default class Music {
     /**
      * Infos on the currently playing video.
      */
-    videoInfos = null;
-    videoUrl = null;
-    audioPlayer = null;
-    statusMessage = null;
+    videoInfos: any = null;
+    videoUrl: any = null;
+    audioPlayer: any = null;
+    statusMessage: any = null;
 
-    phoenixGuild = null;
+    phoenixGuild: any = null;
+
+    textChannel: any = null;
+    stream: any = null;
 
     constructor(phoenixGuild) {
         this.phoenixGuild = phoenixGuild;
@@ -175,7 +178,7 @@ export default class Music {
                 const resource = createAudioResource(stream);
                 this.audioPlayer.play(resource);
 
-                connection.subscribe(this.audioPlayer);
+                connection?.subscribe(this.audioPlayer);
 
                 this.isPlaying = true;
 
@@ -275,7 +278,8 @@ export default class Music {
     async getStream(url) {
         this.videoUrl = url;
         // 'audioonly' filter breaks with live videos
-        const options = this.videoInfos.videoDetails.isLive
+        const options: youtube.downloadOptions = this.videoInfos.videoDetails
+            .isLive
             ? { highWaterMark: 1 << 15 }
             : { highWaterMark: 1 << 25, filter: "audioonly" };
         let stream = youtube(url, options);
@@ -298,7 +302,7 @@ export default class Music {
     }
 
     async connectToVoiceChannel(channel) {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             if (!channel) {
                 reject();
             }
@@ -324,7 +328,7 @@ export default class Music {
         const oldStatusMessage = this.statusMessage;
         this.statusMessage = null;
         wait(10000).then(() => oldStatusMessage.delete());
-        getVoiceConnection(this.textChannel.guildId).destroy();
+        getVoiceConnection(this.textChannel.guildId)?.destroy();
     }
 
     async displayStatusMessage() {

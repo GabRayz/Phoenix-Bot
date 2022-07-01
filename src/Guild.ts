@@ -2,13 +2,13 @@ import Music from "./Music.js";
 import GuildPlaylistManager from "./GuildPlaylistManager.js";
 import { promises } from "fs";
 export default class PhoenixGuild {
-    config = null;
-    bot = null;
-    guildId = null;
+    config: any = null;
+    bot: any = null;
+    guildId: any = null;
     emojis = {};
-    phoenix = null;
-    music = null;
-    playlistManager = null;
+    phoenix: any = null;
+    music: any = null;
+    playlistManager: any = null;
 
     constructor(guild, phoenix) {
         this.guildId = guild;
@@ -30,8 +30,10 @@ export default class PhoenixGuild {
     }
 
     checkPrefix(messageContent) {
-        let regex = RegExp.escape(this.config.prefix);
-        return messageContent.match("^" + regex) != null;
+        // let regex = RegExp.escape(this.config.prefix);
+        // return messageContent.match("^" + regex) != null;
+
+        return messageContent.match("^" + this.config.prefix) != null;
     }
 
     async saveConfig() {
