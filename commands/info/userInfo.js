@@ -7,7 +7,7 @@ module.exports = class UserInfo extends Command {
     static alias = ["me", "userinfo"];
     static description = "Affiche les informations d'un utilisateur";
 
-    static async call(message, phoenix) {
+    static async call(message, _phoenix) {
         const member = getMember(message, message.args.join(" "));
 
         const joined = formatDate(member.joinedAt);

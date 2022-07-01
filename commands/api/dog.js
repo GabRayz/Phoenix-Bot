@@ -7,7 +7,7 @@ module.exports = class Dog extends Command {
     static alias = ["dog", "doggo"];
     static description = "Affiche un chien aléatoirement";
 
-    static async call(message, phoenix) {
+    static async call(message, _phoenix) {
         const { url } = await fetch("https://random.dog/woof.json")
             .then((response) => response.json())
             .catch((err) => console.error(err));
