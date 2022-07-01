@@ -1,7 +1,7 @@
-const fs = require("fs");
-const searchApi = require("youtube-search-api");
+import fs from "fs";
+import searchApi from "youtube-search-api";
 
-module.exports = class GuildPlaylistManager {
+export default class GuildPlaylistManager {
     phoenixGuild = null;
     playlists = {};
 
@@ -55,4 +55,4 @@ module.exports = class GuildPlaylistManager {
     delete(playlistName) {
         this.playlists[playlistName] = undefined;
     }
-};
+}

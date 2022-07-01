@@ -1,6 +1,6 @@
 // Import packages
-require("./src/http");
-const Phoenix = require("./src/Phoenix");
+import("./src/http.js");
+import Phoenix from "./src/Phoenix.js";
 
 RegExp.escape = function (s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
@@ -12,4 +12,4 @@ phoenix.loadConfig().then(async () => {
     await phoenix.login();
 });
 
-module.exports = phoenix;
+export default phoenix;

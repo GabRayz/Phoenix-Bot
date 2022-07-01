@@ -1,10 +1,16 @@
-const { setTimeout: wait } = require("node:timers/promises");
-const voice = require("@discordjs/voice");
-const youtube = require("ytdl-core");
-const searchApi = require("youtube-search-api");
-const Discord = require("discord.js");
-const { MessageActionRow, MessageButton } = require("discord.js");
-module.exports = class Music {
+import { setTimeout as wait } from "node:timers/promises";
+import {
+    getVoiceConnection,
+    createAudioPlayer,
+    joinVoiceChannel,
+    createAudioResource,
+    VoiceConnectionStatus,
+} from "@discordjs/voice";
+import youtube from "ytdl-core";
+import searchApi from "youtube-search-api";
+import Discord from "discord.js";
+import { MessageActionRow, MessageButton } from "discord.js";
+export default class Music {
     /**
      * List of songs to be played, represented by a name or a url
      */
@@ -76,7 +82,9 @@ module.exports = class Music {
                     interaction.customId === "phoenixMusicStop"
                 ) {
                     interaction.deferUpdate();
-                    console.log(`Interaction ${interaction.customId} from user ${interaction.user.tag}`);
+                    console.log(
+                        `Interaction ${interaction.customId} from user ${interaction.user.tag}`
+                    );
                     if (interaction.customId === "phoenixMusicNext")
                         await this.skip();
                     else if (interaction.customId === "phoenixMusicPause")
@@ -160,13 +168,11 @@ module.exports = class Music {
                 await this.phoenixGuild.phoenix.bot.user.setActivity(
                     "Loading..."
                 );
-                const connection = voice.getVoiceConnection(
-                    this.textChannel.guildId
-                );
+                const connection = getVoiceConnection(this.textChannel.guildId);
                 if (this.audioPlayer == null)
-                    this.audioPlayer = voice.createAudioPlayer();
+                    this.audioPlayer = createAudioPlayer();
 
-                const resource = voice.createAudioResource(stream);
+                const resource = createAudioResource(stream);
                 this.audioPlayer.play(resource);
 
                 connection.subscribe(this.audioPlayer);
@@ -270,8 +276,8 @@ module.exports = class Music {
         this.videoUrl = url;
         // 'audioonly' filter breaks with live videos
         const options = this.videoInfos.videoDetails.isLive
-            ? {highWaterMark: 1 << 15}
-            : {highWaterMark: 1 << 25, filter: "audioonly"};
+            ? { highWaterMark: 1 << 15 }
+            : { highWaterMark: 1 << 25, filter: "audioonly" };
         let stream = youtube(url, options);
 
         stream.on("error", (err) => {
@@ -296,12 +302,12 @@ module.exports = class Music {
             if (!channel) {
                 reject();
             }
-            const connection = voice.joinVoiceChannel({
+            const connection = joinVoiceChannel({
                 channelId: channel.id,
                 guildId: channel.guild.id,
                 adapterCreator: channel.guild.voiceAdapterCreator,
             });
-            connection.on(voice.VoiceConnectionStatus.Ready, () => {
+            connection.on(VoiceConnectionStatus.Ready, () => {
                 console.log("connected to voice channel");
                 resolve();
             });
@@ -318,7 +324,7 @@ module.exports = class Music {
         const oldStatusMessage = this.statusMessage;
         this.statusMessage = null;
         wait(10000).then(() => oldStatusMessage.delete());
-        voice.getVoiceConnection(this.textChannel.guildId).destroy();
+        getVoiceConnection(this.textChannel.guildId).destroy();
     }
 
     async displayStatusMessage() {
@@ -366,4 +372,4 @@ module.exports = class Music {
             this.statusMessage = await this.textChannel.send(messageData);
         else this.statusMessage.edit(messageData);
     }
-};
+}

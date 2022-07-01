@@ -1,4 +1,4 @@
-const searchApi = require("youtube-search-api");
+import searchApi from "youtube-search-api";
 
 async function GetPlaylist(id) {
     const result = await searchApi.GetPlaylistData(id, 100);
@@ -10,4 +10,4 @@ async function GetPlaylist(id) {
     });
 }
 
-module.exports.GetPlaylist = GetPlaylist;
+export default GetPlaylist;

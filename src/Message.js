@@ -1,4 +1,4 @@
-module.exports = class Message {
+export default class Message {
     constructor(message) {
         this.message = message.content;
         let msgParts = message.content.split(" ");
@@ -15,4 +15,4 @@ module.exports = class Message {
     delete() {
         this.message.delete();
     }
-};
+}
