@@ -1,7 +1,7 @@
 import Command from "../Command.js";
 
 export default class Stop extends Command {
-    static name = "stop";
+    static commandName = "stop";
     static alias = ["stop", "tg"];
     static description =
         "Arrete la musique et deconnecte le bot du salon vocal.";

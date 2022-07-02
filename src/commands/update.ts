@@ -4,7 +4,7 @@ import { exec } from "child_process";
 import Phoenix from "../index.js";
 
 export default class Update extends Command {
-    static name = "update";
+    static commandName = "update";
     static alias = ["update", "u"];
     static description = "Mettre à jour le bot";
 
@@ -24,15 +24,11 @@ export default class Update extends Command {
     static autoUpdate() {
         this.checkForUpdate((res) => {
             if (res) {
-                if (
-                    Phoenix.botChannel != null &&
-                    Phoenix.config.updateAlert == "true"
-                )
-                    Phoenix.botChannel.send(
-                        "Installation de la mise à jour...",
-                        { code: true }
-                    );
-                this.update();
+                if (Phoenix.bot != null && Phoenix.config.updateAlert == "true")
+                    Phoenix.bot.send("Installation de la mise à jour...", {
+                        code: true,
+                    });
+                this.update(() => {});
             }
         });
     }

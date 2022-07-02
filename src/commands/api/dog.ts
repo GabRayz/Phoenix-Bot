@@ -3,13 +3,13 @@ import { MessageEmbed } from "discord.js";
 import Command from "../../Command.js";
 
 export default class Dog extends Command {
-    static name = "dog";
+    static commandName: string = "dog";
     static alias = ["dog", "doggo"];
     static description = "Affiche un chien aléatoirement";
 
     static async call(message, _phoenix) {
         const { url } = await fetch("https://random.dog/woof.json")
-            .then((response) => response.json())
+            .then((response) => response.json() as any)
             .catch((err) => console.error(err));
 
         const embed = new MessageEmbed()

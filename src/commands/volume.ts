@@ -2,12 +2,12 @@ import Command from "../Command.js";
 import Play from "./play.js";
 
 export default class Volume extends Command {
-    static name = "volume";
+    static commandName = "volume";
     static alias = ["volume"];
     static description = "Changer le volume";
 
-    static call(msg, phoenix) {
-        if (!msg.args.length > 0) {
+    static call(msg: any, phoenix) {
+        if (msg.args.length <= 0) {
             phoenix.sendClean(
                 "Volume actuel: " + Play.volume * 100,
                 msg.channel,

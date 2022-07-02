@@ -1,6 +1,6 @@
 import Discord from "discord.js";
-import PhoenixGuild from "./Guild";
-import Commands from "./commands/command";
+import PhoenixGuild from "./Guild.js";
+import Commands from "./commands/command.js";
 import config from "../config.json" assert { type: "json" };
 
 export default class Phoenix {

@@ -2,7 +2,7 @@ import Command from "../Command.js";
 import { MessageEmbed } from "discord.js";
 
 export default class MusicInfo extends Command {
-    static name = "musicInfo";
+    static commandName = "musicInfo";
     static alias = ["musicinfo", "infos", "playingnow", "i", "pn"];
     static description = "Donne des infos sur la musique en cours";
 

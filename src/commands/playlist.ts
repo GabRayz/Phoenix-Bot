@@ -1,8 +1,8 @@
 import Command from "../Command.js";
-import YoutubePlaylists from "../YoutubePlaylists.js";
+import GetPlaylist from "../YoutubePlaylists.js";
 
 export default class Playlist extends Command {
-    static name = "playlist";
+    static commandName = "playlist";
     static alias = ["playlist", "pl"];
     static description = "Gérer les playlist. !playlist help";
 
@@ -135,7 +135,7 @@ export default class Playlist extends Command {
 
     static see(phoenixGuild, playlistName, channel) {
         let playlist = phoenixGuild.playlistManager.playlists[playlistName];
-        let msgs = [];
+        let msgs: any[] = [];
         let msg = playlistName + " : ";
         playlist.items.forEach((song) => {
             if (song.name) msg += song.name + ", ";
@@ -152,7 +152,7 @@ export default class Playlist extends Command {
     static async importYoutubePlaylist(url, playlistName, manager) {
         console.log("Playlist name : " + playlistName);
         let id = url.split("=")[1];
-        let videos = await YoutubePlaylists.GetPlaylist(id);
+        let videos = await GetPlaylist(id);
         for (const video of videos) {
             await manager.add(video.name, playlistName, video.id);
         }

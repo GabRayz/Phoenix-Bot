@@ -1,18 +1,18 @@
 import Game from "../Game.js";
 
 export default class TwoK48 extends Game {
-    static name = "2048";
+    static gameName = "2048";
     static alias = ["2048"];
     static description = "Jouons à 2048";
 
     /**
      * The discord text message displaying the game board
      */
-    boardMsg = null;
+    boardMsg: any = null;
     /**
      * Names of the tiles emojis.
      */
-    names = [
+    names: string[] = [
         "2048_2",
         "2048_4",
         "2048_8",
@@ -28,11 +28,17 @@ export default class TwoK48 extends Game {
     /**
      * Id of each tile emoji.
      */
-    ids = [];
+    ids: any[] = [];
     /**
      * The game board. Each cell contains the index of the tile in this.names, -1 if there is no tile in this cell.
      */
-    board = [];
+    board: any[] = [];
+
+    isLoading: boolean;
+
+    alias: any[] = [];
+
+    player: any;
 
     constructor(message, gameId, phoenix) {
         super(message, gameId, phoenix);
@@ -235,7 +241,7 @@ export default class TwoK48 extends Game {
     }
 
     createEmptyBoard() {
-        let board = [];
+        let board: any[] = [];
         for (let i = 0; i < 4; i++) {
             board.push([-1, -1, -1, -1]);
         }
@@ -276,7 +282,7 @@ export default class TwoK48 extends Game {
      * Draw the board by editing this.boardMsg.
      */
     draw() {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
             let msg = "";
             for (let j = 0; j < 4; j++) {
                 for (let i = 0; i < 4; i++) {

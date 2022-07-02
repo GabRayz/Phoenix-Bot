@@ -4,7 +4,7 @@ import ytdl from "ytdl-core";
 import ffmpeg from "fluent-ffmpeg";
 
 export default class Download extends Command {
-    static name = "download";
+    static commandName = "download";
     static alias = ["download", "dl"];
     static description = "Télécharge une vidéo";
 

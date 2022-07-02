@@ -2,7 +2,7 @@ import Command from "../../Command.js";
 import { MessageEmbed } from "discord.js";
 
 export default class ServerInfo extends Command {
-    static name = "serverInfo";
+    static commandName: string = "serverInfo";
     static alias = ["server", "serverinfo"];
     static description = "Affiche les informations d'un serveur";
 

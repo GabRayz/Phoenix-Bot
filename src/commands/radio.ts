@@ -11,14 +11,16 @@ import { exec } from "node:child_process";
 import { promises } from "fs";
 
 export default class Radio extends Command {
-    static name = "radio";
+    static commandName = "radio";
     static alias = ["radio"];
     static description = "Écouter France Info";
 
-    static proc = null;
+    static proc: any = null;
 
     static stream;
     static voiceChannel;
+
+    static isPlaying;
 
     static async call(message, _phoenix) {
         if (message.args.length === 0)
@@ -28,7 +30,7 @@ export default class Radio extends Command {
     }
 
     static async connectToVoiceChannel(channel) {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             if (!channel) {
                 reject();
             }
@@ -76,7 +78,7 @@ export default class Radio extends Command {
                         path.resolve(__dirname, "../audio/franceinfo.mp3")
                     );
                     this.stream.play(resource);
-                    connection.subscribe(this.stream);
+                    connection?.subscribe(this.stream);
                     this.isPlaying = true;
                 })
                 .catch(() => console.error);
@@ -85,7 +87,7 @@ export default class Radio extends Command {
 
     static async stop() {
         this.proc?.kill();
-        getVoiceConnection(this.voiceChannel.guildId).destroy();
+        getVoiceConnection(this.voiceChannel.guildId)?.destroy();
         return promises.unlink(
             path.resolve(__dirname, "../audio/franceinfo.mp3")
         );

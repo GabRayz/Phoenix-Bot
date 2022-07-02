@@ -4,12 +4,14 @@ import { Server } from "socket.io";
 import { io as ioClient } from "socket.io-client";
 
 export default class Link extends Command {
-    static name = "link";
+    static commandName = "link";
     static alias = ["link"];
     static description = "Connecte ce salon au réseau textuel de Phoenix";
 
     static textChannel;
     static socket;
+
+    static Phoenix: any;
 
     static async call(message, phoenix) {
         if (message.args.length > 0 && message.args[0] == "unlink") {
@@ -40,7 +42,7 @@ export default class Link extends Command {
             if (isThereAServer) {
                 this.connect();
             } else {
-                this.createServer(message.channel, phoenix.config.host);
+                this.createServer();
             }
             this.Phoenix.bot.on("message", (msg) => {
                 // When a non-bot message is sent in the channel
@@ -66,7 +68,7 @@ export default class Link extends Command {
 
     static testConnection(host) {
         return new Promise((resolve, reject) => {
-            http.get("http://localhost:8081", (err, res) => {
+            http.get("http://localhost:8081", (_err) => {
                 resolve(true);
             }).on("error", (e) => {
                 resolve(false);
@@ -109,6 +111,6 @@ export default class Link extends Command {
         socket.on("chat message", function (msg, username) {
             Link.textChannel.send("**" + username + "** : " + msg);
         });
-        Link.socket = io;
+        Link.socket = socket;
     }
 }

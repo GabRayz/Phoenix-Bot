@@ -1,7 +1,7 @@
 import Command from "../Command.js";
 
 export default class Pause extends Command {
-    static name = "pause";
+    static commandName = "pause";
     static alias = ["pause"];
     static description = "Met la musique en pause";
 

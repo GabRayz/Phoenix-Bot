@@ -1,7 +1,7 @@
 import Command from "../Command.js";
 
 export default class Clear extends Command {
-    static name = "clear";
+    static commandName: string = "clear";
     static alias = ["clear", "clean"];
     static description = "Nettoie le chat des commandes bot";
 
