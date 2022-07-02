@@ -1,7 +1,7 @@
 import Command from "../Command.js";
 
 export default class Off extends Command {
-    static name = "off";
+    static commandName = "off";
     static alias = ["off", "shutdown", "disconnect", "restart"];
     static description = "Redémarre le bot";
 

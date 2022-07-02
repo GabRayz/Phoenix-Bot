@@ -2,7 +2,7 @@ import Command from "../Command.js";
 import Discord from "discord.js";
 
 export default class Help extends Command {
-    static name = "help";
+    static commandName = "help";
     static alias = ["help", "h"];
     static description = "Affiche la liste des commandes";
 

@@ -2,7 +2,7 @@ import EventEmitter from "events";
 
 export default class Game extends EventEmitter {
     static gameName: string;
-    static alias = [];
+    static alias: any[] = [];
 
     /**
      * Unique identifier of the game.

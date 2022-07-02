@@ -1,7 +1,7 @@
 import Command from "../Command.js";
 
 export default class Queue extends Command {
-    static name = "queue";
+    static commandName = "queue";
     static alias = ["queue"];
     static description = "Affiche la liste d'attente des musiques.";
 

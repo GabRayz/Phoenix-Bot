@@ -1,11 +1,7 @@
 import Command from "../Command.js";
 
 export default class Hangman extends Command {
-    constructor(author) {
-        super();
-        this.author = author;
-    }
-    static name = "hangman";
+    static commandName = "hangman";
     static alias = ["hangman", "pendu"];
     static description = "Jouons au pendu.";
     static callableFromMP = true;
@@ -14,9 +10,16 @@ export default class Hangman extends Command {
     static mainMsg;
     static lives = 5;
     static mystery = "";
-    static found = [];
-    static tested = [];
-    static channel = null;
+    static found: any[] = [];
+    static tested: any[] = [];
+    static channel: any = null;
+
+    author: any;
+
+    constructor(author) {
+        super(undefined, undefined);
+        this.author = author;
+    }
 
     static async call(message, phoenix) {
         if (
@@ -44,11 +47,8 @@ export default class Hangman extends Command {
         }
     }
 
-    static isWordValid(word) {
-        for (const element of word) {
-            if (!element >= "A" && element <= "Z") return false;
-        }
-        return true;
+    static isWordValid(word: string) {
+        return /^[A-Z]+$/.test(word);
     }
 
     static generateBoard(word) {

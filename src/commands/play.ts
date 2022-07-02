@@ -1,11 +1,13 @@
 import Command from "../Command.js";
-import YoutubePlaylists from "../YoutubePlaylists.js";
+import GetPlaylist from "../YoutubePlaylists.js";
 
 export default class Play extends Command {
-    static name = "play";
+    static commandName = "play";
     static alias = ["play"];
     static description =
         "Ajoute une musique à la file d'attente. Démarre la lecture si aucune musique n'est en cours.";
+    static volume;
+    static voiceHandler;
 
     /**
      * Entry point of the command. Adds to song to the queue and start playing.
@@ -29,7 +31,7 @@ export default class Play extends Command {
 
     static async enqueueYoutubePlaylist(url, music) {
         let id = url.split("=")[1];
-        let videos = await YoutubePlaylists.GetPlaylist(id);
+        let videos = await GetPlaylist(id);
         for (const video of videos) {
             music.addToQueueObject(video);
         }

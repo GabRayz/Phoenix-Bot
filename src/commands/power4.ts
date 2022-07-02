@@ -1,7 +1,7 @@
 import Command from "../Command.js";
 
 export default class Power4 extends Command {
-    static name = "power4";
+    static commandName = "power4";
     static alias = ["puissance4", "power4", "p4"];
     static description = "Jouons au puissance 4 :D";
 
@@ -11,9 +11,11 @@ export default class Power4 extends Command {
     static currentPlayerTag;
     static currentPlayerMsg;
     static isPlaying = false;
-    static board = [];
+    static board: any[] = [];
     static boardMsg;
     static phoenix;
+
+    static channel;
 
     static call(message, phoenix) {
         this.phoenix = phoenix;
@@ -195,7 +197,7 @@ export default class Power4 extends Command {
 
     static lookHorizontal(x, y) {
         if (x > 3) return 0;
-        let scope = [];
+        let scope: any[] = [];
         for (let i = 0; i < 4; i++) scope[i] = this.board[x + i][y];
         if (scope.every((tile) => tile === 1)) return 1;
         if (scope.every((tile) => tile === 2)) return 2;
@@ -204,7 +206,7 @@ export default class Power4 extends Command {
 
     static lookVertical(x, y) {
         if (y > 2) return 0;
-        let scope = [];
+        let scope: any[] = [];
         for (let i = 0; i < 4; i++) scope[i] = this.board[x][y + i];
         if (scope.every((tile) => tile === 1)) return 1;
         if (scope.every((tile) => tile === 2)) return 2;
@@ -213,7 +215,7 @@ export default class Power4 extends Command {
 
     static lookDiagonalUp(x, y) {
         if (x > 3 || y > 2) return 0;
-        let scope = [];
+        let scope: any[] = [];
         for (let i = 0; i < 4; i++) scope[i] = this.board[x + i][y + i];
         if (scope.every((tile) => tile === 1)) return 1;
         if (scope.every((tile) => tile === 2)) return 2;
@@ -222,7 +224,7 @@ export default class Power4 extends Command {
 
     static lookDiagonalDown(x, y) {
         if (x > 3 || y < 3) return 0;
-        let scope = [];
+        let scope: any[] = [];
         for (let i = 0; i < 4; i++) scope[i] = this.board[x + i][y - i];
         if (scope.every((tile) => tile === 1)) return 1;
         if (scope.every((tile) => tile === 2)) return 2;

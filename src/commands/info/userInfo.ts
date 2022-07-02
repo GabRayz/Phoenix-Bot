@@ -3,7 +3,7 @@ import { MessageEmbed } from "discord.js";
 import { getMember, formatDate } from "../../utils.js";
 
 export default class UserInfo extends Command {
-    static name = "userInfo";
+    static commandName: string = "userInfo";
     static alias = ["me", "userinfo"];
     static description = "Affiche les informations d'un utilisateur";
 

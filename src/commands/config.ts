@@ -3,7 +3,7 @@ import fs from "fs";
 import { MessageEmbed } from "discord.js";
 
 export default class Config extends Command {
-    static name = "config";
+    static commandName = "config";
     static alias = ["config"];
     static description = "Configure the bot";
 
@@ -143,7 +143,7 @@ export default class Config extends Command {
         if (name === "default") return true;
         let commands = {};
         commands = require("./command");
-        let com = Object.values(commands).find((c) => c.name === name);
+        let com = Object.values(commands).find((c: any) => c.name === name);
         return typeof com != "undefined";
     }
 
@@ -270,7 +270,7 @@ export default class Config extends Command {
     }
 
     static async getChannelsNameFromId(channelsId, guild) {
-        let res = [];
+        let res: any[] = [];
         for (const id of channelsId) {
             let channel = await guild.channels.fetch(id);
             let category = await guild.channels.fetch(channel.parentID);

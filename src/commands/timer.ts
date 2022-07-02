@@ -1,7 +1,7 @@
 import Command from "../Command.js";
 
 export default class Timer extends Command {
-    static name = "timer";
+    static commandName = "timer";
     static alias = ["timer"];
     static description = "Example for creating a command";
 
@@ -13,7 +13,7 @@ export default class Timer extends Command {
     }
 
     static setTimer(duration, message) {
-        if (!duration > 0) return;
+        if (duration <= 0) return;
         console.log("Timer set :", duration);
         message.react("🕐");
         setTimeout(() => {

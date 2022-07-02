@@ -6,7 +6,7 @@ import TwoK48 from "./2048.js";
 const games = { TwoK48 };
 
 export default class Games extends Command {
-    static name = "games";
+    static commandName = "games";
     static alias = ["games", "game", "2048"];
     static description = "Jouer à des mini-jeux.";
     static scoreboard;
@@ -14,7 +14,7 @@ export default class Games extends Command {
     /**
      * List of currently playing instances of games
      */
-    static currentGames = [];
+    static currentGames: any[] = [];
 
     static async call(message, phoenix) {
         await this.loadScoreboard();
@@ -113,10 +113,10 @@ export default class Games extends Command {
      * Loads the scoreboard from the file. Creates the file if it does not exist.
      */
     static loadScoreboard() {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             fs.access(
                 "./src/games/scoreboard.json",
-                fs.constants.F_ok,
+                fs.constants.F_OK,
                 (err) => {
                     if (err) {
                         let scoreboard = {
@@ -137,15 +137,17 @@ export default class Games extends Command {
     }
 
     static saveScoreboard() {
-        fs.writeFile(
-            "./src/games/scoreboard.json",
-            JSON.stringify(this.scoreboard, null, 4),
-            (err) => {
-                if (err) {
-                    console.error("Error while saving scoreboard: ", err);
-                    return reject(err);
-                } else return resolve();
-            }
-        );
+        return new Promise<void>((resolve, reject) => {
+            fs.writeFile(
+                "./src/games/scoreboard.json",
+                JSON.stringify(this.scoreboard, null, 4),
+                (err) => {
+                    if (err) {
+                        console.error("Error while saving scoreboard: ", err);
+                        return reject(err);
+                    } else return resolve();
+                }
+            );
+        });
     }
 }
