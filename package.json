@@ -6,8 +6,8 @@
     "type": "module",
     "scripts": {
         "build": "tsc",
-        "test": "test",
-        "start": "ts-node index.ts"
+        "dev": "concurrently \"tsc\" \"nodemon --watch 'src/**/*' --exec 'node --experimental-specifier-resolution=node ./dist/index.js'\"",
+        "start": "tsc && node --experimental-specifier-resolution=node ./dist/index.js"
     },
     "repository": {
         "type": "git",

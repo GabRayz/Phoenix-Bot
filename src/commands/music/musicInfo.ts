@@ -1,4 +1,4 @@
-import Command from "../Command.js";
+import Command from "../../Command.js";
 import { MessageEmbed } from "discord.js";
 
 export default class MusicInfo extends Command {

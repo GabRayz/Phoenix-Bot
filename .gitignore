@@ -4,7 +4,8 @@ playlists/
 .DS_Store
 public/
 temoin
-audio/franceinfo.mp3
+audio/
 src/games/*
 config/*
 build/
+dist/

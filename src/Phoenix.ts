@@ -45,6 +45,8 @@ export default class Phoenix {
     }
 
     onMessage(msg) {
+        if (msg.author.bot) return;
+
         const phoenixGuild = this.guilds[msg.guildId];
         if (phoenixGuild.checkPrefix(msg.content)) {
             console.log(msg.author.username + " : " + msg.content);

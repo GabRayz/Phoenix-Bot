@@ -20,4 +20,4 @@ ADD ./config.json .
 
 EXPOSE 8081
 
-ENTRYPOINT [ "node", "index.js" ]
+ENTRYPOINT [ "npm", "run", "start" ]

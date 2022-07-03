@@ -1,4 +1,4 @@
-import Command from "../Command.js";
+import Command from "../../Command.js";
 import fs from "fs";
 import { MessageEmbed } from "discord.js";
 import TwoK48 from "./2048.js";

@@ -1,4 +1,4 @@
-import Game from "../Game.js";
+import Game from "../../Game.js";
 
 export default class TwoK48 extends Game {
     static gameName = "2048";

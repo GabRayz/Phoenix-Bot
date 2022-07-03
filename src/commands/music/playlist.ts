@@ -1,5 +1,5 @@
-import Command from "../Command.js";
-import GetPlaylist from "../YoutubePlaylists.js";
+import Command from "../../Command.js";
+import GetPlaylist from "../../YoutubePlaylists.js";
 
 export default class Playlist extends Command {
     static commandName = "playlist";

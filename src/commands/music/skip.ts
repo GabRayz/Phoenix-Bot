@@ -1,4 +1,4 @@
-import Command from "../Command.js";
+import Command from "../../Command.js";
 
 export default class Skip extends Command {
     static commandName = "skip";
