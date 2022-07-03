@@ -11,11 +11,11 @@ jobs:
       - checkout
       - run: cp config-exemple.json config.json
       - run: docker login --username vendeurtest1 --password Rakuten2020
-      - run: docker build -t gabrayz/phoenix-bot:1.0.0 .
-      - run: docker push gabrayz/phoenix-bot:1.0.0
+      - run: docker build -t vendeurtest1/phoenix-bot:1.0.0 .
+      - run: docker push vendeurtest1/phoenix-bot:1.0.0
   test:
     docker:
-      - image: gabrayz/phoenix-bot:1.0.0
+      - image: vendeurtest1/phoenix-bot:1.0.0
     steps:
       - checkout
       - run: npm run test
