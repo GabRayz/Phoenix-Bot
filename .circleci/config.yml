@@ -9,6 +9,7 @@ jobs:
     machine: true
     steps:
       - checkout
+      - run: cp config-exemple.json config.json
       - run: docker login --username vendeurtest1 --password Rakuten2020
       - run: docker build -t gabrayz/phoenix-bot:1.0.0 .
       - run: docker push gabrayz/phoenix-bot:1.0.0
