@@ -1,4 +1,4 @@
-import Command from "../Command.js";
+import Command from "../../Command.js";
 import Play from "./play.js";
 
 export default class Volume extends Command {

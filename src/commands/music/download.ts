@@ -1,4 +1,4 @@
-import Command from "../Command.js";
+import Command from "../../Command.js";
 import { promises } from "fs";
 import ytdl from "ytdl-core";
 import ffmpeg from "fluent-ffmpeg";

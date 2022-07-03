@@ -33,7 +33,13 @@ export default class PhoenixGuild {
         // let regex = RegExp.escape(this.config.prefix);
         // return messageContent.match("^" + regex) != null;
 
-        return messageContent.match("^" + this.config.prefix) != null;
+        let prefix = this.config.prefix.replace(
+            /[-\/\\^$*+?.()|[\]{}]/g,
+            "\\$&"
+        );
+        let check = messageContent.match("^" + prefix) != null;
+        console.log("Checking prefix: " + messageContent + " : " + check);
+        return check;
     }
 
     async saveConfig() {

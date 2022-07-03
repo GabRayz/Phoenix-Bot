@@ -1,4 +1,4 @@
-import Command from "../Command.js";
+import Command from "../../Command.js";
 
 export default class Power4 extends Command {
     static commandName = "power4";

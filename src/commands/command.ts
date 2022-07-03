@@ -2,25 +2,23 @@ import config from "../../config.json" assert { type: "json" };
 
 import Clear from "./clear.js";
 import Off from "./off.js";
-import Pause from "./pause.js";
-import Play from "./play.js";
-import Playlist from "./playlist.js";
-import Queue from "./queue.js";
-import Resume from "./resume.js";
-import Skip from "./skip.js";
-import Stop from "./stop.js";
-import Volume from "./volume.js";
 import Help from "./help.js";
 import Link from "./link.js";
-import MusicInfo from "./musicInfo.js";
-import Download from "./download.js";
 import Update from "./update.js";
 import Config from "./config.js";
-import Power4 from "./power4.js";
-import Hangman from "./hangman.js";
-import Games from "./games.js";
 import Radio from "./radio.js";
 import Timer from "./timer.js";
+
+import Play from "./music/play.js";
+import Playlist from "./music/playlist.js";
+import Queue from "./music/queue.js";
+import Resume from "./music/resume.js";
+import Skip from "./music/skip.js";
+import Stop from "./music/stop.js";
+import Volume from "./music/volume.js";
+import Pause from "./music/pause.js";
+import MusicInfo from "./music/musicInfo.js";
+import Download from "./music/download.js";
 
 import ServerInfo from "./info/serverInfo.js";
 import BotInfo from "./info/botInfo.js";
@@ -28,6 +26,10 @@ import UserInfo from "./info/userInfo.js";
 
 import Cat from "./api/cat.js";
 import Dog from "./api/dog.js";
+
+import Power4 from "./games/power4.js";
+import Hangman from "./games/hangman.js";
+import Games from "./games/games.js";
 
 const Commands = {
     Clear,
