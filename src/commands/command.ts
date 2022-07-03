@@ -1,35 +1,35 @@
 import config from "../../config.json" assert { type: "json" };
 
-import Clear from "./clear.js";
-import Off from "./off.js";
-import Help from "./help.js";
-import Link from "./link.js";
-import Update from "./update.js";
-import Config from "./config.js";
-import Radio from "./radio.js";
-import Timer from "./timer.js";
+import Clear from "./clear";
+import Off from "./off";
+import Help from "./help";
+import Link from "./link";
+import Update from "./update";
+import Config from "./config";
+import Radio from "./radio";
+import Timer from "./timer";
 
-import Play from "./music/play.js";
-import Playlist from "./music/playlist.js";
-import Queue from "./music/queue.js";
-import Resume from "./music/resume.js";
-import Skip from "./music/skip.js";
-import Stop from "./music/stop.js";
-import Volume from "./music/volume.js";
-import Pause from "./music/pause.js";
-import MusicInfo from "./music/musicInfo.js";
-import Download from "./music/download.js";
+import Play from "./music/play";
+import Playlist from "./music/playlist";
+import Queue from "./music/queue";
+import Resume from "./music/resume";
+import Skip from "./music/skip";
+import Stop from "./music/stop";
+import Volume from "./music/volume";
+import Pause from "./music/pause";
+import MusicInfo from "./music/musicInfo";
+import Download from "./music/download";
 
-import ServerInfo from "./info/serverInfo.js";
-import BotInfo from "./info/botInfo.js";
-import UserInfo from "./info/userInfo.js";
+import ServerInfo from "./info/serverInfo";
+import BotInfo from "./info/botInfo";
+import UserInfo from "./info/userInfo";
 
-import Cat from "./api/cat.js";
-import Dog from "./api/dog.js";
+import Cat from "./api/cat";
+import Dog from "./api/dog";
 
-import Power4 from "./games/power4.js";
-import Hangman from "./games/hangman.js";
-import Games from "./games/games.js";
+import Power4 from "./games/power4";
+import Hangman from "./games/hangman";
+import Games from "./games/games";
 
 const Commands = {
     Clear,

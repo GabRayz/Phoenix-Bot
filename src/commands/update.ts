@@ -1,7 +1,8 @@
-import Command from "../Command.js";
+import Command from "../Command";
 import fs from "fs";
 import { exec } from "child_process";
-import Phoenix from "../../index.js";
+import Phoenix from "../../index";
+import logger from "../logger";
 
 export default class Update extends Command {
     static commandName = "update";
@@ -38,27 +39,37 @@ export default class Update extends Command {
             .then((version) => {
                 exec("git pull", (error) => {
                     if (error) {
-                        console.error(error);
+                        logger.error(error.message, {
+                            label: "UPDATE_CHECK_FOR_UPDATE",
+                        });
                         return false;
                     }
                     this.readVersion()
                         .then((newVersion) => {
                             callback(version != newVersion);
                         })
-                        .catch((err) => console.error(err));
+                        .catch((err) =>
+                            logger.error(err.message, {
+                                label: "UPDATE_CHECK_FOR_UPDATE",
+                            })
+                        );
                 });
             })
-            .catch((err) => console.error(err));
+            .catch((err) =>
+                logger.error(err.message, { label: "UPDATE_CHECK_FOR_UPDATE" })
+            );
     }
 
     static update(callback) {
-        console.log("Updating...");
+        logger.info("Updating...", { label: "UPDATE_UPDATE" });
         fs.writeFile("./temoin", "", async () => {
-            console.log("Temoin créé");
+            logger.debug("Temoin créé", { label: "UPDATE_UPDATE" });
             await Phoenix.bot.user.setActivity("Mise à jour...");
             exec("./update", (error) => {
                 if (error) {
-                    console.error("Failed to update: ", error);
+                    logger.error(`Failed to update: ${error}`, {
+                        label: "UPDATE_UPDATE",
+                    });
                 }
                 callback(error);
             });
@@ -69,7 +80,7 @@ export default class Update extends Command {
         return new Promise((resolve, reject) => {
             fs.readFile("./package.json", "utf-8", (err, jsonString) => {
                 if (err) {
-                    console.error(err);
+                    logger.error(err.message, { label: "UPDATE_READ_VERSION" });
                     return reject(err);
                 }
                 resolve(JSON.parse(jsonString).version);

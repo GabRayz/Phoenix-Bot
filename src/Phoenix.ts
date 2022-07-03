@@ -1,7 +1,8 @@
 import Discord from "discord.js";
-import PhoenixGuild from "./Guild.js";
-import Commands from "./commands/command.js";
+import PhoenixGuild from "./Guild";
+import Commands from "./commands/command";
 import config from "../config.json" assert { type: "json" };
+import logger from "./logger";
 
 export default class Phoenix {
     config: any = null;
@@ -25,7 +26,7 @@ export default class Phoenix {
         });
 
         this.bot.on("ready", async () => {
-            console.log("Phoenix bot ready to operate");
+            logger.info("Phoenix bot ready to operate", { label: "BOT" });
             this.bot.user.setActivity(this.config.activity);
             this.bot.user.setUsername(this.config.name);
 
@@ -49,7 +50,9 @@ export default class Phoenix {
 
         const phoenixGuild = this.guilds[msg.guildId];
         if (phoenixGuild.checkPrefix(msg.content)) {
-            console.log(msg.author.username + " : " + msg.content);
+            logger.debug(`${msg.author.username} : ${msg.content}`, {
+                label: "ON_MESSAGE",
+            });
             let msgParts = msg.content.split(" ");
             let command = msgParts[0].slice(phoenixGuild.config.prefix.length);
             msg.args = msgParts.slice(1);
@@ -76,7 +79,9 @@ export default class Phoenix {
                         phoenixGuild
                     )
                 ) {
-                    console.log("Permission denied");
+                    logger.error("Permission denied", {
+                        label: "READ_COMMAND",
+                    });
                     message.reply("Patouche");
                     return;
                 }

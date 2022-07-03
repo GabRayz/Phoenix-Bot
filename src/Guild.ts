@@ -1,6 +1,7 @@
-import Music from "./Music.js";
-import GuildPlaylistManager from "./GuildPlaylistManager.js";
+import Music from "./Music";
+import GuildPlaylistManager from "./GuildPlaylistManager";
 import { promises } from "fs";
+import logger from "./logger";
 export default class PhoenixGuild {
     config: any = null;
     bot: any = null;
@@ -29,17 +30,12 @@ export default class PhoenixGuild {
         return this.phoenix.bot.guilds.resolve(this.guildId);
     }
 
-    checkPrefix(messageContent) {
-        // let regex = RegExp.escape(this.config.prefix);
-        // return messageContent.match("^" + regex) != null;
-
+    checkPrefix(messageContent: string) {
         let prefix = this.config.prefix.replace(
             /[-\/\\^$*+?.()|[\]{}]/g,
             "\\$&"
         );
-        let check = messageContent.match("^" + prefix) != null;
-        console.log("Checking prefix: " + messageContent + " : " + check);
-        return check;
+        return messageContent.match("^" + prefix) != null;
     }
 
     async saveConfig() {
@@ -65,8 +61,9 @@ export default class PhoenixGuild {
                     `./src/emojis/${file}`,
                     emojiName
                 );
-                console.log(
-                    `Created emoji ${emojiName} on guild ${guild.name}`
+                logger.info(
+                    `Created emoji ${emojiName} on guild ${guild.name}`,
+                    { label: "GUILD_IMPORT_EMOJI" }
                 );
             }
             this.emojis[guildEmoji.name] = guildEmoji.id;

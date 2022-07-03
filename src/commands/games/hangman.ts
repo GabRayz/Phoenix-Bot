@@ -1,4 +1,4 @@
-import Command from "../../Command.js";
+import Command from "../../Command";
 
 export default class Hangman extends Command {
     static commandName = "hangman";

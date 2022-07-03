@@ -1,5 +1,6 @@
 import fs from "fs";
 import searchApi from "youtube-search-api";
+import logger from "./logger";
 
 export default class GuildPlaylistManager {
     phoenixGuild: any = null;
@@ -15,7 +16,7 @@ export default class GuildPlaylistManager {
         if (this.playlists[name] !== undefined)
             throw new Error("This playlist name is already in use");
         this.playlists[name] = { items: [] };
-        console.log("Playlist created");
+        logger.debug("Playlist created", { label: "CREATE_PLAYLIST" });
     }
 
     list() {
@@ -23,7 +24,9 @@ export default class GuildPlaylistManager {
     }
 
     add(songName, playlistName, songId = "") {
-        console.log("Adding " + songName + " to playlist " + playlistName);
+        logger.debug(`Adding ${songName} to playlist ${playlistName}`, {
+            label: "ADD_PLAYLIST",
+        });
         if (this.playlists[playlistName] === undefined)
             throw new Error("This playlist does not exist");
 
@@ -41,7 +44,9 @@ export default class GuildPlaylistManager {
         const music = this.phoenixGuild?.music;
         music.currentPlaylist = this.playlists[playlistName].items;
         music.currentPlaylistName = playlistName;
-        console.log("Playing playlist: " + playlistName);
+        logger.debug(`Playing playlist: ${playlistName}`, {
+            label: "PLAY_PLAYLIST",
+        });
 
         music.start(msg);
     }

@@ -8,8 +8,9 @@ import {
 } from "@discordjs/voice";
 import youtube from "ytdl-core";
 import searchApi from "youtube-search-api";
-import Discord from "discord.js";
-import { MessageActionRow, MessageButton } from "discord.js";
+import Discord, { MessageActionRow, MessageButton } from "discord.js";
+import logger from "./logger";
+
 export default class Music {
     /**
      * List of songs to be played, represented by a name or a url
@@ -53,13 +54,15 @@ export default class Music {
     async start(message) {
         // Do nothing if the voice is already started
         if (!this.isPlaying) {
-            console.log("connecting to voice channel");
+            logger.debug("Connecting to voice channel", {
+                label: "START_MUSIC",
+            });
             this.textChannel = message.channel;
             this.connectToVoiceChannel(message.member.voice.channel)
                 .then(() => {
-                    console.log(
-                        "Connected to voice channel",
-                        message.member.voice.channel.name
+                    logger.debug(
+                        `Connected to voice channel ${message.member.voice.channel.name}`,
+                        { label: "START_MUSIC" }
                     );
                     this.nextSong();
                 })
@@ -67,7 +70,9 @@ export default class Music {
                     this.textChannel.send(
                         "Tu n'es pas connecté à un channel vocal ='("
                     );
-                    console.log("User not connected to a voice channel");
+                    logger.error("User not connected to a voice channel", {
+                        label: "START_MUSIC",
+                    });
                 });
             this.setupEventInteractions();
         }
@@ -85,8 +90,9 @@ export default class Music {
                     interaction.customId === "phoenixMusicStop"
                 ) {
                     interaction.deferUpdate();
-                    console.log(
-                        `Interaction ${interaction.customId} from user ${interaction.user.tag}`
+                    logger.info(
+                        `Interaction ${interaction.customId} from user ${interaction.user.tag}`,
+                        { label: "MUSIC_SETUP_EVENT_INTERACTION" }
                     );
                     if (interaction.customId === "phoenixMusicNext")
                         await this.skip();
@@ -116,7 +122,7 @@ export default class Music {
         message.args.forEach((str) => {
             name += str + " ";
         });
-        console.log("Queueing: " + name);
+        logger.debug(`Queueing: ${name}`, { label: "MUSIC_ADD_TO_QUEUE" });
         this.queue.push({
             name: name,
             id: null,
@@ -125,7 +131,9 @@ export default class Music {
     }
 
     addToQueueObject(video) {
-        console.log("Queueing: " + video.name);
+        logger.debug(`Queueing: ${video.name}`, {
+            label: "MUSIC_ADD_TO_QUEUE_OBJECT",
+        });
         this.queue.push(video);
     }
 
@@ -138,7 +146,7 @@ export default class Music {
         // If it this the first song to be played, add an activity to Phoenix
         if (!this.isPlaying) this.phoenixGuild.phoenix.activities++;
 
-        console.log("Choosing next song...");
+        logger.debug("Choosing next song...", { label: "MUSIC_NEXT_SONG" });
         if (this.queue.length === 0) {
             if (this.currentPlaylist.length > 0) {
                 this.checkPlaylist();
@@ -147,12 +155,12 @@ export default class Music {
             }
         }
         let song = this.queue.shift();
-        console.log("Next song: ", song.name);
+        logger.debug(`Next song: ${song.name}`, { label: "MUSIC_NEXT_SONG" });
 
         // Get video url
         let url = await this.getUrlFromQuery(song).catch((err) => {
             if (err instanceof TypeError) {
-                console.error(err);
+                logger.error(err.message, { label: "MUSIC_NEXT_SONG" });
                 this.textChannel.send("Une erreur est survenue.", {
                     code: true,
                 });
@@ -167,7 +175,7 @@ export default class Music {
             .then(async (stream) => {
                 this.stream = stream;
 
-                console.log("Playing stream");
+                logger.debug("Playing stream", { label: "MUSIC_NEXT_SONG" });
                 await this.phoenixGuild.phoenix.bot.user.setActivity(
                     "Loading..."
                 );
@@ -189,7 +197,9 @@ export default class Music {
                 await this.displayStatusMessage();
             })
             .catch((err) => {
-                console.error("Error while getting video infos: ", err);
+                logger.error(`Error while getting video infos: ${err}`, {
+                    label: "MUSIC_NEXT_SONG",
+                });
                 this.textChannel.send("Erreur: " + err.message);
                 return this.nextSong();
             });
@@ -197,7 +207,9 @@ export default class Music {
 
     voiceHandlerOnStart() {
         this.audioPlayer.on("playing", () => {
-            console.log("Playing...");
+            logger.debug("Playing...", {
+                label: "MUSIC_VOICE_HANDLER_ON_START",
+            });
             if (typeof this.videoInfos != "undefined")
                 this.phoenixGuild.phoenix.bot.user.setActivity(
                     this.videoInfos.videoDetails.title
@@ -216,7 +228,9 @@ export default class Music {
         if (this.queue.length > 0 || this.currentPlaylist.length > 0) {
             await this.nextSong();
         } else {
-            console.log("No more musics in queue, stop playing.");
+            logger.debug("No more musics in queue, stop playing.", {
+                label: "MUSIC_VOICE_HANDLER_ON_END",
+            });
             this.stop();
         }
     }
@@ -250,7 +264,9 @@ export default class Music {
      */
     checkPlaylist() {
         if (this.currentPlaylist.length > 0) {
-            console.log("Playing random song in playlist");
+            logger.debug("Playing random song in playlist", {
+                label: "MUSIC_CHECK_PLAYLIST",
+            });
             let rand = Math.floor(Math.random() * this.currentPlaylist.length);
             this.queue.push(this.currentPlaylist[rand]);
         }
@@ -258,7 +274,7 @@ export default class Music {
 
     async skip() {
         if (this.isPlaying) {
-            console.log("Skip soung");
+            logger.debug("Skip soung", { label: "MUSIC_SKIP" });
             await this.voiceHandlerOnEnd();
         }
     }
@@ -268,8 +284,8 @@ export default class Music {
             throw new TypeError("url is not defined");
         try {
             return await youtube.getInfo(url);
-        } catch (e) {
-            console.error(e);
+        } catch (e: any) {
+            logger.error(e.message, { label: "MUSIC_GET_VIDEO_INFO" });
             this.stop();
             return null;
         }
@@ -285,14 +301,18 @@ export default class Music {
         let stream = youtube(url, options);
 
         stream.on("error", (err) => {
-            console.error("Erreur lors de la lecture : ", err);
+            logger.error(`Erreur lors de la lecture : ${err}`, {
+                label: "MUSIC_GET_STREAM",
+            });
             this.textChannel.send("Erreur: " + err.message);
         });
         return stream;
     }
 
     async getUrlFromName(name) {
-        console.log("Get url from name : " + name);
+        logger.debug(`Get url from name : ${name}`, {
+            label: "MUSIC_GET_URL_FROM_NAME",
+        });
         const result = await searchApi.GetListByKeyword(name, false, 1);
         if (result.items.length === 0) {
             this.textChannel.send("Je n'ai pas trouvé la vidéo :c");
@@ -312,7 +332,9 @@ export default class Music {
                 adapterCreator: channel.guild.voiceAdapterCreator,
             });
             connection.on(VoiceConnectionStatus.Ready, () => {
-                console.log("connected to voice channel");
+                logger.debug("Connected to voice channel", {
+                    label: "MUSIC_CONNECT_TO_VOICE_CHANNEL",
+                });
                 resolve();
             });
         });
@@ -321,7 +343,7 @@ export default class Music {
     stop() {
         if (!this.isPlaying) return;
         this.audioPlayer = null;
-        console.log("Stopping music");
+        logger.debug("Stopping music", { label: "MUSIC_STOP" });
         this.isPlaying = false;
         this.phoenixGuild.phoenix.activities--;
         this.stream.end();

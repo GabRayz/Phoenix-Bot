@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import logger from "./logger";
 
 const router = express.Router();
 const app = express();
@@ -14,7 +15,7 @@ router.get("/mp4/:file", (req, res) => {
     res.sendFile(path.join(__dirname, `../public/${req.params.file}.mp4`));
 });
 
-console.log("starting http");
+logger.info("Starting http server", { label: "HTTP" });
 
 app.use("/", router);
 

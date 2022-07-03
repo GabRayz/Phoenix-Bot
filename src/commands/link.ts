@@ -1,7 +1,8 @@
-import Command from "../Command.js";
+import Command from "../Command";
 import http from "http";
 import { Server } from "socket.io";
 import { io as ioClient } from "socket.io-client";
+import logger from "../logger";
 
 export default class Link extends Command {
     static commandName = "link";
@@ -28,7 +29,7 @@ export default class Link extends Command {
             this.textChannel.id != message.channel.id
         ) {
             // Change channel
-            console.log("Changing room");
+            logger.debug("Changing room", { label: "LINK" });
             this.textChannel.send(
                 "Changement de salon. Nouveau : " + message.channel.name
             );
@@ -38,7 +39,7 @@ export default class Link extends Command {
             this.textChannel = message.channel;
             this.Phoenix = phoenix;
             let isThereAServer = await this.testConnection(phoenix.config.host);
-            console.log(isThereAServer);
+            logger.debug(`${isThereAServer}`, { label: "LINK" });
             if (isThereAServer) {
                 this.connect();
             } else {
@@ -47,7 +48,6 @@ export default class Link extends Command {
             this.Phoenix.bot.on("message", (msg) => {
                 // When a non-bot message is sent in the channel
                 if (msg.channel.id == Link.textChannel.id && !msg.author.bot) {
-                    // console.log('New message: ', msg.content);
                     Link.socket.emit(
                         "chat message",
                         msg.content,
@@ -67,7 +67,7 @@ export default class Link extends Command {
     }
 
     static testConnection(host) {
-        return new Promise((resolve, reject) => {
+        return new Promise<boolean>((resolve, reject) => {
             http.get("http://localhost:8081", (_err) => {
                 resolve(true);
             }).on("error", (e) => {
@@ -78,10 +78,12 @@ export default class Link extends Command {
 
     static createServer() {
         let server = http.createServer(function (req, res) {
-            console.log("Received a connection to http server");
+            logger.debug("Received a connection to http server", {
+                label: "LINK_CREATE_SERVER",
+            });
             res.end("Done");
         });
-        console.log("HTTP server created");
+        logger.debug("HTTP server created", { label: "LINK_CREATE_SERVER" });
         this.textChannel.send("Connexion au réseau Phoenix établie", {
             code: true,
         });

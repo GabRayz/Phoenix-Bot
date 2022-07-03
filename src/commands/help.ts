@@ -1,5 +1,6 @@
-import Command from "../Command.js";
+import Command from "../Command";
 import Discord from "discord.js";
+import logger from "../logger";
 
 export default class Help extends Command {
     static commandName = "help";
@@ -70,7 +71,7 @@ export default class Help extends Command {
                 msg.channel.send(
                     "Erreur, mes permissions sont insuffisantes :("
                 );
-            } else console.error(err);
+            } else logger.error(err.message, { label: "HELP" });
         });
     }
 }

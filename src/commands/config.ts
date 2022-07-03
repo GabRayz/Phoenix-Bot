@@ -1,6 +1,7 @@
-import Command from "../Command.js";
+import Command from "../Command";
 import fs from "fs";
 import { MessageEmbed } from "discord.js";
+import logger from "../logger";
 
 export default class Config extends Command {
     static commandName = "config";
@@ -194,7 +195,7 @@ export default class Config extends Command {
                 message.channel.send(
                     "Erreur, mes permissions sont insuffisantes :("
                 );
-            else console.error(err);
+            else logger.error(err.message, { label: "CONFIG_DISPLAY" });
         });
         // Display the permissions
         let perms = new MessageEmbed();
@@ -248,7 +249,7 @@ export default class Config extends Command {
                 message.channel.send(
                     "Erreur, mes permissions sont insuffisantes :("
                 );
-            else console.error(err);
+            else logger.error(err, { label: "CONFIG_DISPLAY" });
         });
 
         let notice = new MessageEmbed();
@@ -265,7 +266,7 @@ export default class Config extends Command {
                 message.channel.send(
                     "Erreur, mes permissions sont insuffisantes :("
                 );
-            else console.error(err);
+            else logger.error(err.message, { label: "CONFIG_DISPLAY" });
         });
     }
 
@@ -283,7 +284,10 @@ export default class Config extends Command {
         return new Promise((resolve, reject) => {
             fs.readFile("./config.json", "utf-8", (err, data) => {
                 if (err) {
-                    console.error("Error while loading the config file: ", err);
+                    logger.error(
+                        `Error while loading the config file: ${err}`,
+                        { label: "CONFIG_LOAD" }
+                    );
                     return reject();
                 }
                 this.compareWithSample(JSON.parse(data))
@@ -291,9 +295,9 @@ export default class Config extends Command {
                         return resolve(config);
                     })
                     .catch((e) => {
-                        console.error(
-                            "Error while loading the config-exemple file: ",
-                            e
+                        logger.error(
+                            `Error while loading the config-exemple file: ${e}`,
+                            { label: "CONFIG_LOAD" }
                         );
                         return reject();
                     });

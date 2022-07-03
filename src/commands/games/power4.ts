@@ -1,4 +1,5 @@
-import Command from "../../Command.js";
+import Command from "../../Command";
+import logger from "../../logger";
 
 export default class Power4 extends Command {
     static commandName = "power4";
@@ -36,7 +37,9 @@ export default class Power4 extends Command {
                 tag: message.author.tag,
                 nickname: name,
             };
-            console.log("Player 1 set to ", name);
+            logger.debug(`Player 1 set to ${name}`, {
+                label: "POWER4_ADD_PLAYER",
+            });
             message.channel.send(
                 "Joueur 🔴: " + name + ", en attente d'un deuxième joueur."
             );
@@ -45,7 +48,9 @@ export default class Power4 extends Command {
                 tag: message.author.tag,
                 nickname: name,
             };
-            console.log("Player 2 set to ", name);
+            logger.debug(`Player 2 set to ${name}`, {
+                label: "POWER4_ADD_PLAYER",
+            });
             message.channel.send("Joueur 🔵: " + name);
             this.start();
         } else {
@@ -165,8 +170,8 @@ export default class Power4 extends Command {
         msg += "--1---2---3---4---5---6---7--";
         this.boardMsg
             .edit(msg)
-            .then(() => console.log("Board drawn"))
-            .catch((e) => console.error(e));
+            .then(() => logger.debug("Board drawn", { label: "POWER4_DRAW" }))
+            .catch((e) => logger.error(e, { label: "POWER4_DRAW" }));
     }
 
     static async addReactions() {

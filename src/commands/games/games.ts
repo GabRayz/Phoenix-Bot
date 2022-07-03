@@ -1,7 +1,8 @@
-import Command from "../../Command.js";
+import Command from "../../Command";
 import fs from "fs";
 import { MessageEmbed } from "discord.js";
-import TwoK48 from "./2048.js";
+import TwoK48 from "./2048";
+import logger from "../../logger";
 
 const games = { TwoK48 };
 
@@ -102,7 +103,7 @@ export default class Games extends Command {
      * @param {*} gameId
      */
     static removeGame(gameId) {
-        console.log("remove game");
+        logger.debug("Remove game", { label: "GAMES_REMOVE_GAME" });
         let index = Games.currentGames.findIndex(
             (game) => game && game.gameId == gameId
         );
@@ -143,7 +144,9 @@ export default class Games extends Command {
                 JSON.stringify(this.scoreboard, null, 4),
                 (err) => {
                     if (err) {
-                        console.error("Error while saving scoreboard: ", err);
+                        logger.error(`Error while saving scoreboard: ${err}`, {
+                            label: "GAMES_SAVE_SCOREBOARD",
+                        });
                         return reject(err);
                     } else return resolve();
                 }

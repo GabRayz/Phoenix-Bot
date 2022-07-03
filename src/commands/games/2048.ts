@@ -1,4 +1,5 @@
-import Game from "../../Game.js";
+import Game from "../../Game";
+import logger from "../../logger";
 
 export default class TwoK48 extends Game {
     static gameName = "2048";
@@ -327,7 +328,7 @@ export default class TwoK48 extends Game {
         for (let name of this.names) {
             let emoji = emojis.find((em) => em.name === name);
             if (emoji === undefined) {
-                console.error("Emojis not found");
+                logger.error("Emojis not found", { label: "2048_GET_IDS" });
                 return;
             }
             let fullId = "<:" + emoji.name + ":" + emoji.id + ">";

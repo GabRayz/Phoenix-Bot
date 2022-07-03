@@ -1,4 +1,4 @@
-import Command from "../Command.js";
+import Command from "../Command";
 import {
     getVoiceConnection,
     createAudioPlayer,
@@ -9,6 +9,7 @@ import {
 import path from "path";
 import { exec } from "node:child_process";
 import { promises } from "fs";
+import logger from "../logger";
 
 export default class Radio extends Command {
     static commandName = "radio";
@@ -40,7 +41,9 @@ export default class Radio extends Command {
                 adapterCreator: channel.guild.voiceAdapterCreator,
             });
             connection.on(VoiceConnectionStatus.Ready, () => {
-                console.log("connected to voice channel");
+                logger.debug("Connected to voice channel", {
+                    label: "RADIO_CONNECT_TO_VOICE_CHANNEL",
+                });
                 resolve();
             });
         });
@@ -81,7 +84,9 @@ export default class Radio extends Command {
                     connection?.subscribe(this.stream);
                     this.isPlaying = true;
                 })
-                .catch(() => console.error);
+                .catch((err) =>
+                    logger.error(err.message, { label: "RADIO_START" })
+                );
         }, 2000);
     }
 

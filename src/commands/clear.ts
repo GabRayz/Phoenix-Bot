@@ -1,4 +1,5 @@
-import Command from "../Command.js";
+import Command from "../Command";
+import logger from "../logger";
 
 export default class Clear extends Command {
     static commandName: string = "clear";
@@ -15,7 +16,7 @@ export default class Clear extends Command {
         );
         for (let msg of botMessages) {
             msg[1].delete().catch((err) => {
-                console.error(err);
+                logger.error(err, { label: "CLEAR" });
             });
         }
     }
