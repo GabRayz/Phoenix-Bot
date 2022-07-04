@@ -2,6 +2,7 @@ let Command = require("../src/Command");
 const fs = require("fs");
 const exec = require("child_process").exec;
 let Phoenix = require("../index");
+const Sentry = require("@sentry/node");
 
 module.exports = class Update extends Command {
     static name = "update";
@@ -52,7 +53,10 @@ module.exports = class Update extends Command {
                         .catch((err) => console.error(err));
                 });
             })
-            .catch((err) => console.error(err));
+            .catch((err) => {
+                Sentry.captureException(err);
+                console.error(err);
+            });
     }
 
     static update(callback) {

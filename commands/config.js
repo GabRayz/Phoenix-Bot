@@ -1,6 +1,7 @@
 let Command = require("../src/Command");
 const fs = require("fs");
 let { MessageEmbed } = require("discord.js");
+const Sentry = require("@sentry/node");
 
 module.exports = class Config extends Command {
     static name = "config";
@@ -66,21 +67,21 @@ module.exports = class Config extends Command {
                         } else
                             message.reply(
                                 "Erreur sur le paramètre '" +
-                                    message.args[4] +
-                                    "'. Valeurs possibles: add,remove"
+                                message.args[4] +
+                                "'. Valeurs possibles: add,remove"
                             );
                     } else
                         message.reply(
                             "Erreur sur le paramètre '" +
-                                message.args[3] +
-                                "'. Valeurs possibles: whitelist,blacklist"
+                            message.args[3] +
+                            "'. Valeurs possibles: whitelist,blacklist"
                         );
                 } else
                     message.reply(
                         "Erreur sur le paramètre '" +
-                            message.args[2] +
-                            "'. Valeurs possibles: " +
-                            scopes
+                        message.args[2] +
+                        "'. Valeurs possibles: " +
+                        scopes
                     );
             }
             message.react("⚠️");
@@ -190,6 +191,7 @@ module.exports = class Config extends Command {
             );
 
         message.channel.send({ embeds: [embed] }).catch((err) => {
+            Sentry.captureException(err);
             if (err.message === "Missing Permissions")
                 message.channel.send(
                     "Erreur, mes permissions sont insuffisantes :("
@@ -244,6 +246,7 @@ module.exports = class Config extends Command {
         }
         // Send
         message.channel.send({ embeds: [perms] }).catch((err) => {
+            Sentry.captureException(err);
             if (err.message === "Missing Permissions")
                 message.channel.send(
                     "Erreur, mes permissions sont insuffisantes :("
@@ -261,6 +264,7 @@ module.exports = class Config extends Command {
             "config perm {nom de la commande} {roles|channels|members} {whitelist|blacklist} {add|remove} {nom du role|nom de la catégorie/nom du salon|tag du membre(exemple#0001)}";
         notice.setDescription(description);
         message.channel.send({ embeds: [notice] }).catch((err) => {
+            Sentry.captureException(err);
             if (err.message === "Missing Permissions")
                 message.channel.send(
                     "Erreur, mes permissions sont insuffisantes :("
@@ -282,6 +286,7 @@ module.exports = class Config extends Command {
     static load() {
         return new Promise((resolve, reject) => {
             fs.readFile("./config.json", "utf-8", (err, data) => {
+                Sentry.captureException(e);
                 if (err) {
                     console.error("Error while loading the config file: ", err);
                     return reject();

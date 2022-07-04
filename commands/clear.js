@@ -1,4 +1,5 @@
 let Command = require("../src/Command");
+const Sentry = require("@sentry/node");
 
 module.exports = class Clear extends Command {
     static name = "clear";
@@ -15,6 +16,7 @@ module.exports = class Clear extends Command {
         );
         for (let msg of botMessages) {
             msg[1].delete().catch((err) => {
+                Sentry.captureException(err);
                 console.error(err);
             });
         }

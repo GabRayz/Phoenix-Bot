@@ -1,6 +1,7 @@
 const fetch = require("node-fetch");
 const { MessageEmbed } = require("discord.js");
 const Command = require("../../src/Command");
+const Sentry = require("@sentry/node");
 
 module.exports = class Cat extends Command {
     static name = "cat";
@@ -10,7 +11,10 @@ module.exports = class Cat extends Command {
     static async call(message, _phoenix) {
         const { file } = await fetch("https://aws.random.cat/meow")
             .then((response) => response.json())
-            .catch((err) => console.error(err));
+            .catch((err) => {
+                Sentry.captureException(err);
+                console.error(err)
+            });
 
         const embed = new MessageEmbed()
             .setDescription("**Quel chat magnifique !**")
@@ -21,6 +25,7 @@ module.exports = class Cat extends Command {
         message.channel.send({ embeds: [embed] }).catch((err) => {
             message.reply(`An error occured.`);
             console.error(err);
+            Sentry.captureException(err);
         });
     }
 };

@@ -1,6 +1,7 @@
 const fetch = require("node-fetch");
 const { MessageEmbed } = require("discord.js");
 const Command = require("../../src/Command");
+const Sentry = require("@sentry/node");
 
 module.exports = class Dog extends Command {
     static name = "dog";
@@ -10,7 +11,10 @@ module.exports = class Dog extends Command {
     static async call(message, _phoenix) {
         const { url } = await fetch("https://random.dog/woof.json")
             .then((response) => response.json())
-            .catch((err) => console.error(err));
+            .catch((err) => {
+                Sentry.captureException(err);
+                console.error(err);
+            });
 
         const embed = new MessageEmbed()
             .setDescription("**Quel chien magnifique !**")
@@ -19,6 +23,7 @@ module.exports = class Dog extends Command {
             .setURL(url);
 
         message.channel.send({ embeds: [embed] }).catch((err) => {
+            Sentry.captureException(err);
             message.reply(`An error occured.`);
             console.error(err);
         });

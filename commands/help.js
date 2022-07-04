@@ -1,5 +1,6 @@
 let Command = require("../src/Command");
 const Discord = require("discord.js");
+const Sentry = require("@sentry/node");
 
 module.exports = class Help extends Command {
     static name = "help";
@@ -66,6 +67,7 @@ module.exports = class Help extends Command {
                 "Programmer un minuteur"
             );
         msg.channel.send({ embeds: [embed] }).catch((err) => {
+            Sentry.captureException(err);
             if (err.message == "Missing Permissions") {
                 msg.channel.send(
                     "Erreur, mes permissions sont insuffisantes :("

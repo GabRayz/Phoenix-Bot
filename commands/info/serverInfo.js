@@ -1,5 +1,6 @@
 const Command = require("../../src/Command");
 const { MessageEmbed } = require("discord.js");
+const Sentry = require("@sentry/node");
 
 module.exports = class ServerInfo extends Command {
     static name = "serverInfo";
@@ -28,6 +29,7 @@ module.exports = class ServerInfo extends Command {
             .addField("Created at", `${server.createdAt}`);
 
         message.channel.send({ embeds: [embed] }).catch((err) => {
+            Sentry.captureException(err);
             message.reply(`An error occured.`);
             console.error(err);
         });

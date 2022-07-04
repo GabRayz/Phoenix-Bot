@@ -1,6 +1,7 @@
 const Music = require("./Music");
 const fs = require("fs").promises;
 const GuildPlaylistManager = require("./GuildPlaylistManager");
+const Sentry = require("@sentry/node");
 
 module.exports = class PhoenixGuild {
     config = null;
@@ -18,6 +19,7 @@ module.exports = class PhoenixGuild {
         try {
             this.config = require(`../config/${guild}.json`);
         } catch (e) {
+            Sentry.captureException(e);
             this.config = this.defaultConfig();
         }
         this.playlistManager = new GuildPlaylistManager(

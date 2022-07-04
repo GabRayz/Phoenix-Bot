@@ -1,9 +1,10 @@
 let Command = require("../src/Command");
 const { exec } = require("node:child_process");
 const voice = require("@discordjs/voice");
+const Sentry = require("@sentry/node");
 
 const path = require("path");
-const {getVoiceConnection} = require("@discordjs/voice");
+const { getVoiceConnection } = require("@discordjs/voice");
 const fs = require('fs').promises;
 
 module.exports = class Radio extends Command {
@@ -75,7 +76,10 @@ module.exports = class Radio extends Command {
                     connection.subscribe(this.stream);
                     this.isPlaying = true;
                 })
-                .catch(() => console.error);
+                .catch((e) => {
+                    Sentry.captureException(e);
+                    console.error(e);
+                });
         }, 2000);
     }
 

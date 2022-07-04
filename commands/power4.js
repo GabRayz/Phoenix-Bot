@@ -1,4 +1,5 @@
 let Command = require("../src/Command");
+const Sentry = require("@sentry/node");
 
 module.exports = class Power4 extends Command {
     static name = "power4";
@@ -164,7 +165,10 @@ module.exports = class Power4 extends Command {
         this.boardMsg
             .edit(msg)
             .then(() => console.log("Board drawn"))
-            .catch((e) => console.error(e));
+            .catch((e) => {
+                Sentry.captureException(e);
+                console.error(e);
+            });
     }
 
     static async addReactions() {
@@ -237,10 +241,10 @@ module.exports = class Power4 extends Command {
         let color = winner === 1 ? "🔴" : "🔵";
         this.currentPlayerMsg.edit(
             color +
-                " Victoire de " +
-                this.currentPlayerTag.nickname +
-                " " +
-                color
+            " Victoire de " +
+            this.currentPlayerTag.nickname +
+            " " +
+            color
         );
         this.stop();
     }

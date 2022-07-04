@@ -4,6 +4,7 @@ const youtube = require("ytdl-core");
 const searchApi = require("youtube-search-api");
 const Discord = require("discord.js");
 const { MessageActionRow, MessageButton } = require("discord.js");
+const Sentry = require("@sentry/node");
 module.exports = class Music {
     /**
      * List of songs to be played, represented by a name or a url
@@ -54,7 +55,8 @@ module.exports = class Music {
                     );
                     this.nextSong();
                 })
-                .catch(() => {
+                .catch((e) => {
+                    Sentry.captureException(e);
                     this.textChannel.send(
                         "Tu n'es pas connecté à un channel vocal ='("
                     );
@@ -140,6 +142,7 @@ module.exports = class Music {
 
         // Get video url
         let url = await this.getUrlFromQuery(song).catch((err) => {
+            Sentry.captureException(err);
             if (err instanceof TypeError) {
                 console.error(err);
                 this.textChannel.send("Une erreur est survenue.", {
@@ -180,6 +183,7 @@ module.exports = class Music {
                 await this.displayStatusMessage();
             })
             .catch((err) => {
+                Sentry.captureException(err);
                 console.error("Error while getting video infos: ", err);
                 this.textChannel.send("Erreur: " + err.message);
                 return this.nextSong();
@@ -260,6 +264,7 @@ module.exports = class Music {
         try {
             return await youtube.getInfo(url);
         } catch (e) {
+            Sentry.captureException(e);
             console.error(e);
             this.stop();
             return null;
@@ -270,8 +275,8 @@ module.exports = class Music {
         this.videoUrl = url;
         // 'audioonly' filter breaks with live videos
         const options = this.videoInfos.videoDetails.isLive
-            ? {highWaterMark: 1 << 15}
-            : {highWaterMark: 1 << 25, filter: "audioonly"};
+            ? { highWaterMark: 1 << 15 }
+            : { highWaterMark: 1 << 25, filter: "audioonly" };
         let stream = youtube(url, options);
 
         stream.on("error", (err) => {

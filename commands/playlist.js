@@ -1,5 +1,6 @@
 let Command = require("../src/Command");
 const YoutubePlaylists = require("../src/YoutubePlaylists");
+const Sentry = require("@sentry/node");
 
 module.exports = class Playlist extends Command {
     static name = "playlist";
@@ -20,6 +21,7 @@ module.exports = class Playlist extends Command {
                         manager.create(msg.args[1], msg.author);
                         phoenixGuild.saveConfig().then(() => msg.react("✅"));
                     } catch (e) {
+                        Sentry.captureException(e);
                         msg.reply(e);
                     }
                 }
@@ -48,6 +50,7 @@ module.exports = class Playlist extends Command {
                                 .saveConfig()
                                 .then(() => msg.react("✅"));
                         } catch (e) {
+                            Sentry.captureException(e);
                             phoenix.sendClean(e, msg.channel);
                         }
                     }
@@ -59,6 +62,7 @@ module.exports = class Playlist extends Command {
                         manager.play(msg.args[1], msg);
                         msg.react("✅");
                     } catch (e) {
+                        Sentry.captureException(e);
                         phoenix.sendClean(e, msg.channel);
                     }
                 }

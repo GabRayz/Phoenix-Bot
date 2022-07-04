@@ -1,6 +1,7 @@
 const Command = require("../../src/Command");
 const { getMember, formatDate } = require("../../src/utils");
 const { MessageEmbed } = require("discord.js");
+const Sentry = require("@sentry/node");
 
 module.exports = class UserInfo extends Command {
     static name = "userInfo";
@@ -45,6 +46,7 @@ module.exports = class UserInfo extends Command {
         }
 
         message.channel.send({ embeds: [embed] }).catch((err) => {
+            Sentry.captureException(err);
             message.reply(`An error occured.`);
             console.error(err);
         });

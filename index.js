@@ -1,11 +1,12 @@
 // Import packages
 require("./src/http");
 const Phoenix = require("./src/Phoenix");
+const config = require("./config");
 
 const Sentry = require("@sentry/node");
 const Tracing = require("@sentry/tracing");
 Sentry.init({
-    dsn: "https://c6553244713742d693519319a55718ba@o1287280.ingest.sentry.io/6545421",
+    dsn: config.SENTRY_DSN,
     tracesSampleRate: 1.0,
 });
 
@@ -18,9 +19,9 @@ RegExp.escape = function (s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
 };
 
-try {
-    const phoenix = new Phoenix();
+const phoenix = new Phoenix();
 
+try {
     phoenix.loadConfig().then(async () => {
         await phoenix.login();
     });
