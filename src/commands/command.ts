@@ -4,7 +4,6 @@ import Clear from "./clear.js";
 import Off from "./off.js";
 import Help from "./help.js";
 import Link from "./link.js";
-import Update from "./update.js";
 import Config from "./config.js";
 import Radio from "./radio.js";
 import Timer from "./timer.js";
@@ -46,7 +45,6 @@ const Commands = {
     Link,
     MusicInfo,
     Download,
-    Update,
     Config,
     Power4,
     Hangman,

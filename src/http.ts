@@ -13,7 +13,7 @@ router.get("/mp3/:file", (req, res) => {
         res.send('Invalid video');
         return;
     }
-    res.sendFile(path.join(__dirname, `../public/${req.params.file}.mp3`));
+    res.sendFile(path.join(__dirname, `../public/${filename}.mp3`));
 });
 
 router.get("/mp4/:file", (req, res) => {
@@ -22,7 +22,7 @@ router.get("/mp4/:file", (req, res) => {
         res.send('Invalid video');
         return;
     }
-    res.sendFile(path.join(__dirname, `../public/${req.params.file}.mp4`));
+    res.sendFile(path.join(__dirname, `../public/${filename}.mp4`));
 });
 
 console.log("starting http");
