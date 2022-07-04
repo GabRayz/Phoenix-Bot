@@ -23,6 +23,8 @@ import Download from "./music/download";
 import ServerInfo from "./info/serverInfo";
 import BotInfo from "./info/botInfo";
 import UserInfo from "./info/userInfo";
+import Avatar from "./info/avatar";
+import RoleInfo from "./info/role";
 
 import Cat from "./api/cat";
 import Dog from "./api/dog";
@@ -56,6 +58,8 @@ const Commands = {
     ServerInfo,
     BotInfo,
     UserInfo,
+    Avatar,
+    RoleInfo,
     Cat,
     Dog,
 };
