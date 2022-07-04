@@ -17,16 +17,22 @@ export default class PhoenixGuild {
         this.guildId = guild;
         this.phoenix = phoenix;
         this.music = new Music(this);
-        try {
-            this.config = require(`../config/${guild}.json`);
-        } catch (e) {
-            Sentry.captureException(e);
-            this.config = this.defaultConfig();
-        }
-        this.playlistManager = new GuildPlaylistManager(
-            this,
-            this.config.playlists
-        );
+
+        (async () => {
+            try {
+                let file = await promises.readFile(
+                    `./config/${this.guildId}.json`,
+                    "utf8"
+                );
+                this.config = JSON.parse(file);
+            } catch (e) {
+                this.config = this.defaultConfig();
+            }
+            this.playlistManager = new GuildPlaylistManager(
+                this,
+                this.config.playlists
+            );
+        })();
     }
 
     async fetchGuild() {
