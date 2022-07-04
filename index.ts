@@ -1,6 +1,5 @@
 // Import packages
 import Sentry from "@sentry/node";
-import Tracing from "@sentry/tracing";
 import("./src/http");
 import Phoenix from "./src/Phoenix";
 import config from "./config.json" assert { type: "json" };
@@ -17,14 +16,16 @@ const transaction = Sentry.startTransaction({
 
 const phoenix = new Phoenix();
 
-try {
-    phoenix.loadConfig().then(async () => {
+(async () => {
+    try {
+        await phoenix.loadConfig();
         await phoenix.login();
-    });
-} catch (e) {
-    Sentry.captureException(e);
-} finally {
-    transaction.finish();
-}
+    } catch (e) {
+        Sentry.captureException(e);
+    } finally {
+        transaction.finish();
+    }
+
+})()
 
 export default phoenix;
