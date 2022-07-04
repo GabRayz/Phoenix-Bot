@@ -44,9 +44,16 @@ workflows:
                 - master
   build-and-push:
     jobs:
-      - push
+      - push:
+          filters:
+            branches:
+              only:
+                - master
       - test:
           requires:
             - push
           context: sonarcloud
-
+          filters:
+            branches:
+              only:
+                - master
