@@ -14,7 +14,6 @@ jobs:
       - checkout
       - run: echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username gabray --password-stdin
       - run: docker build -t gabray/phoenix-bot:1.0.0 .
-      - run: chmod +x ./build-and-test.sh
       - run: docker run --entrypoint ./build-and-test.sh gabray/phoenix-bot:1.0.0
       - sonarcloud/scan
   test:
