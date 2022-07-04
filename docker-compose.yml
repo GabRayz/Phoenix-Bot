@@ -5,6 +5,9 @@ networks:
     external:
         driver: bridge
 
+volumes:
+    mongodb:
+
 services:
     mongo:
         image: mongo:latest
