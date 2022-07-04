@@ -8,12 +8,17 @@ describe('Power4 isBoardFull function Unit Test Suites', () => {
         for (let i = 0; i < 7; i++) Power4.board[i] = [0, 0, 0, 0, 0, 0]
     })
 
-    test('isBoardFull should return true if the board is full', () => (
+    test('isBoardFull should return false if the board is empty', () => (
         expect(Power4.isBoardFull()).toEqual(false)
     ))
 
-    test('isBoardFull should return false if the board is not full', () => (
-        Power4.board.forEach((line) => line.forEach((tile) => tile = 1)),
+    test('isBoardFull should return true if the board is full', () => (
+        Power4.board.forEach((line) => line[0] = 1),
+        Power4.board.forEach((line) => line[1] = 1),
+        Power4.board.forEach((line) => line[2] = 1),
+        Power4.board.forEach((line) => line[3] = 1),
+        Power4.board.forEach((line) => line[4] = 1),
+        Power4.board.forEach((line) => line[5] = 1),
         expect(Power4.isBoardFull()).toEqual(true)
     ))
 })

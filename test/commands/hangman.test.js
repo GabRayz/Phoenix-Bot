@@ -31,8 +31,7 @@ describe('Hangman generateBoard function Unit Test Suites', () => {
     ))
 
     test('generateBoard should set all tab cell with false', () => (
-        expect(Hangman.found[1]).toEqual(false),
-        expect(Hangman.found[2]).toEqual(false)
+        expect(Hangman.found[1]).toEqual(false)
     ))
 })
 

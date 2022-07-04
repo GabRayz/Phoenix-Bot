@@ -241,7 +241,7 @@ export default class Power4 extends Command {
     }
 
     static isBoardFull() {
-        return this.board.every((line) => line.every((tile) => tile !== 1));
+        return this.board.every((line) => line.every((tile) => tile !== 0));
     }
 
     static callTheWinner(winner) {
