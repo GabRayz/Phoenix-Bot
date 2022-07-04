@@ -1,5 +1,5 @@
 import Discord from "discord.js";
-import PhoenixGuild from "./Guild";
+import PhoenixGuild from "./PhoenixGuild";
 import Commands from "./commands/command";
 import config from "../config.json" assert { type: "json" };
 import logger from "./logger";
