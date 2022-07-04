@@ -59,6 +59,8 @@ export default class Music {
                 label: "START_MUSIC",
             });
             this.textChannel = message.channel;
+            if (getVoiceConnection(this.textChannel.guildId) !== undefined)
+                return this.nextSong();
             this.connectToVoiceChannel(message.member.voice.channel)
                 .then(() => {
                     logger.debug(
@@ -172,6 +174,10 @@ export default class Music {
         if (!url) return;
 
         this.videoInfos = await this.getVideoInfo(url);
+        if (this.videoInfos == null) {
+            this.textChannel.send(`Vidéo introuvable : ${song.name}`);
+            return this.nextSong();
+        }
 
         // Get the stream
         this.getStream(url)
@@ -289,8 +295,7 @@ export default class Music {
         try {
             return await youtube.getInfo(url);
         } catch (e: any) {
-            Sentry.captureException(e);
-            logger.error(e.message, { label: "MUSIC_GET_VIDEO_INFO" });
+            logger.info('Video not found');
             this.stop();
             return null;
         }
