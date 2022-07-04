@@ -9,11 +9,6 @@ Sentry.init({
     tracesSampleRate: 1.0,
 });
 
-const transaction = Sentry.startTransaction({
-    name: "Phoenix",
-    op: "phoenix",
-});
-
 const phoenix = new Phoenix();
 
 (async () => {
@@ -22,8 +17,6 @@ const phoenix = new Phoenix();
         await phoenix.login();
     } catch (e) {
         Sentry.captureException(e);
-    } finally {
-        transaction.finish();
     }
 
 })()
