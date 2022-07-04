@@ -13,12 +13,12 @@ jobs:
     steps:
       - checkout
       - run: cp config-exemple.json config.json
-      - run: docker login --username vendeurtest1 --password Rakuten2020
-      - run: docker build -t vendeurtest1/phoenix-bot:1.0.0 .
-      - run: docker push vendeurtest1/phoenix-bot:1.0.0
+      - run: echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username gabray --password-stdin
+      - run: docker build -t gabray/phoenix-bot:1.0.0 .
+      - run: docker push gabray/phoenix-bot:1.0.0
   test:
     docker:
-      - image: vendeurtest1/phoenix-bot:1.0.0
+      - image: gabray/phoenix-bot:1.0.0
     steps:
       - checkout
       - sonarcloud/scan
