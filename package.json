@@ -5,6 +5,7 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
+        "test": "echo test / 20",
         "build": "tsc",
         "dev": "concurrently \"tsc\" \"nodemon --watch 'src/**/*' --exec 'node --experimental-specifier-resolution=node ./dist/index.js'\"",
         "start": "tsc && node --experimental-specifier-resolution=node ./dist/index.js"
