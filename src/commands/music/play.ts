@@ -1,5 +1,6 @@
-import Command from "../../Command.js";
-import GetPlaylist from "../../YoutubePlaylists.js";
+import Command from "../../Command";
+import GetPlaylist from "../../YoutubePlaylists";
+import logger from "../../logger";
 
 export default class Play extends Command {
     static commandName = "play";
@@ -21,7 +22,9 @@ export default class Play extends Command {
             message.args[0].startsWith("http") &&
             message.args[0].includes("playlist?list=")
         ) {
-            console.log("Importing playlist...");
+            logger.debug("Importing playlist...", {
+                label: "PLAY",
+            });
             await this.enqueueYoutubePlaylist(message.args[0], music);
         } else {
             music.addToQueue(message);
@@ -35,6 +38,6 @@ export default class Play extends Command {
         for (const video of videos) {
             music.addToQueueObject(video);
         }
-        console.log("Playlist enqueued !");
+        logger.debug("Playlist enqueued !", { label: "PLAY_ENQUEUE_PLAYLIST" });
     }
 }

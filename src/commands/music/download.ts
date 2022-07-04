@@ -1,7 +1,8 @@
-import Command from "../../Command.js";
+import Command from "../../Command";
 import { promises } from "fs";
 import ytdl from "ytdl-core";
 import ffmpeg from "fluent-ffmpeg";
+import logger from "../../logger";
 
 export default class Download extends Command {
     static commandName = "download";
@@ -12,13 +13,13 @@ export default class Download extends Command {
 
     static async call(message, phoenix) {
         // Get the url from which to download
-        console.log(message);
+        logger.debug(message, { label: "DOWNLOAD" });
         let phoenixGuild = phoenix.guilds[message.guildId];
         let url =
             message.args.length === 2
                 ? message.args[1]
                 : this.getCurrentVideo(phoenixGuild);
-        console.log(url);
+        logger.debug(url, { label: "DOWNLOAD" });
         let audioonly = message.args.length >= 1 && message.args[0] === "audio";
 
         let stream = ytdl(url, {
@@ -26,7 +27,7 @@ export default class Download extends Command {
         });
 
         let msg = await message.channel.send("Le téléchargement va commencer.");
-        console.log("Initiating video download...");
+        logger.debug("Initiating video download...", { label: "DOWNLOAD" });
         this.download(msg, stream, audioonly, phoenix);
     }
 
@@ -41,20 +42,22 @@ export default class Download extends Command {
         let cmd = ffmpeg(stream)
             .audioBitrate(123)
             .on("start", () => {
-                console.log("Video download has started.");
+                logger.debug("Video download has started.", {
+                    label: "DOWNLOAD",
+                });
                 msg.channel.send("Téléchargement en cours...");
             })
             .on("progress", (p) => {
                 kb = p.targetSize;
             })
             .on("error", (err) => {
-                console.error(err);
+                logger.error(err, { label: "DOWNLOAD" });
                 msg.channel.send("Erreur :/");
             })
             .on("end", () => {
                 cmd.kill();
                 clearInterval(interval);
-                console.log("Download done !");
+                logger.debug("Download done !", { label: "DOWNLOAD" });
                 msg.channel.send(
                     "Le fichier est disponible, et expirera dans 5 minutes : " +
                         phoenix.config.downloadAdress +

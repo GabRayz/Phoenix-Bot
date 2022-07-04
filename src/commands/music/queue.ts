@@ -1,4 +1,4 @@
-import Command from "../../Command.js";
+import Command from "../../Command";
 
 export default class Queue extends Command {
     static commandName = "queue";

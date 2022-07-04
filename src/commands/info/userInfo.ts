@@ -1,6 +1,7 @@
-import Command from "../../Command.js";
+import Command from "../../Command";
 import { MessageEmbed } from "discord.js";
-import { getMember, formatDate } from "../../utils.js";
+import { getMember, formatDate } from "../../utils";
+import logger from "../../logger";
 
 export default class UserInfo extends Command {
     static commandName: string = "userInfo";
@@ -46,7 +47,7 @@ export default class UserInfo extends Command {
 
         message.channel.send({ embeds: [embed] }).catch((err) => {
             message.reply(`An error occured.`);
-            console.error(err);
+            logger.error(err, { label: "USER_INFO" });
         });
     }
 }

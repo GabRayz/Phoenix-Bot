@@ -1,5 +1,6 @@
-import Command from "../../Command.js";
+import Command from "../../Command";
 import { MessageEmbed } from "discord.js";
+import logger from "../../logger";
 
 export default class MusicInfo extends Command {
     static commandName = "musicInfo";
@@ -39,7 +40,7 @@ export default class MusicInfo extends Command {
                         "Aucune musique n'est jouée pour l'instant"
                     );
                 } else {
-                    console.error(err);
+                    logger.error(err, { label: "MUSIC_INFO" });
                 }
             });
         }

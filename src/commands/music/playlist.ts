@@ -1,5 +1,6 @@
-import Command from "../../Command.js";
-import GetPlaylist from "../../YoutubePlaylists.js";
+import Command from "../../Command";
+import GetPlaylist from "../../YoutubePlaylists";
+import logger from "../../logger";
 
 export default class Playlist extends Command {
     static commandName = "playlist";
@@ -36,7 +37,9 @@ export default class Playlist extends Command {
                             manager
                         ).then(() => {
                             msg.react("✅");
-                            console.log("Playlist imported !");
+                            logger.debug("Playlist imported !", {
+                                label: "PLAYLIST",
+                            });
                         });
                     } else {
                         try {
@@ -150,7 +153,9 @@ export default class Playlist extends Command {
     }
 
     static async importYoutubePlaylist(url, playlistName, manager) {
-        console.log("Playlist name : " + playlistName);
+        logger.debug(`Playlist name : ${playlistName}`, {
+            label: "PLAYLIST_IMPORT_YOUTUBE_PLAYLIST",
+        });
         let id = url.split("=")[1];
         let videos = await GetPlaylist(id);
         for (const video of videos) {

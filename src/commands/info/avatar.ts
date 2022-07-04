@@ -1,5 +1,5 @@
-import Command from "../../Command.js";
-import { getMember } from "../../utils.js";
+import Command from "../../Command";
+import { getMember } from "../../utils";
 
 export default class Avatar extends Command {
     static commandName = "avatar";

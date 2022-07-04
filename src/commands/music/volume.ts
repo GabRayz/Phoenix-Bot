@@ -1,5 +1,6 @@
-import Command from "../../Command.js";
-import Play from "./play.js";
+import Command from "../../Command";
+import Play from "./play";
+import logger from "../../logger";
 
 export default class Volume extends Command {
     static commandName = "volume";
@@ -20,7 +21,7 @@ export default class Volume extends Command {
             if (volume >= 0 && volume <= 200) {
                 Play.voiceHandler.setVolume(volume / 100);
                 Play.volume = volume / 100;
-                console.log("Volume set");
+                logger.debug("Volume set", { label: "VOLUME" });
             } else {
                 phoenix.sendClean(
                     "Le volume doit etre compris entre 0 et 200.",

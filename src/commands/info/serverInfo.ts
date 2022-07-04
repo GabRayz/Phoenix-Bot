@@ -1,5 +1,6 @@
-import Command from "../../Command.js";
+import Command from "../../Command";
 import { MessageEmbed } from "discord.js";
+import logger from "../../logger";
 
 export default class ServerInfo extends Command {
     static commandName: string = "serverInfo";
@@ -29,7 +30,7 @@ export default class ServerInfo extends Command {
 
         message.channel.send({ embeds: [embed] }).catch((err) => {
             message.reply(`An error occured.`);
-            console.error(err);
+            logger.error(err, { label: "SERVER_INFO" });
         });
     }
 }

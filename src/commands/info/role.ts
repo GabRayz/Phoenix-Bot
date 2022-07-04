@@ -1,5 +1,5 @@
 import { MessageEmbed } from "discord.js";
-import Command from "../../Command.js";
+import Command from "../../Command";
 
 export default class RoleInfo extends Command {
     static commandName = "roleInfo";

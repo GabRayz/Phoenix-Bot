@@ -1,4 +1,5 @@
-import Command from "../Command.js";
+import Command from "../Command";
+import logger from "../logger";
 
 export default class Timer extends Command {
     static commandName = "timer";
@@ -14,7 +15,9 @@ export default class Timer extends Command {
 
     static setTimer(duration, message) {
         if (duration <= 0) return;
-        console.log("Timer set :", duration);
+        logger.debug(`Timer set for ${message.author.username} : ${duration}`, {
+            label: "TIMER_SET_TIMER",
+        });
         message.react("🕐");
         setTimeout(() => {
             message.reply("Driiiiing !");

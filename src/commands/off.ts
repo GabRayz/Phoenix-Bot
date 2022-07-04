@@ -1,4 +1,5 @@
-import Command from "../Command.js";
+import Command from "../Command";
+import logger from "../logger";
 
 export default class Off extends Command {
     static commandName = "off";
@@ -7,7 +8,7 @@ export default class Off extends Command {
 
     static async call(message, phoenix) {
         await phoenix.bot.destroy();
-        console.log("Phoenix disconnected.");
+        logger.info("Phoenix disconnected.", { label: "BOT" });
         process.exit(0);
     }
 }
