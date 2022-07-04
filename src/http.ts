@@ -4,6 +4,7 @@ import logger from "./logger";
 
 const router = express.Router();
 const app = express();
+app.disable("x-powered-by");
 
 import config from "../config.json" assert { type: "json" };
 
