@@ -20,9 +20,8 @@ jobs:
     docker:
       - image: gabray/phoenix-bot:1.0.0
     steps:
-      - checkout
+      - run: docker run --entrypoint ./build-and-test.sh gabray/phoenix-bot:1.0.0
       - sonarcloud/scan
-      - run: npm run test
   push:
     machine: true
     steps:
@@ -51,4 +50,3 @@ workflows:
           requires:
             - push
           context: sonarcloud
-
