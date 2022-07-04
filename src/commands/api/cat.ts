@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import { MessageEmbed } from "discord.js";
 import Command from "../../Command";
 import logger from "../../logger";
+import Sentry from "@sentry/node";
 
 export default class Cat extends Command {
     static commandName = "cat";
@@ -11,7 +12,10 @@ export default class Cat extends Command {
     static async call(message, _phoenix) {
         const { file } = await fetch("https://aws.random.cat/meow")
             .then((response) => response.json() as any)
-            .catch((err) => logger.error(err, { label: "CAT" }));
+            .catch((err) => {
+                logger.error(err, { label: "CAT" });
+                Sentry.captureException(err);
+            });
 
         const embed = new MessageEmbed()
             .setDescription("**Quel chat magnifique !**")
@@ -22,6 +26,7 @@ export default class Cat extends Command {
         message.channel.send({ embeds: [embed] }).catch((err) => {
             message.reply(`An error occured.`);
             logger.error(err, { label: "CAT" });
+            Sentry.captureException(err);
         });
     }
 }

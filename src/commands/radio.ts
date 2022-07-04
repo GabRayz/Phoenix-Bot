@@ -9,6 +9,8 @@ import {
 import path from "path";
 import { exec } from "node:child_process";
 import { promises } from "fs";
+import logger from "../logger";
+import Sentry from "@sentry/node";
 
 export default class Radio extends Command {
     static commandName = "radio";
@@ -81,7 +83,13 @@ export default class Radio extends Command {
                     connection?.subscribe(this.stream);
                     this.isPlaying = true;
                 })
-                .catch(() => console.error);
+                .catch((err) => {
+                    logger.error(
+                        `Error while connecting to voice channel : ${err}`,
+                        { label: "RADIO_CONNECT_TO_VOICE_CHANNEL" }
+                    );
+                    Sentry.captureException(err);
+                });
         }, 2000);
     }
 
