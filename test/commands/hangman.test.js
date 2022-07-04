@@ -1,15 +1,15 @@
-const hangman = require("../../commands/hangman")
+import Hangman from "../../src/commands/games/hangman"
 
 /**
  * @function Hangman.isWordValid
  */
 describe('Hangman isWordValid function Unit Test Suites', () => {
     test('isWordValid should return true if valid word', () => (
-        expect(hangman.isWordValid("VALID")).toEqual(true)
+        expect(Hangman.isWordValid("VALID")).toEqual(true)
     ))
 
     test('isWordValid should return false if word contains invalid characters', () => (
-        expect(hangman.isWordValid("VAL_D")).toEqual(false)
+        expect(Hangman.isWordValid("VAL_D")).toEqual(false)
     ))
 })
 
@@ -18,21 +18,21 @@ describe('Hangman isWordValid function Unit Test Suites', () => {
  */
 describe('Hangman generateBoard function Unit Test Suites', () => {
     beforeAll(() => {
-        hangman.generateBoard("TEST")
+        Hangman.generateBoard("TEST")
     });
 
     test('generateBoard should return set mystery with the given word', () => (
-        expect(hangman.mystery).toEqual("TEST")
+        expect(Hangman.mystery).toEqual("TEST")
     ))
 
     test('generateBoard should set the found[0] and found[word.length - 1] to true', () => (
-        expect(hangman.found[0]).toEqual(true),
-        expect(hangman.found[3]).toEqual(true)
+        expect(Hangman.found[0]).toEqual(true),
+        expect(Hangman.found[3]).toEqual(true)
     ))
 
     test('generateBoard should set all tab cell with false', () => (
-        expect(hangman.found[1]).toEqual(false),
-        expect(hangman.found[2]).toEqual(false)
+        expect(Hangman.found[1]).toEqual(false),
+        expect(Hangman.found[2]).toEqual(false)
     ))
 })
 
@@ -41,19 +41,19 @@ describe('Hangman generateBoard function Unit Test Suites', () => {
  */
 describe('Hangman stop function Unit Test Suites', () => {
     beforeAll(() => {
-        hangman.mystery = "TEST"
-        hangman.lives = 2
+        Hangman.mystery = "TEST"
+        Hangman.lives = 2
     });
 
     test('successfull applyGuess should set the corresponding cell to true', () => (
-        hangman.applyGuess("E"),
-        expect(hangman.found[1]).toEqual(true)
+        Hangman.applyGuess("E"),
+        expect(Hangman.found[1]).toEqual(true)
     ))
 
     test('unsuccessfull applyGuess should add the letter to tested and lower the lives', () => (
-        hangman.applyGuess("W"),
-        expect(hangman.tested.includes("W")).toEqual(true),
-        expect(hangman.lives).toEqual(1)
+        Hangman.applyGuess("W"),
+        expect(Hangman.tested.includes("W")).toEqual(true),
+        expect(Hangman.lives).toEqual(1)
     ))
 })
 
@@ -62,10 +62,10 @@ describe('Hangman stop function Unit Test Suites', () => {
  */
 describe('Hangman applyGuess function Unit Test Suites', () => {
     beforeAll(() => {
-        hangman.stop()
+        Hangman.stop()
     });
 
     test('start should set isPlaying to false', () => (
-        expect(hangman.isPlaying).toEqual(false)
+        expect(Hangman.isPlaying).toEqual(false)
     ))
 })
