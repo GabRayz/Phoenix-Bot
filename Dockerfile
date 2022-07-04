@@ -6,7 +6,7 @@ COPY package.json .
 
 RUN apt-get update
 
-RUN apt-get -y install curl
+RUN apt-get -y install curl unzip
 
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash
 
@@ -16,8 +16,6 @@ RUN npm install
 
 COPY . .
 
-ADD ./config.json .
-
 EXPOSE 8081
 
-ENTRYPOINT [ "node", "index.js" ]
+ENTRYPOINT [ "npm", "run", "start" ]
