@@ -32,7 +32,7 @@ export default class Download extends Command {
     }
 
     static download(msg, stream, audioOnly, phoenix) {
-        let rand = Math.round(Math.random() * (1000000 + 100000) - 100000);
+        let rand = Math.round(Math.random() * (1000000 - 100000) + 100000);
         let path = `public/${rand}.${audioOnly ? "mp3" : "mp4"}`;
         let kb = 0;
         let interval = setInterval(() => {

@@ -2,6 +2,7 @@ import Music from "./Music";
 import GuildPlaylistManager from "./GuildPlaylistManager";
 import { promises } from "fs";
 import logger from "./logger";
+
 export default class PhoenixGuild {
     config: any = null;
     bot: any = null;
