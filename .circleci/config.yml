@@ -20,7 +20,6 @@ jobs:
     steps:
       - run: docker pull gabray/phoenix-bot:1.0.0
       - run: docker run --entrypoint ./build-and-test.sh gabray/phoenix-bot:1.0.0
-      - sonarcloud/scan
   push:
     machine: true
     steps:
