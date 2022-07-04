@@ -2,6 +2,7 @@ import Command from "../Command";
 import fs from "fs";
 import { MessageEmbed } from "discord.js";
 import logger from "../logger";
+import Sentry from "@sentry/node";
 
 export default class Config extends Command {
     static commandName = "config";
@@ -191,6 +192,7 @@ export default class Config extends Command {
             );
 
         message.channel.send({ embeds: [embed] }).catch((err) => {
+            Sentry.captureException(err);
             if (err.message === "Missing Permissions")
                 message.channel.send(
                     "Erreur, mes permissions sont insuffisantes :("
@@ -245,6 +247,7 @@ export default class Config extends Command {
         }
         // Send
         message.channel.send({ embeds: [perms] }).catch((err) => {
+            Sentry.captureException(err);
             if (err.message === "Missing Permissions")
                 message.channel.send(
                     "Erreur, mes permissions sont insuffisantes :("
@@ -262,6 +265,7 @@ export default class Config extends Command {
             "config perm {nom de la commande} {roles|channels|members} {whitelist|blacklist} {add|remove} {nom du role|nom de la catégorie/nom du salon|tag du membre(exemple#0001)}";
         notice.setDescription(description);
         message.channel.send({ embeds: [notice] }).catch((err) => {
+            Sentry.captureException(err);
             if (err.message === "Missing Permissions")
                 message.channel.send(
                     "Erreur, mes permissions sont insuffisantes :("
@@ -284,6 +288,7 @@ export default class Config extends Command {
         return new Promise((resolve, reject) => {
             fs.readFile("./config.json", "utf-8", (err, data) => {
                 if (err) {
+                    Sentry.captureException(err);
                     logger.error(
                         `Error while loading the config file: ${err}`,
                         { label: "CONFIG_LOAD" }
@@ -295,6 +300,7 @@ export default class Config extends Command {
                         return resolve(config);
                     })
                     .catch((e) => {
+                        Sentry.captureException(e);
                         logger.error(
                             `Error while loading the config-exemple file: ${e}`,
                             { label: "CONFIG_LOAD" }
@@ -312,7 +318,10 @@ export default class Config extends Command {
     static compareWithSample(config) {
         return new Promise((resolve, reject) => {
             fs.readFile("./config-exemple.json", "utf-8", (err, data) => {
-                if (err) return reject();
+                if (err) {
+                    Sentry.captureException(err);
+                    return reject();
+                }
                 let sample = JSON.parse(data);
                 Object.keys(sample).forEach((attribute) => {
                     if (typeof config[attribute] == "undefined")

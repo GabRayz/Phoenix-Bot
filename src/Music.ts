@@ -10,6 +10,7 @@ import youtube from "ytdl-core";
 import searchApi from "youtube-search-api";
 import Discord, { MessageActionRow, MessageButton } from "discord.js";
 import logger from "./logger";
+import Sentry from "@sentry/node";
 
 export default class Music {
     /**
@@ -66,13 +67,14 @@ export default class Music {
                     );
                     this.nextSong();
                 })
-                .catch(() => {
+                .catch((err) => {
                     this.textChannel.send(
                         "Tu n'es pas connecté à un channel vocal ='("
                     );
                     logger.error("User not connected to a voice channel", {
                         label: "START_MUSIC",
                     });
+                    Sentry.captureException(err);
                 });
             this.setupEventInteractions();
         }
@@ -159,6 +161,7 @@ export default class Music {
 
         // Get video url
         let url = await this.getUrlFromQuery(song).catch((err) => {
+            Sentry.captureException(err);
             if (err instanceof TypeError) {
                 logger.error(err.message, { label: "MUSIC_NEXT_SONG" });
                 this.textChannel.send("Une erreur est survenue.", {
@@ -197,6 +200,7 @@ export default class Music {
                 await this.displayStatusMessage();
             })
             .catch((err) => {
+                Sentry.captureException(err);
                 logger.error(`Error while getting video infos: ${err}`, {
                     label: "MUSIC_NEXT_SONG",
                 });
@@ -285,6 +289,7 @@ export default class Music {
         try {
             return await youtube.getInfo(url);
         } catch (e: any) {
+            Sentry.captureException(e);
             logger.error(e.message, { label: "MUSIC_GET_VIDEO_INFO" });
             this.stop();
             return null;

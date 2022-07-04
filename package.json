@@ -5,6 +5,7 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
+        "test": "echo test / 20",
         "build": "tsc",
         "dev": "concurrently \"tsc\" \"nodemon --watch 'src/**/*' --exec 'node --experimental-specifier-resolution=node ./dist/index.js'\"",
         "start": "tsc && node --experimental-specifier-resolution=node ./dist/index.js"
@@ -21,6 +22,8 @@
     "homepage": "https://github.com/GabRayz/Phoenix-Bot#readme",
     "dependencies": {
         "@discordjs/voice": "^0.10.0",
+        "@sentry/node": "^7.4.1",
+        "@sentry/tracing": "^7.4.1",
         "discord.js": "^13.8.1",
         "express": "^4.18.1",
         "ffmpeg": "^0.0.4",

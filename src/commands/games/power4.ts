@@ -1,5 +1,6 @@
 import Command from "../../Command";
 import logger from "../../logger";
+import Sentry from "@sentry/node";
 
 export default class Power4 extends Command {
     static commandName = "power4";
@@ -171,7 +172,10 @@ export default class Power4 extends Command {
         this.boardMsg
             .edit(msg)
             .then(() => logger.debug("Board drawn", { label: "POWER4_DRAW" }))
-            .catch((e) => logger.error(e, { label: "POWER4_DRAW" }));
+            .catch((e) => {
+                logger.error(e, { label: "POWER4_DRAW" });
+                Sentry.captureException(e);
+            });
     }
 
     static async addReactions() {

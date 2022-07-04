@@ -1,6 +1,7 @@
 import Command from "../../Command";
 import GetPlaylist from "../../YoutubePlaylists";
 import logger from "../../logger";
+import Sentry from "@sentry/node";
 
 export default class Playlist extends Command {
     static commandName = "playlist";
@@ -21,6 +22,7 @@ export default class Playlist extends Command {
                         manager.create(msg.args[1], msg.author);
                         phoenixGuild.saveConfig().then(() => msg.react("✅"));
                     } catch (e) {
+                        Sentry.captureException(e);
                         msg.reply(e);
                     }
                 }
@@ -51,6 +53,7 @@ export default class Playlist extends Command {
                                 .saveConfig()
                                 .then(() => msg.react("✅"));
                         } catch (e) {
+                            Sentry.captureException(e);
                             phoenix.sendClean(e, msg.channel);
                         }
                     }
@@ -62,6 +65,7 @@ export default class Playlist extends Command {
                         manager.play(msg.args[1], msg);
                         msg.react("✅");
                     } catch (e) {
+                        Sentry.captureException(e);
                         phoenix.sendClean(e, msg.channel);
                     }
                 }

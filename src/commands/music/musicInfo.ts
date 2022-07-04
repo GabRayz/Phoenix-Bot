@@ -1,6 +1,7 @@
 import Command from "../../Command";
 import { MessageEmbed } from "discord.js";
 import logger from "../../logger";
+import Sentry from "@sentry/node";
 
 export default class MusicInfo extends Command {
     static commandName = "musicInfo";
@@ -35,6 +36,7 @@ export default class MusicInfo extends Command {
                 .setColor("RED");
 
             message.channel.send({ embeds: [embed] }).catch((err) => {
+                Sentry.captureException(err);
                 if (err.message == "Missing Permissions") {
                     message.channel.send(
                         "Aucune musique n'est jouée pour l'instant"

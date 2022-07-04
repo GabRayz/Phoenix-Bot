@@ -1,5 +1,6 @@
 import Command from "../Command";
 import logger from "../logger";
+import Sentry from "@sentry/node";
 
 export default class Clear extends Command {
     static commandName: string = "clear";
@@ -17,6 +18,7 @@ export default class Clear extends Command {
         for (let msg of botMessages) {
             msg[1].delete().catch((err) => {
                 logger.error(err, { label: "CLEAR" });
+                Sentry.captureException(err);
             });
         }
     }
