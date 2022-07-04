@@ -18,4 +18,4 @@ COPY . .
 
 EXPOSE 8081
 
-ENTRYPOINT [ "node", "index.js" ]
+ENTRYPOINT [ "npm", "run", "start" ]
