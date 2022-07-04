@@ -71,26 +71,24 @@ export default class TwoK48 extends Game {
 
         this.phoenix.bot.on("messageReactionAdd", (messageReaction, user) => {
             // If the game is playing, let the player add reactions to move.
-            if (
-                user.tag == this.player.tag &&
-                !this.isLoading &&
-                this.isPlaying &&
-                messageReaction.message.id == this.boardMsg.id
-            )
-                this.onPlay(this.emojiToMove(messageReaction.emoji.name));
+            this.onReaction(messageReaction, user);
         });
         this.phoenix.bot.on(
             "messageReactionRemove",
             (messageReaction, user) => {
-                if (
-                    user.tag == this.player.tag &&
-                    !this.isLoading &&
-                    this.isPlaying &&
-                    messageReaction.message.id == this.boardMsg.id
-                )
-                    this.onPlay(this.emojiToMove(messageReaction.emoji.name));
+                this.onReaction(messageReaction, user);
             }
         );
+    }
+
+    async onReaction(messageReaction, user) {
+        if (
+            user.tag == this.player.tag &&
+            !this.isLoading &&
+            this.isPlaying &&
+            messageReaction.message.id == this.boardMsg.id
+        )
+            return this.onPlay(this.emojiToMove(messageReaction.emoji.name));
     }
 
     /**

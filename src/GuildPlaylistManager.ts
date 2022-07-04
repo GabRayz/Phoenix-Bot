@@ -1,5 +1,3 @@
-import fs from "fs";
-import searchApi from "youtube-search-api";
 import logger from "./logger";
 
 export default class GuildPlaylistManager {

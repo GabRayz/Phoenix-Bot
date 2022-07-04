@@ -5,7 +5,7 @@ export default class Example extends Command {
     static alias = ["example", "expl"];
     static description = "Example for creating a command";
 
-    static async call(message, Phoenix) {
+    static async call(_message, _phoenix) {
         // Code . . .
     }
 }

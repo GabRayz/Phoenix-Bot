@@ -49,7 +49,7 @@ export default class PhoenixGuild {
 
     async saveConfig() {
         this.config.playlists = this.playlistManager.playlists;
-        return await promises.writeFile(
+        return promises.writeFile(
             `./config/${this.guildId}.json`,
             JSON.stringify(this.config, null, 4)
         );

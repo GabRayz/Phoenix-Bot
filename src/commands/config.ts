@@ -3,6 +3,7 @@ import fs from "fs";
 import { MessageEmbed } from "discord.js";
 import logger from "../logger";
 import Sentry from "@sentry/node";
+import Phoenix from "../Phoenix";
 
 export default class Config extends Command {
     static commandName = "config";
@@ -31,7 +32,7 @@ export default class Config extends Command {
             (message.args[0] === "permissions" || message.args[0] === "perm")
         ) {
             // Check if the permission is correct
-            if (this.checkIfCommandExists(message.args[1])) {
+            if (this.checkIfCommandExists(message.args[1], phoenix)) {
                 let scopes = ["roles", "channels", "members"];
                 if (scopes.includes(message.args[2])) {
                     if (message.args[2] === "channels") {
@@ -85,7 +86,7 @@ export default class Config extends Command {
                             scopes
                     );
             }
-            message.react("⚠️");
+            message.reply("⚠️ Cette commande n'existe pas");
         } else {
             message.react("⚠️");
             message.reply("Commande invalide.");
@@ -141,11 +142,9 @@ export default class Config extends Command {
         };
     }
 
-    static checkIfCommandExists(name) {
+    static checkIfCommandExists(name, phoenix: Phoenix) {
         if (name === "default") return true;
-        let commands = {};
-        commands = require("./command");
-        let com = Object.values(commands).find((c: any) => c.name === name);
+        let com = Object.values(phoenix.commands).find((c: any) => c.commandName === name);
         return typeof com != "undefined";
     }
 
@@ -177,18 +176,17 @@ export default class Config extends Command {
                 "Notification de mise à jour - updateAlert",
                 config.updateAlert
             )
-            .addField("Salon Bot (id) - testchannel", config.testChannel)
             .addField(
                 "Les membres sans rôles ne peuvent pas controler le bot - everyoneBlackListed",
                 config.everyoneBlackListed
             )
             .addField(
                 "Adresse de téléchargement des vidéos - downloadAdress",
-                config.downloadAdress
+                phoenix.config.downloadAdress
             )
             .addField(
                 "Port de téléchargement des vidéos - downloadPort",
-                "" + config.downloadPort
+                "" + phoenix.config.downloadPort
             );
 
         message.channel.send({ embeds: [embed] }).catch((err) => {

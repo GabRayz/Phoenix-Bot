@@ -1,6 +1,6 @@
 import Discord from "discord.js";
-import PhoenixGuild from "./Guild";
-import Commands from "./commands/command";
+import PhoenixGuild from "./PhoenixGuild";
+import Commands from "./commands/Commands";
 import config from "../config.json" assert { type: "json" };
 import logger from "./logger";
 
@@ -9,12 +9,14 @@ export default class Phoenix {
     bot: any = null;
     guilds = {};
     activities = 0;
+    commands: any = Commands;
 
     async loadConfig() {
         this.config = config;
     }
 
     async login() {
+        this.commands = Commands;
         this.bot = new Discord.Client({
             intents: [
                 Discord.Intents.FLAGS.GUILDS,
@@ -98,7 +100,7 @@ export default class Phoenix {
 
     searchPermissions(command, message, phoenixGuild) {
         for (let name of Object.keys(phoenixGuild.config.permissions)) {
-            if (name === command.name) {
+            if (name === command.commandName) {
                 let perm = phoenixGuild.config.permissions[name];
                 return this.checkPermissions(perm, message);
             }
