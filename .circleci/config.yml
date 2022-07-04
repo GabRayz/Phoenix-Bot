@@ -2,7 +2,7 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-orbs: 
+orbs:
   sonarcloud: sonarsource/sonarcloud@1.1.1
 
 # Define a job to be invoked later in a workflow.
@@ -12,7 +12,6 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: cp config-exemple.json config.json
       - run: echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username gabray --password-stdin
       - run: docker build -t gabray/phoenix-bot:1.0.0 .
       - run: docker push gabray/phoenix-bot:1.0.0

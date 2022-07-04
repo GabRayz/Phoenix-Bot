@@ -16,8 +16,6 @@ RUN npm install
 
 COPY . .
 
-ADD ./config.json .
-
 EXPOSE 8081
 
 ENTRYPOINT [ "node", "index.js" ]
