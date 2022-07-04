@@ -21,7 +21,7 @@ jobs:
       - image: gabray/phoenix-bot:1.0.0
     steps:
       - checkout
-      - sonarcloud/scan
+      - sonarcloud/scan-docker
       - run: npm run test
 
 # Invoke jobs via workflows
@@ -34,4 +34,3 @@ workflows:
       - test:
           requires:
             - build
-          context: sonarcloud
