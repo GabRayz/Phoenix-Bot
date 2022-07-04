@@ -1,0 +1,31 @@
+version: '3.7'
+
+networks:
+    internal:
+    external:
+        driver: bridge
+
+services:
+    mongo:
+        image: mongo:latest
+        restart: always
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: "root"
+            MONGO_INITDB_ROOT_PASSWORD: "root"
+            MONGO_INITDB_DATABASE: "Phoenix"
+        ports:
+            - 27017:27017
+        volumes:
+            - mongodb
+        networks:
+            - internal
+
+    phoenix-bot:
+        image: gabray/phoenix-bot:1.0.0
+        restart: always
+        networks:
+            - internal
+            - external
+        depends_on:
+            - mongo
+        command: docker build .
