@@ -143,7 +143,7 @@ export default class Config extends Command {
     static checkIfCommandExists(name) {
         if (name === "default") return true;
         let commands = {};
-        commands = require("./command");
+        commands = require("./Commands");
         let com = Object.values(commands).find((c: any) => c.name === name);
         return typeof com != "undefined";
     }
