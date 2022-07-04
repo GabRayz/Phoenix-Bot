@@ -2,6 +2,7 @@ import Command from "../../Command";
 import { MessageEmbed } from "discord.js";
 import { getMember, formatDate } from "../../utils";
 import logger from "../../logger";
+import Sentry from "@sentry/node";
 
 export default class UserInfo extends Command {
     static commandName: string = "userInfo";
@@ -46,6 +47,7 @@ export default class UserInfo extends Command {
         }
 
         message.channel.send({ embeds: [embed] }).catch((err) => {
+            Sentry.captureException(err);
             message.reply(`An error occured.`);
             logger.error(err, { label: "USER_INFO" });
         });

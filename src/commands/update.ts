@@ -3,6 +3,7 @@ import fs from "fs";
 import { exec } from "child_process";
 import Phoenix from "../../index";
 import logger from "../logger";
+import Sentry from "@sentry/node";
 
 export default class Update extends Command {
     static commandName = "update";
@@ -48,16 +49,18 @@ export default class Update extends Command {
                         .then((newVersion) => {
                             callback(version != newVersion);
                         })
-                        .catch((err) =>
+                        .catch((err) => {
                             logger.error(err.message, {
                                 label: "UPDATE_CHECK_FOR_UPDATE",
-                            })
-                        );
+                            });
+                            Sentry.captureException(err);
+                        });
                 });
             })
-            .catch((err) =>
-                logger.error(err.message, { label: "UPDATE_CHECK_FOR_UPDATE" })
-            );
+            .catch((err) => {
+                logger.error(err.message, { label: "UPDATE_CHECK_FOR_UPDATE" });
+                Sentry.captureException(err);
+            });
     }
 
     static update(callback) {
@@ -70,6 +73,7 @@ export default class Update extends Command {
                     logger.error(`Failed to update: ${error}`, {
                         label: "UPDATE_UPDATE",
                     });
+                    Sentry.captureException(error);
                 }
                 callback(error);
             });
@@ -81,6 +85,7 @@ export default class Update extends Command {
             fs.readFile("./package.json", "utf-8", (err, jsonString) => {
                 if (err) {
                     logger.error(err.message, { label: "UPDATE_READ_VERSION" });
+                    Sentry.captureException(err);
                     return reject(err);
                 }
                 resolve(JSON.parse(jsonString).version);

@@ -1,6 +1,7 @@
 import Command from "../Command";
 import Discord from "discord.js";
 import logger from "../logger";
+import Sentry from "@sentry/node";
 
 export default class Help extends Command {
     static commandName = "help";
@@ -67,6 +68,7 @@ export default class Help extends Command {
                 "Programmer un minuteur"
             );
         msg.channel.send({ embeds: [embed] }).catch((err) => {
+            Sentry.captureException(err);
             if (err.message == "Missing Permissions") {
                 msg.channel.send(
                     "Erreur, mes permissions sont insuffisantes :("

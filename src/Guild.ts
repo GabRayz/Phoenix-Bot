@@ -2,6 +2,7 @@ import Music from "./Music";
 import GuildPlaylistManager from "./GuildPlaylistManager";
 import { promises } from "fs";
 import logger from "./logger";
+import Sentry from "@sentry/node";
 
 export default class PhoenixGuild {
     config: any = null;
@@ -16,15 +17,22 @@ export default class PhoenixGuild {
         this.guildId = guild;
         this.phoenix = phoenix;
         this.music = new Music(this);
-        try {
-            this.config = require(`../config/${guild}.json`);
-        } catch (e) {
-            this.config = this.defaultConfig();
-        }
-        this.playlistManager = new GuildPlaylistManager(
-            this,
-            this.config.playlists
-        );
+
+        (async () => {
+            try {
+                let file = await promises.readFile(
+                    `./config/${this.guildId}.json`,
+                    "utf8"
+                );
+                this.config = JSON.parse(file);
+            } catch (e) {
+                this.config = this.defaultConfig();
+            }
+            this.playlistManager = new GuildPlaylistManager(
+                this,
+                this.config.playlists
+            );
+        })();
     }
 
     async fetchGuild() {
