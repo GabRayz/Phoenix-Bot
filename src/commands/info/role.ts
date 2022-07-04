@@ -6,7 +6,7 @@ export default class RoleInfo extends Command {
     static alias = ["role", "roleInfo"];
     static description = "Example for creating a command";
 
-    static async call(message, Phoenix) {
+    static async call(message, _phoenix) {
         if (
             !message.args.length ||
             message.args.length > 1 ||

@@ -5,7 +5,7 @@ export default class Timer extends Command {
     static alias = ["timer"];
     static description = "Example for creating a command";
 
-    static async call(message, phoenix) {
+    static async call(message, _phoenix) {
         if (message.args.length == 2) {
             let nb = parseInt(message.args[0]);
             this.setTimer(this.getUnit(message.args[1]) * nb, message);
