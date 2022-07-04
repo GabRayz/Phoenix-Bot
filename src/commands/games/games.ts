@@ -1,7 +1,7 @@
 import Command from "../../Command";
 import fs from "fs";
-import { MessageEmbed } from "discord.js";
-import TwoK48 from "./2048";
+import {MessageEmbed} from "discord.js";
+import TwoK48 from "./TwoK48";
 import logger from "../../logger";
 
 const games = { TwoK48 };
@@ -35,8 +35,6 @@ export default class Games extends Command {
                 this.stopGame(message.args[0], message.author.tag);
         }
     }
-
-    static addScore(game, tag, score) {}
 
     static displayScoreBoard(channel) {
         let description = "";
@@ -79,13 +77,13 @@ export default class Games extends Command {
 
     static stopGame(name, authorTag) {
         // Find a game with the corresponding name and player.
-        let game = this.currentGames.find(
+        let currentGame = this.currentGames.find(
             (game) =>
                 game &&
                 game.alias.includes(name) &&
                 game.players.find((player) => player.tag == authorTag)
         );
-        if (game) game.stop();
+        if (currentGame) currentGame.stop();
     }
 
     static getRandomId() {
@@ -114,22 +112,19 @@ export default class Games extends Command {
      * Loads the scoreboard from the file. Creates the file if it does not exist.
      */
     static loadScoreboard() {
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve) => {
             fs.access(
                 "./src/games/scoreboard.json",
                 fs.constants.F_OK,
                 (err) => {
                     if (err) {
-                        let scoreboard = {
+                        this.scoreboard = {
                             2048: [],
                             power4: [],
                         };
-                        this.scoreboard = scoreboard;
                         resolve();
                     } else {
-                        let scoreboard = {};
-                        scoreboard = require("../src/games/scoreboard.json");
-                        this.scoreboard = scoreboard;
+                        this.scoreboard = require("../src/games/scoreboard.json");
                         resolve();
                     }
                 }
