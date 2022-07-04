@@ -14,9 +14,8 @@ jobs:
       - checkout
       - run: echo "$DOCKERHUB_ACCESS_TOKEN" | docker login --username gabray --password-stdin
       - run: docker build -t gabray/phoenix-bot:1.0.0 .
-      - run: docker run gabray/phoenix-bot:1.0.0
+      - run: docker run --entrypoint "npm run test" gabray/phoenix-bot:1.0.0
       - sonarcloud/scan
-      - run: npm run test
   test:
     docker:
       - image: gabray/phoenix-bot:1.0.0
@@ -47,7 +46,11 @@ workflows:
                 - master
   build-and-push:
     jobs:
-      - push
+      - push:
+          filters:
+            branches:
+              only:
+                - master
       - test:
           requires:
             - push
