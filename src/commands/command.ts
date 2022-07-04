@@ -1,5 +1,3 @@
-import config from "../../config.json" assert { type: "json" };
-
 import Clear from "./clear";
 import Off from "./off";
 import Help from "./help";

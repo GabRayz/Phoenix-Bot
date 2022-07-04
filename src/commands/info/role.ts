@@ -1,5 +1,6 @@
 import { MessageEmbed } from "discord.js";
 import Command from "../../Command";
+import Sentry from "@sentry/node";
 
 export default class RoleInfo extends Command {
     static commandName = "roleInfo";
@@ -28,6 +29,7 @@ export default class RoleInfo extends Command {
             .setTimestamp();
 
         message.channel.send({ embeds: [embed] }).catch((err) => {
+            Sentry.captureException(err);
             message.reply(`An error occured.`);
             console.error(err);
         });

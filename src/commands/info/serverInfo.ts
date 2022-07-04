@@ -1,6 +1,7 @@
 import Command from "../../Command";
 import { MessageEmbed } from "discord.js";
 import logger from "../../logger";
+import Sentry from "@sentry/node";
 
 export default class ServerInfo extends Command {
     static commandName: string = "serverInfo";
@@ -29,6 +30,7 @@ export default class ServerInfo extends Command {
             .addField("Created at", `${server.createdAt}`);
 
         message.channel.send({ embeds: [embed] }).catch((err) => {
+            Sentry.captureException(err);
             message.reply(`An error occured.`);
             logger.error(err, { label: "SERVER_INFO" });
         });

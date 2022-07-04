@@ -3,6 +3,7 @@
     "name": "botName",
     "activity": "activity",
     "prefix": "!",
+    "SENTRY_DSN": "sentry_dsn",
     "connectionAlert": "false",
     "updateAlert": "true",
     "defaultGuild": "Name of the guild",

@@ -1,6 +1,7 @@
 import Command from "../../Command";
 import { MessageEmbed } from "discord.js";
 import logger from "../../logger";
+import Sentry from "@sentry/node";
 
 export default class BotInfo extends Command {
     static commandName: string = "botInfo";
@@ -48,6 +49,7 @@ export default class BotInfo extends Command {
         }
 
         message.channel.send({ embeds: [embed] }).catch((err) => {
+            Sentry.captureException(err);
             message.reply(`An error occured.`);
             logger.error(err, { label: "BOT_INFO" });
         });
