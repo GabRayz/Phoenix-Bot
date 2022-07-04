@@ -22,7 +22,6 @@ jobs:
     steps:
       - checkout
       - sonarcloud/scan
-      - run: npm install
       - run: npm run test
   push:
     machine: true
@@ -47,16 +46,9 @@ workflows:
                 - master
   build-and-push:
     jobs:
-      - push:
-          filters:
-            branches:
-              only:
-                - master
+      - push
       - test:
           requires:
             - push
           context: sonarcloud
-          filters:
-            branches:
-              only:
-                - master
+
