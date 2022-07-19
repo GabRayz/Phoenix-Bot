@@ -1,7 +1,7 @@
 import Discord from "discord.js";
 import PhoenixGuild from "./PhoenixGuild";
 import Commands from "./commands/Commands";
-import config from "../config.json" assert { type: "json" };
+import config from "../config/config.json" assert { type: "json" };
 import logger from "./logger";
 
 export default class Phoenix {

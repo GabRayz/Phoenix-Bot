@@ -6,7 +6,7 @@ const router = express.Router();
 const app = express();
 app.disable("x-powered-by");
 
-import config from "../config.json" assert { type: "json" };
+import config from "../config/config.json" assert { type: "json" };
 
 router.get("/mp3/:file", (req, res) => {
     const filename: string = req.params.file;
