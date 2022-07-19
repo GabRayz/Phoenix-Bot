@@ -22,6 +22,8 @@ Then, create a `config.json` file from `config-exemple.json`, fill it, and start
 
 ## Usage
 
+Phoenix-Bot is a discord bot. It allows to execute several commands (with a $ before). Here they are:
+
 -   help
 -   play {url|name}: Add a music or a youtube playlist to the queue, and start playing.
 -   pause/resume
