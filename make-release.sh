@@ -12,7 +12,7 @@ if ! [ $(git branch --show-current) -eq "develop" ]; then
   exit 3
 fi
 
-current_ver=$(grep '"version": "*' package.json | grep -o '\d\.\d\.\d')
+current_ver=$(grep '"version": "*' package.json | grep -o '\d\+\.\d\+\.\d\+')
 
 new_ver=$( semver -i $1 $current_ver )
 
