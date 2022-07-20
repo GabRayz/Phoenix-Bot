@@ -1,7 +1,7 @@
-import Discord from "discord.js";
+import Discord, {Guild} from "discord.js";
 import PhoenixGuild from "./PhoenixGuild";
 import Commands from "./commands/Commands";
-import config from "../config.json" assert { type: "json" };
+import config from "../config/config.json" assert { type: "json" };
 import logger from "./logger";
 
 export default class Phoenix {
@@ -44,7 +44,21 @@ export default class Phoenix {
             });
         });
 
+        this.bot.on("guildCreate", (guild: Guild) => {
+            logger.info("Joining new guild " + guild.name + " (" + guild.id + ")", { label: "BOT" });
+            this.addNewGuild(guild);
+        });
+
         await this.bot.login(this.config.login);
+    }
+
+    addNewGuild(guild: Guild) {
+        if (this.guilds[guild.id] != undefined) {
+            return;
+        }
+        let newGuild = new PhoenixGuild(guild, this);
+        newGuild.importEmojis();
+        this.guilds[guild.id] = newGuild;
     }
 
     onMessage(msg) {
