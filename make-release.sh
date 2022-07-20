@@ -24,7 +24,7 @@ mv package.tmp.json package.json
 git checkout -b release-${new_ver}
 git add package.json
 git commit -m "Bump version from ${current_ver} to ${new_ver}"
-git tag -a release-${new_ver} -m "Create new release ${new_ver}"
+git tag -a ${new_ver} -m "Create new release ${new_ver}"
 git push origin release-${new_ver} --follow-tags
 
 gh pr create --title "Release ${new_ver}" --fill -a "@me"
