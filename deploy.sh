@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version=$(grep '"version": "*' package.json | grep -o '\d\+\.\d\+\.\d\+')
+version=$(grep '"version": "*' package.json | grep -o '[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+')
 echo $version
 docker build -t gabray/phoenix-bot:${version} -t gabray/phoenix-bot:latest .
 docker run --entrypoint ./build-and-test.sh gabray/phoenix-bot:${version}
