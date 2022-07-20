@@ -7,7 +7,7 @@ if ! [ -z "$(git status --porcelain)" ]; then
   exit 2
 fi
 
-if ! [ $(git branch --show-current) -eq "develop" ]; then
+if ! [ $(git branch --show-current) = "develop" ]; then
   echo 'You need to be on develop branch'
   exit 3
 fi
