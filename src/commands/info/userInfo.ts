@@ -10,7 +10,7 @@ export default class UserInfo extends Command {
     static alias = ["me", "userinfo"];
     static description = "Affiche les informations d'un utilisateur";
 
-    static async call(message: Message, args: string[], phoenix: Phoenix) {
+    static async call(message: Message, args: string[], _phoenix: Phoenix) {
         if (message.guild == null)
             return;
         const member = getMember(message, args.join(" "));

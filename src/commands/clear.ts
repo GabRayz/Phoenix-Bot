@@ -9,7 +9,7 @@ export default class Clear extends Command {
     static alias = ["clear", "clean"];
     static description = "Nettoie le chat des commandes bot";
 
-    static async call(message: Message, args: string[], phoenix: Phoenix) {
+    static async call(message: Message, _args: string[], phoenix: Phoenix) {
         let allMessage = await message.channel.messages.fetch();
         const prefix = phoenix.guilds.get(message.guildId!)!.config.prefix;
         let botMessages = allMessage.filter(

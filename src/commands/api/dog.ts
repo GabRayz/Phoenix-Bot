@@ -10,7 +10,7 @@ export default class Dog extends Command {
     static alias = ["dog", "doggo"];
     static description = "Affiche un chien aléatoirement";
 
-    static async call(message: Message, args: string[], _phoenix: Phoenix) {
+    static async call(message: Message, _args: string[], _phoenix: Phoenix) {
         const { url } = await fetch("https://random.dog/woof.json")
             .then((response) => response.json() as any)
             .catch((err) => {

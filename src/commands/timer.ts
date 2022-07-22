@@ -8,7 +8,7 @@ export default class Timer extends Command {
     static alias = ["timer"];
     static description = "Example for creating a command";
 
-    static async call(message: Message, args: string[], phoenix: Phoenix) {
+    static async call(message: Message, args: string[], _phoenix: Phoenix) {
         if (args.length == 2) {
             let nb = parseInt(args[0]);
             this.setTimer(this.getUnit(args[1]) * nb, message);

@@ -9,7 +9,7 @@ export default class BotInfo extends Command {
     static alias = ["bot", "botinfo"];
     static description = "Affiche les informations du bot";
 
-    static async call(message: Message, args: string[], _phoenix: Phoenix) {
+    static async call(message: Message, _args: string[], _phoenix: Phoenix) {
         const client = message.client;
         if (client.application == null)
             return;

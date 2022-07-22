@@ -9,7 +9,7 @@ export default class Help extends Command {
     static alias = ["help", "h"];
     static description = "Affiche la liste des commandes";
 
-    static async call(msg: Message, args: string[], phoenix: Phoenix) {
+    static async call(msg: Message, _args: string[], phoenix: Phoenix) {
         let config = phoenix.guilds.get(msg.guildId!)!.config;
         let embed = new Discord.MessageEmbed();
         embed = embed

@@ -9,7 +9,7 @@ export default class ServerInfo extends Command {
     static alias = ["server", "serverinfo"];
     static description = "Affiche les informations d'un serveur";
 
-    static async call(message: Message, args: string[], phoenix: Phoenix) {
+    static async call(message: Message, _args: string[], _phoenix: Phoenix) {
         const server = message.guild;
         if (server == null)
             return;

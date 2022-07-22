@@ -26,7 +26,7 @@ export default class Radio extends Command {
 
     static isPlaying;
 
-    static async call(message: Message, args: string[], phoenix: Phoenix) {
+    static async call(message: Message, args: string[], _phoenix: Phoenix) {
         if (args.length === 0)
             this.start(message.member!.voice.channel, message.channel);
         if (args.length === 1 && args[0] === "stop")

@@ -4,7 +4,6 @@ import Commands from "./commands/Commands";
 import config from "../config/config.json" assert { type: "json" };
 import logger from "./logger";
 import CommandMessage from "./CommandMessage";
-import Command from "./Command";
 
 export default class Phoenix {
     config: any = null;
@@ -13,9 +12,9 @@ export default class Phoenix {
     activities = 0;
     commands: any = Commands;
 
-    constructor(bot: Client, config: any) {
+    constructor(bot: Client, botConfig: any) {
         this.bot = bot;
-        this.config = config;
+        this.config = botConfig;
     }
 
     static init(): Phoenix {

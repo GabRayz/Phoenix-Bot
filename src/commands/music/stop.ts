@@ -8,7 +8,7 @@ export default class Stop extends Command {
     static description =
         "Arrete la musique et deconnecte le bot du salon vocal.";
 
-    static async call(message: Message, args: string[], phoenix: Phoenix) {
+    static async call(message: Message, _args: string[], phoenix: Phoenix) {
         const music = phoenix.guilds.get(message.guildId!)!.music;
         music.stop();
     }
