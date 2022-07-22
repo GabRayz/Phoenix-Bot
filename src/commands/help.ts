@@ -21,7 +21,6 @@ export default class Help extends Command {
                 iconURL: msg.author.avatarURL()!,
             })
             .addField(config.prefix + "help", "Affiche la liste des commandes.")
-            .addField(config.prefix + "off", "Redémarre le bot.")
             .addField(
                 config.prefix + "clear",
                 "Efface les messages de commande bot."
