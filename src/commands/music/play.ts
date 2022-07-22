@@ -30,7 +30,7 @@ export default class Play extends Command {
             });
             await this.enqueueYoutubePlaylist(args[0], music);
         } else {
-            music.addToQueue(message);
+            music.addToQueue(message, args);
         }
         await music.start(message);
     }

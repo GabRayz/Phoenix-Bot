@@ -121,9 +121,9 @@ export default class Music {
         if (this.audioPlayer != null) this.audioPlayer.unpause();
     }
 
-    addToQueue(message) {
+    addToQueue(message: Message, args: string[]) {
         let name = "";
-        message.args.forEach((str) => {
+        args.forEach((str) => {
             name += str + " ";
         });
         logger.debug(`Queueing: ${name}`, { label: "MUSIC_ADD_TO_QUEUE" });

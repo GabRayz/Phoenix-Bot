@@ -9,7 +9,7 @@ export default class PhoenixGuild {
     guildId: any = null;
     emojis = {};
     phoenix: any = null;
-    music: any = null;
+    music: Music;
     playlistManager: any = null;
 
     constructor(guild, phoenix) {
