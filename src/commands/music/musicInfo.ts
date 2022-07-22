@@ -9,7 +9,7 @@ export default class MusicInfo extends Command {
     static alias = ["musicinfo", "infos", "playingnow", "i", "pn"];
     static description = "Donne des infos sur la musique en cours";
 
-    static async call(message: Message, args: string[], phoenix: Phoenix) {
+    static async call(message: Message, _args: string[], phoenix: Phoenix) {
         if (message.guild == null)
             return;
         const music = phoenix.guilds.get(message.guildId!)!.music;
@@ -28,10 +28,10 @@ export default class MusicInfo extends Command {
                         this.timeFormat(infos.videoDetails.lengthSeconds)
                     )
                     .setAuthor(infos.videoDetails.author)
-                    .setURL(music.videoUrl);
+                    .setURL(music.videoUrl!);
                 await message.channel.send({ embeds: [embed] });
             }
-            message.channel.send(music.videoUrl);
+            message.channel.send(music.videoUrl!);
         } else {
             let embed = new MessageEmbed();
             embed

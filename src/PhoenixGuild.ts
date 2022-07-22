@@ -1,4 +1,4 @@
-import Music from "./Music";
+import MusicManager from "./MusicManager";
 import GuildPlaylistManager from "./GuildPlaylistManager";
 import { promises } from "fs";
 import logger from "./logger";
@@ -9,13 +9,13 @@ export default class PhoenixGuild {
     guildId: any = null;
     emojis = {};
     phoenix: any = null;
-    music: Music;
+    music: MusicManager;
     playlistManager: any = null;
 
     constructor(guild, phoenix) {
         this.guildId = guild;
         this.phoenix = phoenix;
-        this.music = new Music(this);
+        this.music = new MusicManager(this);
 
         (async () => {
             try {
