@@ -1,6 +1,8 @@
 import Command from "../../Command";
 import GetPlaylist from "../../YoutubePlaylists";
 import logger from "../../logger";
+import {Message} from "discord.js";
+import Phoenix from "../../Phoenix";
 
 export default class Play extends Command {
     static commandName = "play";
@@ -13,19 +15,20 @@ export default class Play extends Command {
     /**
      * Entry point of the command. Adds to song to the queue and start playing.
      * @param {*} message
+     * @package {*} args
      * @param {*} phoenix
      */
-    static async call(message, phoenix) {
-        const music = phoenix.guilds[message.guildId].music;
+    static async call(message: Message, args: string[], phoenix: Phoenix) {
+        const music = phoenix.guilds.get(message.guildId!)!.music;
         if (
-            message.args.length > 0 &&
-            message.args[0].startsWith("http") &&
-            message.args[0].includes("playlist?list=")
+            args.length > 0 &&
+            args[0].startsWith("http") &&
+            args[0].includes("playlist?list=")
         ) {
             logger.debug("Importing playlist...", {
                 label: "PLAY",
             });
-            await this.enqueueYoutubePlaylist(message.args[0], music);
+            await this.enqueueYoutubePlaylist(args[0], music);
         } else {
             music.addToQueue(message);
         }

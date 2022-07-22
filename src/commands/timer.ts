@@ -1,15 +1,17 @@
 import Command from "../Command";
 import logger from "../logger";
+import {Message} from "discord.js";
+import Phoenix from "../Phoenix";
 
 export default class Timer extends Command {
     static commandName = "timer";
     static alias = ["timer"];
     static description = "Example for creating a command";
 
-    static async call(message, _phoenix) {
-        if (message.args.length == 2) {
-            let nb = parseInt(message.args[0]);
-            this.setTimer(this.getUnit(message.args[1]) * nb, message);
+    static async call(message: Message, args: string[], phoenix: Phoenix) {
+        if (args.length == 2) {
+            let nb = parseInt(args[0]);
+            this.setTimer(this.getUnit(args[1]) * nb, message);
         }
     }
 

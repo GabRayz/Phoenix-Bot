@@ -1,12 +1,14 @@
 import Command from "../../Command";
+import {Message} from "discord.js";
+import Phoenix from "../../Phoenix";
 
 export default class Queue extends Command {
     static commandName = "queue";
     static alias = ["queue"];
     static description = "Affiche la liste d'attente des musiques.";
 
-    static call(msg, phoenix) {
-        const music = phoenix.guilds[msg.guildId].music;
+    static async call(msg: Message, _args: string[], phoenix: Phoenix) {
+        const music = phoenix.guilds.get(msg.guildId!)!.music;
         let res =
             "Playlist en cours : " +
             (music.currentPlaylistName === ""

@@ -11,6 +11,8 @@ import { exec } from "node:child_process";
 import { promises } from "fs";
 import logger from "../logger";
 import Sentry from "@sentry/node";
+import {Message} from "discord.js";
+import Phoenix from "../Phoenix";
 
 export default class Radio extends Command {
     static commandName = "radio";
@@ -24,10 +26,10 @@ export default class Radio extends Command {
 
     static isPlaying;
 
-    static async call(message, _phoenix) {
-        if (message.args.length === 0)
-            this.start(message.member.voice.channel, message.channel);
-        if (message.args.length === 1 && message.args[0] === "stop")
+    static async call(message: Message, args: string[], phoenix: Phoenix) {
+        if (args.length === 0)
+            this.start(message.member!.voice.channel, message.channel);
+        if (args.length === 1 && args[0] === "stop")
             await this.stop();
     }
 

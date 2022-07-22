@@ -77,11 +77,14 @@ export default class Phoenix {
         const phoenixGuild = this.guilds.get(msg.guildId);
         if (phoenixGuild === undefined)
             return;
-        if (phoenixGuild.checkPrefix(msg.content)) {
+        // let directMention = msg.mentions.members?.has(this.bot.application!.id)
+        let mentionPrefix = `<@${this.bot.application!.id}>`;
+        let directMention = msg.content.match(`^${mentionPrefix}.*`);
+        if (directMention || phoenixGuild.checkPrefix(msg.content)) {
             logger.debug(`${msg.author.username} : ${msg.content}`, {
                 label: "ON_MESSAGE",
             });
-            let commandMsg = new CommandMessage(msg, phoenixGuild.config.prefix);
+            let commandMsg = new CommandMessage(msg, directMention ? mentionPrefix : phoenixGuild.config.prefix);
             this.readCommand(commandMsg, phoenixGuild);
         }
     }
@@ -118,7 +121,7 @@ export default class Phoenix {
                         !Commands[element].callableFromMP)
                 )
                     return;
-                Commands[element].call(commandMsg.message, this);
+                Commands[element].call(commandMsg.message, commandMsg.args, this);
             }
         });
     }

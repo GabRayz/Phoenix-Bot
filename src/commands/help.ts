@@ -1,23 +1,24 @@
 import Command from "../Command";
-import Discord from "discord.js";
+import Discord, {Message} from "discord.js";
 import logger from "../logger";
 import Sentry from "@sentry/node";
+import Phoenix from "../Phoenix";
 
 export default class Help extends Command {
     static commandName = "help";
     static alias = ["help", "h"];
     static description = "Affiche la liste des commandes";
 
-    static call(msg, phoenix) {
-        let config = phoenix.guilds[msg.guildId].config;
+    static async call(msg: Message, args: string[], phoenix: Phoenix) {
+        let config = phoenix.guilds.get(msg.guildId!)!.config;
         let embed = new Discord.MessageEmbed();
         embed = embed
             .setTitle("Listes des commandes: ")
             .setColor("ORANGE")
-            .setThumbnail(phoenix.bot.user.avatarURL)
+            .setThumbnail(phoenix.bot.user!.avatarURL()!)
             .setFooter({
                 text: "Codé par GabRay",
-                iconURL: msg.author.avatarURL,
+                iconURL: msg.author.avatarURL()!,
             })
             .addField(config.prefix + "help", "Affiche la liste des commandes.")
             .addField(config.prefix + "off", "Redémarre le bot.")
