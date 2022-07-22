@@ -38,7 +38,7 @@ export default class PhoenixGuild {
         return this.phoenix.bot.guilds.resolve(this.guildId);
     }
 
-    checkPrefix(messageContent: string) {
+    checkPrefix(messageContent: string): boolean {
         let prefix = this.config.prefix.replace(
             /[-\/\\^$*+?.()|[\]{}]/g,
             "\\$&"

@@ -9,11 +9,10 @@ Sentry.init({
     tracesSampleRate: 1.0,
 });
 
-const phoenix = new Phoenix();
+const phoenix = Phoenix.init();
 
 (async () => {
     try {
-        await phoenix.loadConfig();
         await phoenix.login();
     } catch (e) {
         Sentry.captureException(e);
