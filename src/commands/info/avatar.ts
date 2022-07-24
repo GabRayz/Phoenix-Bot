@@ -8,7 +8,7 @@ export default class Avatar extends Command {
     static alias = ["avatar"];
     static description = "Show the avatar of a user";
 
-    static async call(message: Message, _args: string[], phoenix: Phoenix) {
+    static async call(message: Message, args: string[], _phoenix: Phoenix) {
         const member = getMember(message, args.join(" "));
 
         if (!member) {
