@@ -3,6 +3,8 @@ import { promises } from "fs";
 import ytdl from "ytdl-core";
 import ffmpeg from "fluent-ffmpeg";
 import logger from "../../logger";
+import {Message} from "discord.js";
+import Phoenix from "../../Phoenix";
 
 export default class Download extends Command {
     static commandName = "download";
@@ -11,16 +13,17 @@ export default class Download extends Command {
 
     // Usage: {prefix}download [{audio|video} [url]]
 
-    static async call(message, phoenix) {
+    static async call(message: Message, args: string[], phoenix: Phoenix) {
         // Get the url from which to download
-        logger.debug(message, { label: "DOWNLOAD" });
-        let phoenixGuild = phoenix.guilds[message.guildId];
-        let url =
-            message.args.length === 2
-                ? message.args[1]
+        if (message.guild == null)
+            return
+        logger.debug(message.content, { label: "DOWNLOAD" });
+        let phoenixGuild = phoenix.guilds.get(message.guildId!);
+        let url = args.length === 2
+                ? args[1]
                 : this.getCurrentVideo(phoenixGuild);
         logger.debug(url, { label: "DOWNLOAD" });
-        let audioonly = message.args.length >= 1 && message.args[0] === "audio";
+        let audioonly = args.length >= 1 && args[0] === "audio";
 
         let stream = ytdl(url, {
             filter: audioonly ? "audio" : "audioandvideo",

@@ -1,3 +1,6 @@
+import {Message} from "discord.js";
+import Phoenix from "./Phoenix";
+
 export default class Command {
     /**
      * Name of the command. No real purpose
@@ -19,7 +22,7 @@ export default class Command {
     /**
      * Execute the command
      */
-    static call(_message, _phoenix) {
+    static call(_message: Message, _args: string[], _phoenix: Phoenix) {
         throw new Error("Function not implemented");
     }
 

@@ -12,7 +12,7 @@ if ! [ $(git branch --show-current) = "develop" ]; then
   exit 3
 fi
 
-current_ver=$(grep '"version": "*' package.json | grep -o '\d\+\.\d\+\.\d\+')
+current_ver=$(grep '"version": "*' package.json | grep -o '[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+')
 
 new_ver=$( semver -i $1 $current_ver )
 
@@ -27,4 +27,4 @@ git commit -m "Bump version from ${current_ver} to ${new_ver}"
 git tag -a ${new_ver} -m "Create new release ${new_ver}"
 git push origin release-${new_ver} --follow-tags
 
-gh pr create --title "Release ${new_ver}" --fill -a "@me"
+gh pr create --title "Release ${new_ver}" --fill

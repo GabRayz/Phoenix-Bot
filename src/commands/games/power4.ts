@@ -1,6 +1,8 @@
 import Command from "../../Command";
 import logger from "../../logger";
 import Sentry from "@sentry/node";
+import {Message} from "discord.js";
+import Phoenix from "../../Phoenix";
 
 export default class Power4 extends Command {
     static commandName = "power4";
@@ -19,12 +21,12 @@ export default class Power4 extends Command {
 
     static channel;
 
-    static call(message, phoenix) {
+    static async call(message: Message, args: string[], phoenix: Phoenix) {
         this.phoenix = phoenix;
-        if (message.args.length === 0 || message.args[0] === "start") {
+        if (args.length === 0 || args[0] === "start") {
             if (!this.isPlaying) this.addPlayer(message);
             else message.channel.send("Une partie est déjà en cours");
-        } else if (message.args.length > 0 && message.args[0] === "stop") {
+        } else if (args.length > 0 && args[0] === "stop") {
             if (this.isPlaying) this.callDraw();
             else this.stop();
         }

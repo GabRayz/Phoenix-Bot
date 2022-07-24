@@ -1,4 +1,6 @@
 import Command from "../../Command";
+import {Message} from "discord.js";
+import Phoenix from "../../Phoenix";
 
 export default class Stop extends Command {
     static commandName = "stop";
@@ -6,8 +8,8 @@ export default class Stop extends Command {
     static description =
         "Arrete la musique et deconnecte le bot du salon vocal.";
 
-    static call(message, phoenix) {
-        const music = phoenix.guilds[message.guildId].music;
+    static async call(message: Message, _args: string[], phoenix: Phoenix) {
+        const music = phoenix.guilds.get(message.guildId!)!.music;
         music.stop();
     }
 }

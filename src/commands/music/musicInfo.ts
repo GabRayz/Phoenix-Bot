@@ -1,15 +1,18 @@
 import Command from "../../Command";
-import { MessageEmbed } from "discord.js";
+import {Message, MessageEmbed} from "discord.js";
 import logger from "../../logger";
 import Sentry from "@sentry/node";
+import Phoenix from "../../Phoenix";
 
 export default class MusicInfo extends Command {
     static commandName = "musicInfo";
     static alias = ["musicinfo", "infos", "playingnow", "i", "pn"];
     static description = "Donne des infos sur la musique en cours";
 
-    static async call(message, phoenix) {
-        const music = phoenix.guilds[message.guildId].music;
+    static async call(message: Message, _args: string[], phoenix: Phoenix) {
+        if (message.guild == null)
+            return;
+        const music = phoenix.guilds.get(message.guildId!)!.music;
         if (music.videoInfos) {
             if (music.videoInfos.player_response) {
                 music.videoInfos.formats = null;
@@ -25,10 +28,10 @@ export default class MusicInfo extends Command {
                         this.timeFormat(infos.videoDetails.lengthSeconds)
                     )
                     .setAuthor(infos.videoDetails.author)
-                    .setURL(music.videoUrl);
+                    .setURL(music.videoUrl!);
                 await message.channel.send({ embeds: [embed] });
             }
-            message.channel.send(music.videoUrl);
+            message.channel.send(music.videoUrl!);
         } else {
             let embed = new MessageEmbed();
             embed

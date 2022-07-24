@@ -3,6 +3,8 @@ import http from "http";
 import { Server } from "socket.io";
 import { io as ioClient } from "socket.io-client";
 import logger from "../logger";
+import {Message, TextChannel} from "discord.js";
+import Phoenix from "../Phoenix";
 
 export default class Link extends Command {
     static commandName = "link";
@@ -14,8 +16,8 @@ export default class Link extends Command {
 
     static Phoenix: any;
 
-    static async call(message, phoenix) {
-        if (message.args.length > 0 && message.args[0] == "unlink") {
+    static async call(message: Message, args: string[], phoenix: Phoenix) {
+        if (args.length > 0 && args[0] == "unlink") {
             // Unlink
             if (
                 this.socket &&
@@ -31,7 +33,7 @@ export default class Link extends Command {
             // Change channel
             logger.debug("Changing room", { label: "LINK" });
             this.textChannel.send(
-                "Changement de salon. Nouveau : " + message.channel.name
+                "Changement de salon. Nouveau : " + (message.channel! as TextChannel).name
             );
             message.channel.send("Changement de salon effectué.");
             this.textChannel = message.channel;

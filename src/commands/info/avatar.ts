@@ -1,13 +1,15 @@
 import Command from "../../Command";
 import { getMember } from "../../utils";
+import {Message} from "discord.js";
+import Phoenix from "../../Phoenix";
 
 export default class Avatar extends Command {
     static commandName = "avatar";
     static alias = ["avatar"];
     static description = "Show the avatar of a user";
 
-    static async call(message, Phoenix) {
-        const member = getMember(message, message.args.join(" "));
+    static async call(message: Message, _args: string[], phoenix: Phoenix) {
+        const member = getMember(message, args.join(" "));
 
         if (!member) {
             return message.channel.send(
