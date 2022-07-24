@@ -1,4 +1,6 @@
 import Command from "../../Command";
+import {Message} from "discord.js";
+import Phoenix from "../../Phoenix";
 
 export default class Hangman extends Command {
     static commandName = "hangman";
@@ -21,20 +23,20 @@ export default class Hangman extends Command {
         this.author = author;
     }
 
-    static async call(message, phoenix) {
+    static async call(message: Message, args: string[], phoenix: Phoenix) {
         if (
-            message.args.length === 1 &&
-            message.args[0] === "stop" &&
+            args.length === 1 &&
+            args[0] === "stop" &&
             this.isPlaying
         ) {
             this.stop();
-        } else if (message.args.length === 1 && !this.isPlaying) {
+        } else if (args.length === 1 && !this.isPlaying) {
             this.channel = message.channel;
-            if (this.isWordValid(message.args[0].toUpperCase()))
-                await this.start(message.args[0].toUpperCase());
+            if (this.isWordValid(args[0].toUpperCase()))
+                await this.start(args[0].toUpperCase());
             else message.reply("Pas d'accent ni espace.");
         } else if (this.isPlaying) {
-            let word = message.args[0];
+            let word = args[0];
             if (word.length > 1)
                 message.reply(
                     "Tu ne peux deviner qu'une seule lettre à la fois"

@@ -1,4 +1,4 @@
-import Music from "./Music";
+import MusicManager from "./MusicManager";
 import GuildPlaylistManager from "./GuildPlaylistManager";
 import { promises } from "fs";
 import logger from "./logger";
@@ -9,13 +9,13 @@ export default class PhoenixGuild {
     guildId: any = null;
     emojis = {};
     phoenix: any = null;
-    music: any = null;
+    music: MusicManager;
     playlistManager: any = null;
 
     constructor(guild, phoenix) {
         this.guildId = guild;
         this.phoenix = phoenix;
-        this.music = new Music(this);
+        this.music = new MusicManager(this);
 
         (async () => {
             try {
@@ -38,7 +38,7 @@ export default class PhoenixGuild {
         return this.phoenix.bot.guilds.resolve(this.guildId);
     }
 
-    checkPrefix(messageContent: string) {
+    checkPrefix(messageContent: string): boolean {
         let prefix = this.config.prefix.replace(
             /[-\/\\^$*+?.()|[\]{}]/g,
             "\\$&"

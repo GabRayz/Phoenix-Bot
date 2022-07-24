@@ -1,23 +1,24 @@
-import Discord, {Guild} from "discord.js";
+import Discord, {Client, Guild, Message, Snowflake} from "discord.js";
 import PhoenixGuild from "./PhoenixGuild";
 import Commands from "./commands/Commands";
 import config from "../config/config.json" assert { type: "json" };
 import logger from "./logger";
+import CommandMessage from "./CommandMessage";
 
 export default class Phoenix {
     config: any = null;
-    bot: any = null;
-    guilds = {};
+    bot: Client;
+    guilds: Map<Snowflake, PhoenixGuild> = new Map<Snowflake, PhoenixGuild>();
     activities = 0;
     commands: any = Commands;
 
-    async loadConfig() {
-        this.config = config;
+    constructor(bot: Client, botConfig: any) {
+        this.bot = bot;
+        this.config = botConfig;
     }
 
-    async login() {
-        this.commands = Commands;
-        this.bot = new Discord.Client({
+    static init(): Phoenix {
+        let bot: Client = new Discord.Client({
             intents: [
                 Discord.Intents.FLAGS.GUILDS,
                 Discord.Intents.FLAGS.GUILD_MESSAGES,
@@ -26,17 +27,23 @@ export default class Phoenix {
                 Discord.Intents.FLAGS.GUILD_PRESENCES,
             ],
         });
+        return new Phoenix(bot, config);
+    }
+
+    async login() {
+        this.commands = Commands;
 
         this.bot.on("ready", async () => {
             logger.info("Phoenix bot ready to operate", { label: "BOT" });
-            this.bot.user.setActivity(this.config.activity);
-            this.bot.user.setUsername(this.config.name);
+            this.bot.user!.setActivity(this.config.activity);
+            this.bot.user!.setUsername(this.config.name);
 
             // Find the default guild and test Channel
             let guilds = await this.bot.guilds.fetch();
             for (const guild of guilds) {
-                this.guilds[guild[0]] = new PhoenixGuild(guild[0], this);
-                this.guilds[guild[0]].importEmojis();
+                let phoenixGuild = new PhoenixGuild(guild[0], this);
+                this.guilds.set(guild[0], phoenixGuild);
+                phoenixGuild.importEmojis();
             }
 
             this.bot.on("messageCreate", (msg) => {
@@ -53,66 +60,72 @@ export default class Phoenix {
     }
 
     addNewGuild(guild: Guild) {
-        if (this.guilds[guild.id] != undefined) {
+        if (this.guilds.has(guild.id)) {
             return;
         }
         let newGuild = new PhoenixGuild(guild, this);
         newGuild.importEmojis();
-        this.guilds[guild.id] = newGuild;
+        this.guilds.set(guild.id, newGuild);
     }
 
-    onMessage(msg) {
+    onMessage(msg: Message) {
         if (msg.author.bot) return;
+        if (msg.guildId === null)
+            return;
 
-        const phoenixGuild = this.guilds[msg.guildId];
-        if (phoenixGuild.checkPrefix(msg.content)) {
+        const phoenixGuild = this.guilds.get(msg.guildId);
+        if (phoenixGuild === undefined)
+            return;
+        // let directMention = msg.mentions.members?.has(this.bot.application!.id)
+        let mentionPrefix = `<@${this.bot.application!.id}>`;
+        let directMention = msg.content.match(`^${mentionPrefix}.*`);
+        if (directMention || phoenixGuild.checkPrefix(msg.content)) {
             logger.debug(`${msg.author.username} : ${msg.content}`, {
                 label: "ON_MESSAGE",
             });
-            let msgParts = msg.content.split(" ");
-            let command = msgParts[0].slice(phoenixGuild.config.prefix.length);
-            msg.args = msgParts.slice(1);
-            msg.command = command;
-            this.readCommand(msg, command, phoenixGuild);
+            let commandMsg = new CommandMessage(msg, directMention ? mentionPrefix : phoenixGuild.config.prefix);
+            this.readCommand(commandMsg, phoenixGuild);
         }
     }
 
-    async readCommand(message, command, phoenixGuild) {
-        let member = message.member;
+    async readCommand(commandMsg: CommandMessage, phoenixGuild) {
+        let member = commandMsg.message.member;
+        if (member == null)
+            return;
         if (
             phoenixGuild.config.everyoneBlackListed &&
-            member.roles.length === 0
+            member.roles.cache.size === 0
         ) {
             return;
         }
 
         Object.keys(Commands).forEach((element) => {
-            if (Commands[element].match(command)) {
+            if (Commands[element].match(commandMsg.command)) {
                 if (
                     !this.searchPermissions(
                         Commands[element],
-                        message,
+                        commandMsg,
                         phoenixGuild
                     )
                 ) {
                     logger.error("Permission denied", {
                         label: "READ_COMMAND",
                     });
-                    message.reply("Patouche");
+                    commandMsg.message.reply("Patouche");
                     return;
                 }
                 if (
-                    !message.guild &&
+                    !commandMsg.message.guild &&
                     (typeof Commands[element].callableFromMP == "undefined" ||
                         !Commands[element].callableFromMP)
                 )
                     return;
-                Commands[element].call(message, this);
+                Commands[element].call(commandMsg.message, commandMsg.args, this);
             }
         });
     }
 
-    searchPermissions(command, message, phoenixGuild) {
+    searchPermissions(command, message: CommandMessage, phoenixGuild: PhoenixGuild): boolean {
         for (let name of Object.keys(phoenixGuild.config.permissions)) {
             if (name === command.commandName) {
                 let perm = phoenixGuild.config.permissions[name];
@@ -125,8 +138,10 @@ export default class Phoenix {
         );
     }
 
-    checkPermissions(perm, message) {
-        let member = message.member;
+    checkPermissions(perm, commandMsg: CommandMessage): boolean {
+        let member = commandMsg.message.member;
+        if (member == null)
+            return false;
         let role = member.roles.highest;
         // check blacklists
         if (
@@ -137,11 +152,11 @@ export default class Phoenix {
         }
         if (
             perm.channels.blacklist.length > 0 &&
-            perm.channels.blacklist.includes(message.channel.id)
+            perm.channels.blacklist.includes(commandMsg.channel.id)
         ) {
             return false;
         }
-        if (perm.members.blacklist.includes(message.author.tag)) {
+        if (perm.members.blacklist.includes(commandMsg.author.tag)) {
             return false;
         }
 
@@ -154,13 +169,13 @@ export default class Phoenix {
         }
         if (
             perm.channels.whitelist.length > 0 &&
-            !perm.channels.whitelist.includes(message.channel.id)
+            !perm.channels.whitelist.includes(commandMsg.channel.id)
         ) {
             return false;
         }
         return !(
             perm.members.whitelist.length > 0 &&
-            !perm.members.whitelist.includes(message.author.tag)
+            !perm.members.whitelist.includes(commandMsg.author.tag)
         );
     }
 

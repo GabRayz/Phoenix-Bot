@@ -1,14 +1,16 @@
 import Command from "../../Command";
 import Play from "./play";
 import logger from "../../logger";
+import {Message} from "discord.js";
+import Phoenix from "../../Phoenix";
 
 export default class Volume extends Command {
     static commandName = "volume";
     static alias = ["volume"];
     static description = "Changer le volume";
 
-    static call(msg: any, phoenix) {
-        if (msg.args.length <= 0) {
+    static async call(msg: Message, args: string[], phoenix: Phoenix) {
+        if (args.length <= 0) {
             phoenix.sendClean(
                 "Volume actuel: " + Play.volume * 100,
                 msg.channel,
@@ -16,7 +18,7 @@ export default class Volume extends Command {
             );
             return;
         }
-        let volume = msg.args[0];
+        let volume = Number.parseInt(args[0]);
         if (Play.voiceHandler && !Play.voiceHandler.paused) {
             if (volume >= 0 && volume <= 200) {
                 Play.voiceHandler.setVolume(volume / 100);

@@ -1,21 +1,24 @@
 import Command from "../../Command";
-import { MessageEmbed } from "discord.js";
+import {Message, MessageEmbed} from "discord.js";
 import { getMember, formatDate } from "../../utils";
 import logger from "../../logger";
 import Sentry from "@sentry/node";
+import Phoenix from "../../Phoenix";
 
 export default class UserInfo extends Command {
     static commandName: string = "userInfo";
     static alias = ["me", "userinfo"];
     static description = "Affiche les informations d'un utilisateur";
 
-    static async call(message, _phoenix) {
-        const member = getMember(message, message.args.join(" "));
+    static async call(message: Message, args: string[], _phoenix: Phoenix) {
+        if (message.guild == null)
+            return;
+        const member = getMember(message, args.join(" "));
 
         const joined = formatDate(member.joinedAt);
         const roles =
             member.roles.cache
-                .filter((r) => r.id !== message.guild.id)
+                .filter((r) => r.id !== message.guild!.id)
                 .map((r) => r)
                 .join(", ") || "none";
 

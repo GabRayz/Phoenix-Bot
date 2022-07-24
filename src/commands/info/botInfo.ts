@@ -1,22 +1,26 @@
 import Command from "../../Command";
-import { MessageEmbed } from "discord.js";
+import {Message, MessageEmbed} from "discord.js";
 import logger from "../../logger";
 import Sentry from "@sentry/node";
+import Phoenix from "../../Phoenix";
 
 export default class BotInfo extends Command {
     static commandName: string = "botInfo";
     static alias = ["bot", "botinfo"];
     static description = "Affiche les informations du bot";
 
-    static async call(message, _phoenix) {
+    static async call(message: Message, _args: string[], _phoenix: Phoenix) {
         const client = message.client;
-        const time = (client.uptime / 1000).toFixed(0);
+        if (client.application == null)
+            return;
+        const application = await client.application.fetch();
+        if (client.user == null || message.member == null || application.owner == null || application.owner.client == null)
+            return;
+        const time = ((client.uptime ?? 0) / 1000).toFixed(0);
         const seconds = (+time % 60).toFixed(0);
         const min = (+time / 60).toFixed(0);
         const hours = (+min / 60).toFixed(0);
         const days = (+hours / 24).toFixed(0);
-
-        const application = await client.application.fetch();
 
         const embed = new MessageEmbed()
             .setFooter({
@@ -24,10 +28,9 @@ export default class BotInfo extends Command {
                 iconURL: message.member.displayAvatarURL(),
             })
             .setColor(0x00ff00)
-            .setThumbnail(application.iconURL())
             .addField(
                 "Creator",
-                `${application.owner.username}#${application.owner.discriminator}`,
+                `${application.owner.client.user!.tag}`,
                 true
             )
             .addField("Servers", `${client.guilds.cache.size}`, true)
@@ -44,9 +47,9 @@ export default class BotInfo extends Command {
             )
             .setTimestamp();
 
-        if (client.user.presence.game) {
-            embed.addField("Currently playing", client.user.presence.game.name);
-        }
+        let iconUrl = application.iconURL();
+        if (iconUrl != null)
+            embed.setThumbnail(iconUrl);
 
         message.channel.send({ embeds: [embed] }).catch((err) => {
             Sentry.captureException(err);

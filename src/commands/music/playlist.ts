@@ -2,6 +2,8 @@ import Command from "../../Command";
 import GetPlaylist from "../../YoutubePlaylists";
 import logger from "../../logger";
 import Sentry from "@sentry/node";
+import {Message} from "discord.js";
+import Phoenix from "../../Phoenix";
 
 export default class Playlist extends Command {
     static commandName = "playlist";
@@ -12,16 +14,16 @@ export default class Playlist extends Command {
         super(phoenix, channel);
     }
 
-    static call(msg, phoenix) {
-        let phoenixGuild = phoenix.guilds[msg.guildId];
+    static async call(msg: Message, args: string[], phoenix: Phoenix) {
+        let phoenixGuild = phoenix.guilds.get(msg.guildId!)!;
         const manager = phoenixGuild.playlistManager;
-        switch (msg.args[0]) {
+        switch (args[0]) {
             case "create":
-                if (msg.args.length > 1) {
+                if (args.length > 1) {
                     try {
-                        manager.create(msg.args[1], msg.author);
+                        manager.create(args[1], msg.author);
                         phoenixGuild.saveConfig().then(() => msg.react("✅"));
-                    } catch (e) {
+                    } catch (e: any) {
                         Sentry.captureException(e);
                         msg.reply(e);
                     }
@@ -31,11 +33,11 @@ export default class Playlist extends Command {
                 this.list(msg.channel, manager);
                 break;
             case "add":
-                if (msg.args.length > 2) {
-                    if (msg.args[2].includes("playlist?list=")) {
+                if (args.length > 2) {
+                    if (args[2].includes("playlist?list=")) {
                         this.importYoutubePlaylist(
-                            msg.args[2],
-                            msg.args[1],
+                            args[2],
+                            args[1],
                             manager
                         ).then(() => {
                             msg.react("✅");
@@ -46,8 +48,8 @@ export default class Playlist extends Command {
                     } else {
                         try {
                             manager.add(
-                                this.getSongName(msg.args),
-                                msg.args[1]
+                                this.getSongName(args),
+                                args[1]
                             );
                             phoenixGuild
                                 .saveConfig()
@@ -60,9 +62,9 @@ export default class Playlist extends Command {
                 }
                 break;
             case "play":
-                if (msg.args.length > 1) {
+                if (args.length > 1) {
                     try {
-                        manager.play(msg.args[1], msg);
+                        manager.play(args[1], msg);
                         msg.react("✅");
                     } catch (e) {
                         Sentry.captureException(e);
@@ -75,8 +77,8 @@ export default class Playlist extends Command {
                 manager.stop();
                 break;
             case "delete":
-                if (msg.args.length > 1) {
-                    manager.delete(msg.args[1]);
+                if (args.length > 1) {
+                    manager.delete(args[1]);
                     phoenixGuild.saveConfig().then(() => msg.react("✅"));
                 }
                 break;
@@ -84,8 +86,8 @@ export default class Playlist extends Command {
                 Playlist.showHelp(msg.channel, phoenixGuild);
                 break;
             case "see":
-                if (msg.args.length > 1)
-                    this.see(phoenixGuild, msg.args[1], msg.channel);
+                if (args.length > 1)
+                    this.see(phoenixGuild, args[1], msg.channel);
                 break;
             default:
                 return;

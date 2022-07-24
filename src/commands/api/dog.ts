@@ -1,15 +1,16 @@
 import fetch from "node-fetch";
-import { MessageEmbed } from "discord.js";
+import {Message, MessageEmbed} from "discord.js";
 import Command from "../../Command";
 import logger from "../../logger";
 import Sentry from "@sentry/node";
+import Phoenix from "../../Phoenix";
 
 export default class Dog extends Command {
     static commandName: string = "dog";
     static alias = ["dog", "doggo"];
     static description = "Affiche un chien aléatoirement";
 
-    static async call(message, _phoenix) {
+    static async call(message: Message, _args: string[], _phoenix: Phoenix) {
         const { url } = await fetch("https://random.dog/woof.json")
             .then((response) => response.json() as any)
             .catch((err) => {

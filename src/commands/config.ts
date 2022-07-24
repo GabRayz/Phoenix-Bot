@@ -1,6 +1,6 @@
 import Command from "../Command";
 import fs from "fs";
-import { MessageEmbed } from "discord.js";
+import {Message, MessageEmbed} from "discord.js";
 import logger from "../logger";
 import Sentry from "@sentry/node";
 import Phoenix from "../Phoenix";
@@ -10,15 +10,15 @@ export default class Config extends Command {
     static alias = ["config"];
     static description = "Configure the bot";
 
-    static async call(message, phoenix) {
-        let phoenixGuild = phoenix.guilds[message.guildId];
-        if (message.args.length === 0)
+    static async call(message: Message, args: string[], phoenix: Phoenix) {
+        let phoenixGuild = phoenix.guilds.get(message.guildId!)!;
+        if (args.length === 0)
             await this.display(message, phoenix, phoenixGuild.config);
-        else if (message.args.length === 2) {
+        else if (args.length === 2) {
             if (
                 this.changeConfig(
-                    message.args[0],
-                    message.args[1],
+                    args[0],
+                    args[1],
                     phoenix,
                     phoenixGuild
                 )
@@ -28,19 +28,19 @@ export default class Config extends Command {
         }
         // Args: "permissions", command name, roles/channels/members, whitelist/blacklist, add/remove, value
         else if (
-            message.args.length === 6 &&
-            (message.args[0] === "permissions" || message.args[0] === "perm")
+            args.length === 6 &&
+            (args[0] === "permissions" || args[0] === "perm")
         ) {
             // Check if the permission is correct
-            if (this.checkIfCommandExists(message.args[1], phoenix)) {
+            if (this.checkIfCommandExists(args[1], phoenix)) {
                 let scopes = ["roles", "channels", "members"];
-                if (scopes.includes(message.args[2])) {
-                    if (message.args[2] === "channels") {
-                        message.args[5] = this.getChannelIfFromName(
-                            message.args[5],
+                if (scopes.includes(args[2])) {
+                    if (args[2] === "channels") {
+                        args[5] = this.getChannelIfFromName(
+                            args[5],
                             message.guild
                         );
-                        if (!message.args[5]) {
+                        if (!args[5]) {
                             message.reply(
                                 'Salon introuvable. Format: "catégorie/salon"'
                             );
@@ -48,20 +48,20 @@ export default class Config extends Command {
                         }
                     }
                     if (
-                        message.args[3] === "whitelist" ||
-                        message.args[3] === "blacklist"
+                        args[3] === "whitelist" ||
+                        args[3] === "blacklist"
                     ) {
                         if (
-                            message.args[4] === "add" ||
-                            message.args[4] === "remove"
+                            args[4] === "add" ||
+                            args[4] === "remove"
                         ) {
                             // Apply
                             this.changePerm(
-                                message.args[1],
-                                message.args[2],
-                                message.args[3],
-                                message.args[4],
-                                message.args[5],
+                                args[1],
+                                args[2],
+                                args[3],
+                                args[4],
+                                args[5],
                                 phoenixGuild
                             );
                             message.react("✅");
@@ -69,19 +69,19 @@ export default class Config extends Command {
                         } else
                             message.reply(
                                 "Erreur sur le paramètre '" +
-                                    message.args[4] +
+                                    args[4] +
                                     "'. Valeurs possibles: add,remove"
                             );
                     } else
                         message.reply(
                             "Erreur sur le paramètre '" +
-                                message.args[3] +
+                                args[3] +
                                 "'. Valeurs possibles: whitelist,blacklist"
                         );
                 } else
                     message.reply(
                         "Erreur sur le paramètre '" +
-                            message.args[2] +
+                            args[2] +
                             "'. Valeurs possibles: " +
                             scopes
                     );

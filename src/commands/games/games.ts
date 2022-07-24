@@ -1,8 +1,9 @@
 import Command from "../../Command";
 import fs from "fs";
-import {MessageEmbed} from "discord.js";
+import {Message, MessageEmbed} from "discord.js";
 import TwoK48 from "./TwoK48";
 import logger from "../../logger";
+import Phoenix from "../../Phoenix";
 
 const games = { TwoK48 };
 
@@ -17,22 +18,17 @@ export default class Games extends Command {
      */
     static currentGames: any[] = [];
 
-    static async call(message, phoenix) {
+    static async call(message: Message, args: string[], phoenix: Phoenix) {
         await this.loadScoreboard();
-        if (
-            message.args.length == 0 &&
-            ["game", "games"].includes(message.command)
-        )
+        if (args.length == 0)
             this.displayScoreBoard(message.channel);
-        else if (message.args.length == 0)
-            this.startGame(message.command, message, phoenix);
-        else if (message.args.length == 1) {
-            this.startGame(message.args[0], message, phoenix);
-        } else if (message.args.length == 2) {
-            if (message.args[1] == "start")
-                this.startGame(message.args[0], message, phoenix);
-            else if (message.args[1] == "stop")
-                this.stopGame(message.args[0], message.author.tag);
+        else if (args.length == 1) {
+            this.startGame(args[0], message, phoenix);
+        } else if (args.length == 2) {
+            if (args[1] == "start")
+                this.startGame(args[0], message, phoenix);
+            else if (args[1] == "stop")
+                this.stopGame(args[0], message.author.tag);
         }
     }
 
@@ -124,7 +120,7 @@ export default class Games extends Command {
                         };
                         resolve();
                     } else {
-                        this.scoreboard = require("../src/games/scoreboard.json");
+                        this.scoreboard = JSON.parse(fs.readFileSync("./src/games/scoreboard.json").toLocaleString());
                         resolve();
                     }
                 }

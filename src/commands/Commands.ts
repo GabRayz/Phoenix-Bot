@@ -1,8 +1,6 @@
 import Clear from "./clear";
-import Off from "./off";
 import Help from "./help";
 import Link from "./link";
-import Update from "./update";
 import Config from "./config";
 import Radio from "./radio";
 import Timer from "./timer";
@@ -33,7 +31,6 @@ import Games from "./games/games";
 
 const Commands = {
     Clear,
-    Off,
     Pause,
     Play,
     Playlist,
@@ -46,7 +43,6 @@ const Commands = {
     Link,
     MusicInfo,
     Download,
-    Update,
     Config,
     Power4,
     Hangman,
