@@ -12,14 +12,14 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: docker build -t phoenix-bot:latest .
-      - run: docker run --entrypoint ./build-and-test.sh phoenix-bot
+      - run: docker build -t gabray/phoenix-bot:latest .
+      - run: docker run --entrypoint ./build-and-test.sh gabray/phoenix-bot
       - sonarcloud/scan
   test:
     machine: true
     steps:
-      - run: docker pull phoenix-bot:latest
-      - run: docker run --entrypoint ./build-and-test.sh phoenix-bot
+      - run: docker pull gabray/phoenix-bot:latest
+      - run: docker run --entrypoint ./build-and-test.sh gabray/phoenix-bot
   push:
     machine: true
     steps:
