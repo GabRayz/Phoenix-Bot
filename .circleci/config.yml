@@ -25,6 +25,11 @@ jobs:
     steps:
       - checkout
       - run: ./deploy.sh
+  update-vps:
+    machine: true
+    steps:
+      - checkout
+      - run: ssh root@gabray.fr '/home/phoenix-bot/update-and-run.sh'
 
 
 # Invoke jobs via workflows
@@ -50,6 +55,13 @@ workflows:
           requires:
             - push
           context: sonarcloud
+          filters:
+            branches:
+              only:
+                - master
+      - update-vps:
+          requires:
+            - test
           filters:
             branches:
               only:
