@@ -17,10 +17,9 @@ jobs:
       - run: docker run --entrypoint ./build-and-test.sh phoenix-bot-test
       - sonarcloud/scan
       - discord/status:
-          fail_only: false
+          fail_only: true
           failure_message: "**${CIRCLE_USERNAME}**'s build-and-test: **${CIRCLE_JOB}** failed."
           webhook: "${DISCORD_STATUS_WEBHOOK}"
-          success_message: "**${CIRCLE_USERNAME}** build succeed."
   test:
     machine: true
     steps:
