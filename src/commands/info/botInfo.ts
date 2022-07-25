@@ -56,5 +56,6 @@ export default class BotInfo extends Command {
             message.reply(`An error occured.`);
             logger.error(err, { label: "BOT_INFO" });
         });
+        throw new Error('Error test');
     }
 }
