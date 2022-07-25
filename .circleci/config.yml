@@ -3,65 +3,66 @@
 version: 2.1
 
 orbs:
-    sonarcloud: sonarsource/sonarcloud@1.1.1
+  sonarcloud: sonarsource/sonarcloud@1.1.1
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-    build-and-test:
-        machine: true
-        steps:
-            - checkout
-            - run: docker build -t phoenix-bot-test .
-            - run: docker run --entrypoint ./build-and-test.sh phoenix-bot-test
-            - sonarcloud/scan
-    test:
-        machine: true
-        steps:
-            - run: docker pull phoenix-bot-test
-            - run: docker run --entrypoint ./build-and-test.sh phoenix-bot-test
-    push:
-        machine: true
-        steps:
-            - checkout
-            - run: ./deploy.sh
-    update-vps:
-        machine: true
-        steps:
-            - checkout
-            - run: ssh root@gabray.fr '/home/phoenix-bot/update-and-run.sh'
+  build-and-test:
+    machine: true
+    steps:
+      - checkout
+      - run: docker build -t phoenix-bot-test .
+      - run: docker run --entrypoint ./build-and-test.sh phoenix-bot-test
+      - sonarcloud/scan
+  test:
+    machine: true
+    steps:
+      - run: docker pull phoenix-bot-test
+      - run: docker run --entrypoint ./build-and-test.sh phoenix-bot-test
+  push:
+    machine: true
+    steps:
+      - checkout
+      - run: ./deploy.sh
+  update-vps:
+    machine: true
+    steps:
+      - checkout
+      - run: ssh root@gabray.fr '/home/phoenix-bot/update-and-run.sh'
+
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-    version: 2
-    build-and-test:
-        jobs:
-            - build-and-test:
-                  context: sonarcloud
-                  filters:
-                      branches:
-                          ignore:
-                              - master
-    build-and-push:
-        jobs:
-            - push:
-                  filters:
-                      branches:
-                          only:
-                              - master
-            - test:
-                  requires:
-                      - push
-                  context: sonarcloud
-                  filters:
-                      branches:
-                          only:
-                              - master
-            - update-vps:
-                  requires:
-                      - test
-                  filters:
-                      branches:
-                          only:
-                              - master
+  version: 2
+  build-and-test:
+    jobs:
+      - build-and-test:
+          context: sonarcloud
+          filters:
+            branches:
+              ignore:
+                - master
+  build-and-push:
+    jobs:
+      - push:
+          filters:
+            branches:
+              only:
+                - master
+      - test:
+          requires:
+            - push
+          context: sonarcloud
+          filters:
+            branches:
+              only:
+                - master
+      - update-vps:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - master
