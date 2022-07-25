@@ -3,6 +3,7 @@ import {Message, MessageEmbed} from "discord.js";
 import logger from "../../logger";
 import Sentry from "@sentry/node";
 import Phoenix from "../../Phoenix";
+import pack from "../../../package.json" assert { type: "json" };
 
 export default class BotInfo extends Command {
     static commandName: string = "botInfo";
@@ -30,7 +31,7 @@ export default class BotInfo extends Command {
             .setColor(0x00ff00)
             .addField(
                 "Creator",
-                `${application.owner.client.user!.tag}`,
+                `GabRay#8602`,
                 true
             )
             .addField("Servers", `${client.guilds.cache.size}`, true)
@@ -43,6 +44,11 @@ export default class BotInfo extends Command {
             .addField(
                 "User",
                 `${client.user.username}#${client.user.discriminator}`,
+                true
+            )
+            .addField(
+                "Version",
+                `${pack.version}`,
                 true
             )
             .setTimestamp();
