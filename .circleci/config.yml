@@ -43,7 +43,7 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: ssh root@gabray.fr '/home/phoenix-bot/update-and-run.sh'
+      - run: ssh root@gabray.fr 'cd /home/phoenix-bot && /home/phoenix-bot/update-and-run.sh'
       - discord/status:
           fail_only: false
           failure_message: "**${CIRCLE_USERNAME}**'s update-vps: **${CIRCLE_JOB}** failed."
