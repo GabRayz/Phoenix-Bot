@@ -4,6 +4,7 @@ version: 2.1
 
 orbs:
   sonarcloud: sonarsource/sonarcloud@1.1.1
+  discord: antonioned/discord@0.1.0
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
@@ -12,20 +13,42 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: docker build -t phoenix-bot-test .
-      - run: docker run --entrypoint ./build-and-test.sh phoenix-bot-test
+      - run: docker build -t gabray/phoenix-bot:latest .
+      - run: docker run --entrypoint ./build-and-test.sh gabray/phoenix-bot
       - sonarcloud/scan
+      - discord/status:
+          fail_only: true
+          failure_message: "**${CIRCLE_USERNAME}**'s build-and-test: **${CIRCLE_JOB}** failed."
+          webhook: "${DISCORD_STATUS_WEBHOOK}"
   test:
     machine: true
     steps:
-      - run: docker pull phoenix-bot-test
-      - run: docker run --entrypoint ./build-and-test.sh phoenix-bot-test
+      - run: docker pull gabray/phoenix-bot:latest
+      - run: docker run --entrypoint ./build-and-test.sh gabray/phoenix-bot
+      - discord/status:
+          fail_only: true
+          failure_message: "**${CIRCLE_USERNAME}**'s test: **${CIRCLE_JOB}** failed."
+          webhook: "${DISCORD_STATUS_WEBHOOK}"
   push:
     machine: true
     steps:
       - checkout
       - run: ./deploy.sh
-
+      - discord/status:
+          fail_only: false
+          failure_message: "**${CIRCLE_USERNAME}**'s push: **${CIRCLE_JOB}** failed."
+          webhook: "${DISCORD_STATUS_WEBHOOK}"
+          success_message: "**${CIRCLE_USERNAME}** deployed api."
+  update-vps:
+    machine: true
+    steps:
+      - checkout
+      - run: ssh root@gabray.fr '/home/phoenix-bot/update-and-run.sh'
+      - discord/status:
+          fail_only: false
+          failure_message: "**${CIRCLE_USERNAME}**'s update-vps: **${CIRCLE_JOB}** failed."
+          webhook: "${DISCORD_STATUS_WEBHOOK}"
+          success_message: "**${CIRCLE_USERNAME}** deployed to vps."
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -50,6 +73,13 @@ workflows:
           requires:
             - push
           context: sonarcloud
+          filters:
+            branches:
+              only:
+                - master
+      - update-vps:
+          requires:
+            - test
           filters:
             branches:
               only:
