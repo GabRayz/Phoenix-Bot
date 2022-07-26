@@ -14,12 +14,6 @@ Install pm2
 
 > npm i -g pm2
 
-Then, create a `config.json` file from `config-exemple.json`, fill it, and start the bot.
-
-> pm2 start index.js --name PhoenixBot
-
-> pm2 log PhoenixBot
-
 ## Usage
 
 Phoenix-Bot is a discord bot. It allows to execute several commands (with a $ before). Here they are:
@@ -42,7 +36,3 @@ Phoenix-Bot is a discord bot. It allows to execute several commands (with a $ be
 -   clear: Delete the bot old messages
 -   off: Turn the bot off
 -   update: Update the bot. Requires that the bot was installed using git
-
-## Updates
-
-This bot makes an automatic update once a day. If an update has been installed, a notification is sent in the bot channel.
