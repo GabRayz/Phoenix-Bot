@@ -28,6 +28,7 @@ import Dog from "./api/dog";
 import Power4 from "./games/power4";
 import Hangman from "./games/hangman";
 import Games from "./games/games";
+import Ping from "./ping";
 
 const Commands = {
     Clear,
@@ -56,5 +57,6 @@ const Commands = {
     RoleInfo,
     Cat,
     Dog,
+    Ping,
 };
 export default Commands;
